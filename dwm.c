@@ -3089,7 +3089,7 @@ handler_button_press(XEvent *event) {
         }
     } else if (button_event->window == monitor->bottom_bar_window) {
         click = ClickBottomBar;
-        status_get_signal_number(top_blocks_signal,
+        status_get_signal_number(bottom_blocks_signal,
                                  monitor->win_w - bottom_status_pixels,
                                  button_x);
     } else if ((client = window_to_client(button_event->window))) {
@@ -3121,20 +3121,20 @@ void draw_status_text(char *status, int status_pixels, int mon_win_w, BlockSigna
     int pixels = 0;
     int text_pixels = 0;
     int i = 0;
+    char byte;
 
     for (text = status; *status; status += 1) {
-        char byte;
-
         if ((uchar)(*status) < ' ') {
             byte = *status;
             *status = '\0';
+
+            text_pixels = (int)(get_text_pixels(text) - text_padding);
 
             blocks[i].min_x = mon_win_w - status_pixels + pixels;
             blocks[i].max_x = blocks[i].min_x + text_pixels;
             blocks[i].signal = byte;
             i += 1;
 
-            text_pixels = (int)(get_text_pixels(text) - text_padding);
             drw_text(drw,
                      mon_win_w - status_pixels + pixels, 0,
                      (uint)text_pixels, bar_height, 0, text, 0);
@@ -3178,6 +3178,8 @@ status_get_signal_number(BlockSignal *blocks, int x, int button_x) {
     for (int i = 0; i < STATUS_MAX_BLOCKS; i += 1) {
         if (blocks[i].min_x > x && blocks[i].max_x < button_x)
             status_signal = blocks[i].signal;
+        if (blocks[i].max_x >= button_x)
+            break;
     }
     return;
 }
@@ -4085,7 +4087,7 @@ update_status(void) {
     separator = strchr(text, status_separator);
     if (separator) {
         *separator = '\0';
-        separator += 1;
+        separator += 2;
         strncpy(bottom_status, separator, sizeof(bottom_status) - 1);
     } else {
         bottom_status[0] = '\0';
