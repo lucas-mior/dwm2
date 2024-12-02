@@ -2333,14 +2333,22 @@ monitor_draw_bars(Monitor *monitor) {
 
         if (monitor->selected_client) {
             Client *client = monitor->selected_client;
-            char buffer[sizeof(*(&client->name)) + 10];
+            char buffer[sizeof(*(&client->name)) + 20];
+
             if (monitor == live_monitor)
                 drw_setscheme(drw, scheme[SchemeSelected]);
             else
                 drw_setscheme(drw, scheme[SchemeNormal]);
 
-            snprintf(buffer, sizeof(buffer), "[%b] %s",
-                                             client->tags, client->name);
+            snprintf(buffer, sizeof(buffer),
+                     "{%s%s%s%s%s%s } %s",
+                    (client->tags & (1 << 0)) ? tags_space[0] : "",
+                    (client->tags & (1 << 1)) ? tags_space[1] : "",
+                    (client->tags & (1 << 2)) ? tags_space[2] : "",
+                    (client->tags & (1 << 3)) ? tags_space[3] : "",
+                    (client->tags & (1 << 4)) ? tags_space[4] : "",
+                    (client->tags & (1 << 5)) ? tags_space[5] : "",
+                    client->name);
 
             drw_text(drw,
                      draw_x, 0, (uint)w, bar_height,
