@@ -2332,14 +2332,19 @@ monitor_draw_bars(Monitor *monitor) {
         int boxw = drw->fonts->h / 6 + 2;
 
         if (monitor->selected_client) {
+            Client *client = monitor->selected_client;
+            char buffer[sizeof(*(&client->name)) + 10];
             if (monitor == live_monitor)
                 drw_setscheme(drw, scheme[SchemeSelected]);
             else
                 drw_setscheme(drw, scheme[SchemeNormal]);
 
+            snprintf(buffer, sizeof(buffer), "[%b] %s",
+                                             client->tags, client->name);
+
             drw_text(drw,
                      draw_x, 0, (uint)w, bar_height,
-                     padding, monitor->selected_client->name, 0);
+                     padding, buffer, 0);
             if (monitor->selected_client->is_floating) {
                 drw_rect(drw,
                          draw_x + boxs, boxs, (uint)boxw, (uint)boxw,
