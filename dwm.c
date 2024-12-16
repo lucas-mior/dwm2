@@ -1800,6 +1800,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
         if (client->is_fake_fullscreen) {
             client_resize_apply(client,
                                 client->x, client->y, client->w, client->h);
+            monitor_arrange(client->monitor);
             return;
         }
         client->was_floating = client->is_floating;
@@ -1819,6 +1820,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
         if (client->is_fake_fullscreen) {
             client_resize_apply(client,
                                 client->x, client->y, client->w, client->h);
+            monitor_arrange(client->monitor);
             return;
         }
         client->is_floating = client->was_floating;
