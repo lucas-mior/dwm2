@@ -1688,13 +1688,13 @@ client_resize_apply(Client *client, int x, int y, int w, int h) {
     uint n = 0;
 
     client->old_x = client->x;
-    client->x = window_changes.x = x;
     client->old_y = client->y;
-    client->y = window_changes.y = y;
-
     client->old_w = client->w;
-    client->w = window_changes.width = w;
     client->old_h = client->h;
+
+    client->x = window_changes.x = x;
+    client->y = window_changes.y = y;
+    client->w = window_changes.width = w;
     client->h = window_changes.height = h;
 
     window_changes.border_width = client->border_pixels;
