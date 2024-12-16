@@ -144,7 +144,7 @@ struct Client {
     bool hintsvalid;
     bool is_fixed, is_floating, is_urgent;
     Window window;
-    bool never_focus, old_state;
+    bool never_focus, was_floating;
     bool is_fullscreen, is_fake_fullscreen;
 };
 
@@ -1584,7 +1584,7 @@ client_new(Window window, XWindowAttributes *window_attributes) {
 
     if (!client->is_floating) {
         client->is_floating = trans_window != None || client->is_fixed;
-        client->old_state = client->is_floating;
+        client->was_floating = client->is_floating;
     }
     if (client->is_floating)
         XRaiseWindow(display, client->window);
@@ -1802,7 +1802,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
                                 client->x, client->y, client->w, client->h);
             return;
         }
-        client->old_state = client->is_floating;
+        client->was_floating = client->is_floating;
         client->old_border_pixels = client->border_pixels;
         client->border_pixels = 0;
         client->is_floating = true;
@@ -1821,7 +1821,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
                                 client->x, client->y, client->w, client->h);
             return;
         }
-        client->is_floating = client->old_state;
+        client->is_floating = client->was_floating;
         client->border_pixels = client->old_border_pixels;
 
         client->x = client->old_x;
