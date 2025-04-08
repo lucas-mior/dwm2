@@ -2512,7 +2512,7 @@ monitor_layout_monocle(Monitor *monitor) {
 
     if (number_clients > 0) {
         snprintf(monitor->layout_symbol, sizeof(monitor->layout_symbol),
-                 "[%d]", number_clients);
+                 "[%u]", number_clients);
     }
 
     for (Client *client = client_next_tiled(monitor->clients);
