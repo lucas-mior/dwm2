@@ -50,6 +50,7 @@ static const Rule rules[] = {
  */
 /* class      instance title       tags mask     switchto floating fakefullscreen monitor */
 { "firefox",  NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
+{ "Vmware",   NULL,    NULL,         1 << 5,     1,       -1,      false,         true,},
 { "LibreWolf",NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
 { "Brave",    NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
 { "KiCad",    NULL,    NULL,         1 << 3,     1,       -1,      false,         false,},
