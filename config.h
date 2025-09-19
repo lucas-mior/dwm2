@@ -55,12 +55,14 @@ static const Rule rules[] = {
 { "Brave",    NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
 { "KiCad",    NULL,    NULL,         1 << 3,     1,       -1,      false,         false,},
 { "OMEdit",   NULL,    NULL,         1 << 3,     1,       -1,      false,         false,},
+{ "hdos-Main",NULL,    NULL,         1 << 1,     1,       -1,      false,         false,},
 { NULL,       NULL,    " - mpv",     1 << 4,     1,       -1,      false,         false,},
 { NULL,       NULL,    "ncmpcpp",    1 << 5,     1,       -1,      false,         false,},
 { NULL,       NULL,    "csv_plotter.py",(uint)~0,0,       -1,      true,          false,},
 { NULL,       NULL,    "clip.sh",    0,          0,       -1,      true,          false,},
 { NULL,       NULL,    "clip1.sh",   0,          0,       -1,      true,          false,},
 { NULL,       NULL,    "arqs.zsh",   0,          0,       -1,      true,          false,},
+{ NULL, NULL, "spoke_pluck_tension", 0,          0,       -1,      true,          false,},
 { NULL, NULL, "Plant Identification Progress",   0, 0,    -1,      true,          false,},
 };
 
