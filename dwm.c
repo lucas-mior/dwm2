@@ -994,7 +994,7 @@ user_signal_status_bar(const Arg *arg) {
         break;
     }
 
-    if (read(pipefd[0], buffer, sizeof (buffer) - 1) <= 0) {
+    if (read(pipefd[0], buffer, sizeof(buffer)) <= 0) {
         close(pipefd[0]);
         status_program_pid = -1;
         return;
@@ -4139,7 +4139,7 @@ status_update(void) {
     separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
     if (separator) {
         ulong top_length = (ulong) (separator - status_top.text);
-        ulong bottom_length = sizeof (status_bottom.text) - top_length;
+        ulong bottom_length = sizeof(status_bottom.text) - top_length;
         *separator = '\0';
         separator += 1;
         memcpy(status_bottom.text, separator, bottom_length);
