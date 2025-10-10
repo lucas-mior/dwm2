@@ -448,14 +448,18 @@ void error(const char *function, char *format, ...) {
     char message[256];
     char header[128];
 
-    header_length = snprintf(header, sizeof (header), "dwm %s()\n", function);
+    header_length = snprintf(header, sizeof(header), "dwm %s()\n", function);
 
     va_start(args, format);
-    message_length = vsnprintf(message, sizeof (message) - 1, format, args);
+    message_length = vsnprintf(message, sizeof(message), format, args);
     va_end(args);
 
     if (message_length < 0 || header_length < 0) {
         fprintf(stderr, "Error in vsnprintf()\n");
+        exit(EXIT_FAILURE);
+    }
+    if (message_length >= (int)sizeof(message)) {
+        fprintf(stderr, "vsnprintf: overflow.\n");
         exit(EXIT_FAILURE);
     }
 
