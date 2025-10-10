@@ -465,8 +465,8 @@ void error(const char *function, char *format, ...) {
 
     message[message_length] = '\0';
     header[header_length] = '\0';
-    (void) write(STDERR_FILENO, header, (size_t) header_length);
-    (void) write(STDERR_FILENO, message, (size_t) message_length);
+    write(STDERR_FILENO, header, (size_t) header_length);
+    write(STDERR_FILENO, message, (size_t) message_length);
 
     switch (fork()) {
     case -1:
