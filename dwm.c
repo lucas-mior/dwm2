@@ -1764,8 +1764,12 @@ client_send_event(Client *client, Atom proto) {
     XEvent event;
 
     if (XGetWMProtocols(display, client->window, &protocols, &n)) {
-        while (!exists && n--)
-            exists = protocols[n] == proto;
+        while (n--) {
+            if (protocols[n] == proto) {
+                exists = true;
+                break;
+            }
+        }
         XFree(protocols);
     }
     if (exists) {

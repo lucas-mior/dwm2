@@ -68,7 +68,7 @@ utf8validate(long *u, size_t i)
 {
 	if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
 		*u = UTF_INVALID;
-	for (i = 1; *u > utfmax[i]; ++i);
+	for (i = 1; *u > utfmax[i]; i += 1);
 	return i;
 }
 
@@ -84,7 +84,7 @@ utf8decode(const char *c, long *u, size_t clen)
 	udecoded = utf8decodebyte(c[0], &len);
 	if (!BETWEEN(len, 1, UTF_SIZ))
 		return 1;
-	for (i = 1, j = 1; i < clen && j < len; ++i, ++j) {
+	for (i = 1, j = 1; i < clen && j < len; i += 1, j += 1) {
 		udecoded = (udecoded << 6) | utf8decodebyte(c[i], &type);
 		if (type)
 			return j;
@@ -202,12 +202,11 @@ Fnt*
 drw_fontset_create(Drw* drw, const char *fonts[], size_t fontcount)
 {
 	Fnt *cur, *ret = NULL;
-	size_t i;
 
 	if (!drw || !fonts)
 		return NULL;
 
-	for (i = 1; i <= fontcount; i++) {
+	for (size_t i = 1; i <= fontcount; i += 1) {
 		if ((cur = xfont_create(drw, fonts[fontcount - i], NULL))) {
 			cur->next = ret;
 			ret = cur;
@@ -243,14 +242,13 @@ drw_clr_create(Drw *drw, Clr *dest, const char *clrname, unsigned int alpha)
 Clr *
 drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[], size_t clrcount)
 {
-	size_t i;
 	Clr *ret;
 
 	/* need at least two colors for a scheme */
 	if (!drw || !clrnames || clrcount < 2 || !(ret = ecalloc(clrcount, sizeof(XftColor))))
 		return NULL;
 
-	for (i = 0; i < clrcount; i++)
+	for (size_t i = 0; i < clrcount; i += 1)
 		drw_clr_create(drw, &ret[i], clrnames[i], alphas[i]);
 	return ret;
 }
@@ -352,7 +350,7 @@ drw_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, int filled, int
 int
 drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lpad, const char *text, int invert)
 {
-	int i, ty, ellipsis_x = 0;
+	int ty, ellipsis_x = 0;
 	unsigned int tmpw, ew, ellipsis_w = 0, ellipsis_len;
 	XftDraw *d = NULL;
 	Fnt *usedfont, *curfont, *nextfont;
@@ -366,7 +364,11 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 	int charexists = 0, overflow = 0;
 	/* keep track of a couple codepoints for which we have no match. */
 	enum { nomatches_len = 64 };
-	static struct { long codepoint[nomatches_len]; unsigned int idx; int padding;} nomatches;
+	static struct {
+        long codepoint[nomatches_len];
+        unsigned int idx;
+        int padding;
+    } nomatches;
 	static unsigned int ellipsis_width = 0;
 
 	if (!drw || (render && (!drw->scheme || !w)) || !text || !drw->fonts)
@@ -450,7 +452,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 			 * character must be drawn. */
 			charexists = 1;
 
-			for (i = 0; i < nomatches_len; ++i) {
+			for (int i = 0; i < nomatches_len; i += 1) {
 				/* avoid calling XftFontMatch if we know we won't find a match */
 				if (utf8codepoint == nomatches.codepoint[i])
 					goto no_match;
@@ -483,7 +485,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 					curfont->next = usedfont;
 				} else {
 					xfont_free(usedfont);
-					nomatches.codepoint[++nomatches.idx % nomatches_len] = utf8codepoint;
+                    nomatches.idx += 1; nomatches.codepoint[nomatches.idx % nomatches_len] = utf8codepoint;
 no_match:
 					usedfont = drw->fonts;
 				}
