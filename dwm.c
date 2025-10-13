@@ -313,9 +313,9 @@ static void monitor_update_bar_position(Monitor *);
 static void monitor_focus(Monitor *, bool);
 static void monitor_restore_pertag(Monitor *, Pertag *);
 
-static Monitor *create_monitor(void);
-static Monitor *direction_to_monitor(int);
-static Monitor *rectangle_to_monitor(int, int, int, int);
+static Monitor *monitor_create(void);
+static Monitor *monitor_from_direction(int);
+static Monitor *monitor_from_rectangle(int, int, int, int);
 
 static Monitor *window_to_monitor(Window);
 static Client *window_to_client(Window);
@@ -615,7 +615,7 @@ user_focus_monitor(const Arg *arg) {
 
     if (!monitors->next)
         return;
-    if ((monitor = direction_to_monitor(arg->i)) == live_monitor)
+    if ((monitor = monitor_from_direction(arg->i)) == live_monitor)
         return;
 
     monitor_focus(monitor, false);
@@ -817,7 +817,7 @@ user_mouse_move(const Arg *) {
 
     XUngrabPointer(display, CurrentTime);
 
-    monitor_aux = rectangle_to_monitor(client->x, client->y,
+    monitor_aux = monitor_from_rectangle(client->x, client->y,
                                        client->w, client->h);
     if (monitor_aux != live_monitor) {
         client_send_monitor(client, monitor_aux);
@@ -911,7 +911,7 @@ user_mouse_resize(const Arg *) {
     XUngrabPointer(display, CurrentTime);
     while (XCheckMaskEvent(display, EnterWindowMask, &event));
 
-    monitor = rectangle_to_monitor(client->x, client->y, client->w, client->h);
+    monitor = monitor_from_rectangle(client->x, client->y, client->w, client->h);
     if (monitor != live_monitor) {
         client_send_monitor(client, monitor);
         live_monitor = monitor;
@@ -1022,7 +1022,7 @@ user_tag(const Arg *arg) {
 
 void
 user_tag_monitor(const Arg *arg) {
-    Monitor *monitor = direction_to_monitor(arg->i);
+    Monitor *monitor = monitor_from_direction(arg->i);
     Client *selected = live_monitor->selected_client;
 
     if (!selected || !monitors->next)
@@ -2670,7 +2670,7 @@ monitor_arrange(Monitor *monitor) {
 }
 
 Monitor *
-create_monitor(void) {
+monitor_create(void) {
     Monitor *monitor = xcalloc(1, sizeof(*monitor));
     Pertag *pertag = xcalloc(1, sizeof(*pertag));
 
@@ -3293,7 +3293,7 @@ handler_motion_notify(XEvent *event) {
     if (motion_event->window != root)
         return;
 
-    m = rectangle_to_monitor(motion_event->x_root, motion_event->y_root, 1, 1);
+    m = monitor_from_rectangle(motion_event->x_root, motion_event->y_root, 1, 1);
     if (m != monitor_save && monitor_save)
         monitor_focus(m, true);
 
@@ -3491,7 +3491,7 @@ is_unique_geometry(XineramaScreenInfo *unique,
 #endif /* XINERAMA */
 
 Monitor *
-rectangle_to_monitor(int x, int y, int w, int h) {
+monitor_from_rectangle(int x, int y, int w, int h) {
     Monitor *monitor = live_monitor;
     int a;
     int max_area = 0;
@@ -3512,7 +3512,7 @@ rectangle_to_monitor(int x, int y, int w, int h) {
 }
 
 Monitor *
-direction_to_monitor(int direction) {
+monitor_from_direction(int direction) {
     Monitor *monitor = NULL;
 
     if (direction > 0) {
@@ -3549,7 +3549,7 @@ window_to_monitor(Window window) {
         int x;
         int y;
         if (get_root_pointer(&x, &y)) {
-            Monitor *monitor = rectangle_to_monitor(x, y, 1, 1);
+            Monitor *monitor = monitor_from_rectangle(x, y, 1, 1);
             return monitor;
         }
     }
@@ -4042,9 +4042,9 @@ update_geometry(void) {
                  monitor && monitor->next;
                  monitor = monitor->next);
             if (monitor)
-                monitor->next = create_monitor();
+                monitor->next = monitor_create();
             else
-                monitors = create_monitor();
+                monitors = monitor_create();
         }
 
         monitor = monitors;
@@ -4094,7 +4094,7 @@ update_geometry(void) {
 #endif /* XINERAMA */
     { /* default monitor setup */
         if (!monitors)
-            monitors = create_monitor();
+            monitors = monitor_create();
         if (monitors->mon_w != screen_width
             || monitors->mon_h != screen_height) {
             dirty = true;
