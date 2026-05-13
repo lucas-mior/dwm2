@@ -28,7 +28,7 @@ CFLAGS="-std=c99 -Weverything -Wfatal-errors ${INCS} ${CPPFLAGS} \
         -O2 -flto"
 LDFLAGS="${LIBS}"
 
-SRC="drw.c dwm.c"
+SRC="draw.c dwm.c"
 
 # --- Logic (from Makefile) ---
 

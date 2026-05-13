@@ -48,7 +48,7 @@
 
 #include <X11/Xft/Xft.h>
 
-#include "drw.h"
+#include "draw.h"
 
 typedef uint8_t uint8;
 typedef uint32_t uint32;
@@ -405,7 +405,7 @@ static bool dwm_running = true;
 
 static Cur *cursor[CursorLast];
 static Clr **scheme;
-static Drw *drw;
+static Drw *draw;
 
 static Monitor *monitors;
 static Monitor *live_monitor;
@@ -2196,7 +2196,7 @@ client_update_icon(Client *client) {
         pixel_find32[i] = (rb & 0xFF00FFu) | (g & 0x00FF00u) | ((uint)a << 24u);
     }
 
-    client->icon = drw_picture_create_resized(drw, (char *)pixel_find,
+    client->icon = draw_picture_create_resized(draw, (char *)pixel_find,
                                               width_find, height_find,
                                               icon_width, icon_height);
     XFree(prop_return);
@@ -2256,17 +2256,17 @@ monitor_draw_bars(Monitor *monitor) {
         return;
 
     /* bottom bar */
-    drw_setscheme(drw, scheme[SchemeNormal]);
-    drw_rect(drw, 0, 0, (uint)monitor->win_w, bar_height, true, true);
+    draw_setscheme(draw, scheme[SchemeNormal]);
+    draw_rect(draw, 0, 0, (uint)monitor->win_w, bar_height, true, true);
     if (monitor == live_monitor)
         draw_status_text(&status_bottom, monitor->win_w);
-    drw_map(drw, monitor->bottom_bar_window,
+    draw_map(draw, monitor->bottom_bar_window,
             0, 0, (uint)monitor->win_w, bar_height);
 
     /* top bar: draw status first so it can be overdrawn by tags later */
     /* only drawn status on selected monitor */
     if (monitor == live_monitor) {
-        drw_setscheme(drw, scheme[SchemeNormal]);
+        draw_setscheme(draw, scheme[SchemeNormal]);
 
         draw_status_text(&status_top, monitor->win_w);
         text_pixels = status_top.pixels;
@@ -2309,11 +2309,11 @@ monitor_draw_bars(Monitor *monitor) {
         tags_widths[i] = w = get_text_pixels(tags_display);
 
         if (monitor->tagset[monitor->selected_tags] & 1 << i)
-            drw_setscheme(drw, scheme[SchemeSelected]);
+            draw_setscheme(draw, scheme[SchemeSelected]);
         else
-            drw_setscheme(drw, scheme[SchemeNormal]);
+            draw_setscheme(draw, scheme[SchemeNormal]);
 
-        drw_text(drw,
+        draw_text(draw,
                  draw_x, 0, (uint)w, bar_height,
                  padding, tags_display, urgent & 1 << i);
         draw_x += w;
@@ -2323,10 +2323,10 @@ monitor_draw_bars(Monitor *monitor) {
             uint icon_width = client_with_icon->icon_width;
             uint icon_height = client_with_icon->icon_height;
 
-            drw_text(drw,
+            draw_text(draw,
                      draw_x, 0, icon_width + padding, bar_height, 0,
                      " ", urgent & 1 << i);
-            drw_pic(drw,
+            draw_pic(draw,
                     draw_x, (bar_height - icon_height) / 2,
                     icon_width, icon_height,
                     icon);
@@ -2335,23 +2335,23 @@ monitor_draw_bars(Monitor *monitor) {
         }
     }
     w = get_text_pixels(monitor->layout_symbol);
-    drw_setscheme(drw, scheme[SchemeNormal]);
-    draw_x = drw_text(drw,
+    draw_setscheme(draw, scheme[SchemeNormal]);
+    draw_x = draw_text(draw,
                       draw_x, 0, (uint)w, bar_height, padding,
                       monitor->layout_symbol, false);
 
     if ((w = monitor->win_w - text_pixels - draw_x) > (int)bar_height) {
-        int boxs = drw->fonts->h / 9;
-        int boxw = drw->fonts->h / 6 + 2;
+        int boxs = draw->fonts->h / 9;
+        int boxw = draw->fonts->h / 6 + 2;
 
         if (monitor->selected_client) {
             Client *client = monitor->selected_client;
             char buffer[sizeof(*(&client->name)) + 20];
 
             if (monitor == live_monitor)
-                drw_setscheme(drw, scheme[SchemeSelected]);
+                draw_setscheme(draw, scheme[SchemeSelected]);
             else
-                drw_setscheme(drw, scheme[SchemeNormal]);
+                draw_setscheme(draw, scheme[SchemeNormal]);
 
             snprintf(buffer, sizeof(buffer),
                      "{%s%s%s%s%s%s } %s",
@@ -2363,20 +2363,20 @@ monitor_draw_bars(Monitor *monitor) {
                     (client->tags & (1 << 5)) ? tags_space[5] : "",
                     client->name);
 
-            drw_text(drw,
+            draw_text(draw,
                      draw_x, 0, (uint)w, bar_height,
                      padding, buffer, 0);
             if (monitor->selected_client->is_floating) {
-                drw_rect(drw,
+                draw_rect(draw,
                          draw_x + boxs, boxs, (uint)boxw, (uint)boxw,
                          monitor->selected_client->is_fixed, 0);
             }
         } else {
-            drw_setscheme(drw, scheme[SchemeNormal]);
-            drw_rect(drw, draw_x, 0, (uint)w, bar_height, true, true);
+            draw_setscheme(draw, scheme[SchemeNormal]);
+            draw_rect(draw, draw_x, 0, (uint)w, bar_height, true, true);
         }
     }
-    drw_map(drw, monitor->top_bar_window,
+    draw_map(draw, monitor->top_bar_window,
             0, 0, (uint)monitor->win_w, bar_height);
 
     return;
@@ -2706,7 +2706,7 @@ monitor_create(void) {
 
 int
 get_text_pixels(char *text) {
-    int width = (int)(drw_fontset_getwidth(drw, text) + (uint)text_padding);
+    int width = (int)(draw_fontset_getwidth(draw, text) + (uint)text_padding);
     return width;
 }
 
@@ -2954,7 +2954,7 @@ void draw_status_text(StatusBar *status_bar, int monitor_width) {
         block->min_x += x0;
 
         if (text_pixels) {
-            drw_text(drw,
+            draw_text(draw,
                      x0 + pixels, 0, (uint)text_pixels, bar_height,
                      0, &(status_bar->text[block->text_i]), 0);
             pixels += text_pixels;
@@ -3151,7 +3151,7 @@ handler_configure_notify(XEvent *event) {
     screen_height = configure_event->height;
 
     if (update_geometry() || dirty) {
-        drw_resize(drw, (uint)screen_width, bar_height);
+        draw_resize(draw, (uint)screen_width, bar_height);
         configure_bars_windows();
         for (Monitor *mon = monitors; mon; mon = mon->next) {
             for (Client *client = mon->clients; client; client = client->next) {
@@ -3880,15 +3880,15 @@ setup_once(void) {
         color_map = DefaultColormap(display, screen);
     }
 
-    drw = drw_create(display, screen, root,
+    draw = draw_create(display, screen, root,
                      (uint)screen_width, (uint)screen_height,
                      visual, (uint)depth, color_map);
-    if (!drw_fontset_create(drw, fonts, LENGTH(fonts))) {
+    if (!draw_fontset_create(draw, fonts, LENGTH(fonts))) {
         error(__func__, "Error loading fonts for dwm.\n");
         exit(EXIT_FAILURE);
     }
-    text_padding = (int) ((double) drw->fonts->h / 2.2);
-    bar_height = drw->fonts->h;
+    text_padding = (int) ((double) draw->fonts->h / 2.2);
+    bar_height = draw->fonts->h;
     update_geometry();
 
     /* init atoms */
@@ -3910,14 +3910,14 @@ setup_once(void) {
     NET_INTERN_ATOM(NET_CLIENT_INFO);
 
     /* init cursors */
-    cursor[CursorNormal] = drw_cur_create(drw, XC_left_ptr);
-    cursor[CursorResize] = drw_cur_create(drw, XC_sizing);
-    cursor[CursorMove] = drw_cur_create(drw, XC_fleur);
+    cursor[CursorNormal] = draw_cur_create(draw, XC_left_ptr);
+    cursor[CursorResize] = draw_cur_create(draw, XC_sizing);
+    cursor[CursorMove] = draw_cur_create(draw, XC_fleur);
 
     /* init appearance */
     scheme = xcalloc(LENGTH(colors), sizeof(Clr *));
     for (int i = 0; i < LENGTH(colors); i += 1)
-        scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
+        scheme[i] = draw_scm_create(draw, colors[i], alphas[i], 3);
 
     /* init bars */
     configure_bars_windows();
@@ -4236,13 +4236,13 @@ main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < CursorLast; i += 1)
-        drw_cur_free(drw, cursor[i]);
+        draw_cur_free(draw, cursor[i]);
     for (int i = 0; i < LENGTH(colors); i += 1)
         free(scheme[i]);
     free(scheme);
 
     XDestroyWindow(display, wm_check_window);
-    drw_free(drw);
+    draw_free(draw);
 
     XSync(display, False);
     XSetInputFocus(display, PointerRoot, RevertToPointerRoot, CurrentTime);
