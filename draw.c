@@ -24,27 +24,6 @@ static const unsigned char utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8}
 static const long utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000};
 static const long utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
-static void die(const char *, ...) __attribute__((noreturn));
-
-void
-die(const char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
-
-	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
-		fputc(' ', stderr);
-		perror(NULL);
-	} else {
-		fputc('\n', stderr);
-	}
-
-	exit(1);
-}
-
 static long
 utf8decodebyte(const char c, int64 *i)
 {
@@ -167,7 +146,8 @@ xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
 			return NULL;
 		}
 	} else {
-		die("no font specified.");
+		error("Error: no font specified.");
+        exit(EXIT_FAILURE);
 	}
 
 	font = malloc2_zero(sizeof(Fnt));
@@ -223,8 +203,10 @@ draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha)
 		return;
 
 	if (!XftColorAllocName(draw->dpy, draw->visual, draw->cmap,
-	                       clrname, dest))
-		die("error, cannot allocate color '%s'", clrname);
+	                       clrname, dest)) {
+		error("error, cannot allocate color '%s'", clrname);
+        exit(EXIT_FAILURE);
+    }
 
 	dest->pixel = (dest->pixel & 0x00ffffffU) | (alpha << 24);
 }
@@ -457,7 +439,8 @@ draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 
 			if (!draw->fonts->pattern) {
 				/* Refer to the comment in xfont_create for more information. */
-				die("the first font in the cache must be loaded from a font string.");
+				error("Error: the first font in the cache must be loaded from a font string.");
+                exit(EXIT_FAILURE);
 			}
 
 			fcpattern = FcPatternDuplicate(draw->fonts->pattern);
