@@ -3856,7 +3856,7 @@ setup_once(void) {
     cursor[CursorMove] = draw_cur_create(draw, XC_fleur);
 
     /* init appearance */
-    scheme = malloc2(LENGTH(colors)*SIZEOF(Clr *));
+    scheme = malloc2_zero(LENGTH(colors)*SIZEOF(Clr *));
     for (int i = 0; i < LENGTH(colors); i += 1)
         scheme[i] = draw_scm_create(draw, colors[i], alphas[i], 3);
 
@@ -3965,7 +3965,7 @@ update_geometry(void) {
             number_monitors += 1;
 
         /* only consider unique geometries as separate screens */
-        unique = malloc2(number_unique*SIZEOF(*unique));
+        unique = malloc2_zero(number_unique*SIZEOF(*unique));
         while (i < number_unique) {
             if (is_unique_geometry(unique, j, &screen_info[i])) {
                 memcpy(&unique[j], &screen_info[i], SIZEOF(*unique));
