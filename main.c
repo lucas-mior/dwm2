@@ -416,11 +416,10 @@ struct Pertag {
 
 static int tags_widths[LENGTH(tags)];
 
-/* compile-time check if all tags fit into an uint bit array. */
-struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+_Static_assert(LENGTH(tags) <= 31, "limit of 31 tags");
 
-void
-user_alt_tab(const Arg *) {
+static void
+user_alt_tab(const Arg *arg) {
     static bool alt_tab_direction = false;
     Monitor *old_monitor = live_monitor;
     Client *client;
@@ -599,7 +598,7 @@ user_focus_stack(const Arg *arg) {
 }
 
 void
-user_focus_urgent(const Arg *) {
+user_focus_urgent(const Arg *arg) {
     for (Monitor *monitor = monitors; monitor; monitor = monitor->next) {
         Client *client;
 
@@ -648,7 +647,7 @@ user_more_masters(const Arg *arg) {
 }
 
 void
-user_kill_client(const Arg *) {
+user_kill_client(const Arg *arg) {
     Client *selected = live_monitor->selected_client;
     if (!selected)
         return;
@@ -668,7 +667,7 @@ user_kill_client(const Arg *) {
 }
 
 void
-user_mouse_move(const Arg *) {
+user_mouse_move(const Arg *arg) {
     Client *client;
     Monitor *monitor_aux;
     XEvent event;
@@ -764,7 +763,7 @@ user_mouse_move(const Arg *) {
 }
 
 void
-user_mouse_resize(const Arg *) {
+user_mouse_resize(const Arg *arg) {
     Client *client;
     Monitor *monitor;
     XEvent event;
@@ -983,7 +982,7 @@ user_toggle_bar(const Arg *arg) {
 }
 
 void
-user_toggle_floating(const Arg *) {
+user_toggle_floating(const Arg *arg) {
     Client *client = live_monitor->selected_client;
 
     if (client == NULL)
@@ -1010,7 +1009,7 @@ user_toggle_floating(const Arg *) {
 }
 
 void
-user_toggle_fullscreen(const Arg *) {
+user_toggle_fullscreen(const Arg *arg) {
     Client *client = live_monitor->selected_client;
     if (client)
         client_set_fullscreen(client, !client->is_fullscreen);
@@ -1106,14 +1105,14 @@ user_view_tag(const Arg *arg) {
 }
 
 void
-user_window_view(const Arg *) {
+user_window_view(const Arg *arg) {
     Client *client = live_monitor->selected_client;
     view_tag(client->tags);
     return;
 }
 
 void
-user_promote_to_master(const Arg *) {
+user_promote_to_master(const Arg *arg) {
     Client *client = live_monitor->selected_client;
     Monitor *monitor = live_monitor;
     bool monitor_floating = !monitor->layout[monitor->lay_i]->function;

@@ -51,19 +51,19 @@ XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-CPPFLAGS="-D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L"
-CPPFLAGS="$CPPFLAGS -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}"
-CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
-
 CFLAGS="$CFLAGS -std=c11 -Wfatal-errors -Wextra -Wall -Wno-padded"
 CFLAGS="$CFLAGS -Werror"
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
+
+CPPFLAGS="-D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L"
+CPPFLAGS="$CPPFLAGS -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}"
+CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
 
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
 # --- Compiler Selection ---
-CC="${CC:-clang}"
+CC="${CC:-tcc}"
 
 # --- Helper Functions ---
 option_remove() {
