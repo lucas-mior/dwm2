@@ -1,7 +1,7 @@
+/* See LICENSE file for copyright and license details. */
+
 #if !defined(DRAW_H)
 #define DRAW_H
-
-/* See LICENSE file for copyright and license details. */
 
 #include "util.c"
 

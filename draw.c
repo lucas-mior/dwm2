@@ -1,4 +1,8 @@
 /* See LICENSE file for copyright and license details. */
+
+#if !defined(DRAW_C)
+#define DRAW_C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -560,3 +564,5 @@ draw_cur_free(Drw *draw, Cur *cursor)
 	XFreeCursor(draw->dpy, cursor->cursor);
 	free(cursor);
 }
+
+#endif /* DRAW_C */

@@ -20,7 +20,7 @@ alias trace_off='{ set +x; } 2>/dev/null'
 # --- Project Configuration ---
 VERSION="6.5"
 program="dwm"
-SRC="dwm.c"
+SRC="main.c"
 
 # --- System Paths ---
 PREFIX="${PREFIX:-/usr/local}"
