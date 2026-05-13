@@ -134,7 +134,7 @@ typedef union {
 typedef struct {
     uint click;
     uint mask;
-    ulong button;
+    int64 button;
     void (*function)(const Arg *arg);
     const Arg arg;
 } Button;
@@ -2866,6 +2866,7 @@ grab_keys(void) {
 
 void
 handler_others(XEvent *event) {
+    (void)event;
     /* switch (event->type) { */
     /* case CirculateNotify: */
     /*     error("CirculateNotify"); */
@@ -4126,7 +4127,7 @@ update_geometry(void) {
         unique = malloc2_zero(unique_alloc_len*SIZEOF(*unique));
         while (i < number_unique) {
             if (is_unique_geometry(unique, j, &screen_info[i])) {
-                memcpy(&unique[j], &screen_info[i], SIZEOF(*unique));
+                memcpy64(&unique[j], &screen_info[i], SIZEOF(*unique));
                 j += 1;
             }
 
@@ -4247,13 +4248,13 @@ status_update(void) {
 
     separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
     if (separator) {
-        ulong top_length = (ulong)(separator - status_top.text);
-        ulong bottom_length = SIZEOF(status_bottom.text) - top_length;
+        int64 top_length = separator - status_top.text;
+        int64 bottom_length = SIZEOF(status_bottom.text) - top_length;
         *separator = '\0';
         separator += 1;
-        memcpy(status_bottom.text, separator, bottom_length);
+        memcpy64(status_bottom.text, separator, bottom_length);
     } else {
-        memset(status_bottom.text, 0, SIZEOF(status_bottom.text));
+        memset64(status_bottom.text, 0, SIZEOF(status_bottom.text));
     }
 
     status_parse_text(&status_top);

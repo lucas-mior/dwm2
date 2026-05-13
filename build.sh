@@ -145,7 +145,7 @@ case "$target" in
     ;;
 *)
     trace_on
-    find . -iname "*.[ch]" | xargs ctags --kinds-C=+l+d 2> /dev/null || true
+    ctags *.c *.h cbase/*.c cbase/*.h 2> /dev/null || true
     if [ -f tags ]; then
         vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
     fi
