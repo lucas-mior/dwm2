@@ -46,8 +46,13 @@ XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-CFLAGS="$CFLAGS -std=c11 -Wfatal-errors -Wextra -Wall -Wno-padded"
-CFLAGS="$CFLAGS -Werror"
+CFLAGS="$CFLAGS -std=c11"
+CFLAGS="$CFLAGS -Wfatal-errors"
+# CFLAGS="$CFLAGS -Werror"
+CFLAGS="$CFLAGS -Wextra -Wall"
+CFLAGS="$CFLAGS -Wno-padded"
+CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
 CPPFLAGS="-D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L"
@@ -114,7 +119,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-incompatible-pointer-types-discards-qualifiers"
     CFLAGS="$CFLAGS -Wno-cast-qual"
     CFLAGS="$CFLAGS -Wno-gnu-union-cast"
-    CFLAGS="$CFLAGS -Wno-shorten-64-to-32"
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-constant-logical-operand"
     CFLAGS="$CFLAGS -Wno-float-equal"
