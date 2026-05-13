@@ -324,4 +324,24 @@ static int32 text_padding;
 static int32 (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32 numlock_mask = 0;
 
+static Atom wm_atoms[WM_LAST];
+static Atom net_atoms[NET_LAST];
+static Display *display;
+static Visual *visual;
+static Colormap color_map;
+static Window root;
+static Window wm_check_window;
+static int32 depth;
+
+static bool dwm_restart = false;
+static bool dwm_running = true;
+
+static Cur *cursor[CursorLast];
+static Clr **scheme;
+static Drw *draw;
+
+static Monitor *monitors;
+static Monitor *live_monitor;
+static Client *all_clients = NULL;
+
 #endif
