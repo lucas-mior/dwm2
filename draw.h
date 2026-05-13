@@ -15,6 +15,8 @@
 #endif /* XINERAMA */
 
 #include <X11/Xft/Xft.h>
+#include <hb.h>
+#include <hb-ft.h>
 
 #include "util.c"
 
@@ -27,6 +29,7 @@ typedef struct Fnt {
     unsigned int h;
     XftFont *xfont;
     FcPattern *pattern;
+    hb_font_t *hbfont;
     struct Fnt *next;
 } Fnt;
 
