@@ -177,8 +177,8 @@ case "$target" in
         DISPLAY=:1 gdb bin/dwm_debug -ex run &
         gdb=$!
         DISPLAY=:1 st -e lfimg
-        kill -s SIGKILL $gdb
-        kill -s SIGKILL $xephyr
+        kill -s KILL $gdb
+        kill -s KILL $xephyr
 
         trace_off
     fi

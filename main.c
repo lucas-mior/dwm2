@@ -1678,7 +1678,7 @@ client_unmanage(Client *client, int destroyed) {
         XUngrabServer(display);
     }
 
-    free(client);
+    free2(client, SIZEOF(*client));
     client_focus(NULL);
 
     XDeleteProperty(display, root, net_atoms[NET_CLIENT_LIST]);
@@ -2285,8 +2285,8 @@ monitor_cleanup_monitor(Monitor *monitor) {
     XDestroyWindow(display, monitor->top_bar_window);
     XDestroyWindow(display, monitor->bottom_bar_window);
 
-    free(monitor->pertag);
-    free(monitor);
+    free2(monitor->pertag, SIZEOF(*monitor->pertag));
+    free2(monitor, SIZEOF(*monitor));
     return;
 }
 
@@ -4347,9 +4347,9 @@ main(int argc, char *argv[]) {
         draw_cur_free(draw, cursor[i]);
     }
     for (int i = 0; i < LENGTH(colors); i += 1) {
-        free(scheme[i]);
+        free2(scheme[i], 3);
     }
-    free(scheme);
+    free2(scheme, LENGTH(colors)*SIZEOF(*scheme));
 
     XDestroyWindow(display, wm_check_window);
     draw_free(draw);
