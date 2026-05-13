@@ -1,4 +1,9 @@
+#if !defined(DRAW_H)
+#define DRAW_H
+
 /* See LICENSE file for copyright and license details. */
+
+#include "util.c"
 
 typedef struct {
 	Cursor cursor;
@@ -36,7 +41,7 @@ void draw_resize(Drw *draw, unsigned int w, unsigned int h);
 void draw_free(Drw *draw);
 
 /* Fnt abstraction */
-Fnt *draw_fontset_create(Drw* draw, const char *fonts[], size_t fontcount);
+Fnt *draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount);
 void draw_fontset_free(Fnt* set);
 unsigned int draw_fontset_getwidth(Drw *draw, const char *text);
 unsigned int draw_fontset_getwidth_clamp(Drw *draw, const char *text, unsigned int n);
@@ -44,7 +49,7 @@ void draw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned i
 
 /* Colorscheme abstraction */
 void draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha);
-Clr *draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], size_t clrcount);
+Clr *draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount);
 
 /* Cursor abstraction */
 Cur *draw_cur_create(Drw *draw, int shape);
@@ -63,3 +68,5 @@ void draw_pic(Drw *draw, int x, int y, unsigned int w, unsigned int h, Picture p
 
 /* Map functions */
 void draw_map(Drw *draw, Window win, int x, int y, unsigned int w, unsigned int h);
+
+#endif /* DRAW_H */

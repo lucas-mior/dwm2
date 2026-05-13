@@ -48,7 +48,9 @@
 
 #include <X11/Xft/Xft.h>
 
+#include "dwm.h"
 #include "draw.h"
+#include "draw.c"
 
 typedef uint8_t uint8;
 typedef uint32_t uint32;
@@ -61,7 +63,6 @@ typedef unsigned char uchar;
     (mask & ~(numlock_mask|LockMask) \
     & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define MOUSEMASK (BUTTONMASK|PointerMotionMask)
-#define LENGTH(X) (int)(sizeof(X) / sizeof(*X))
 #define TAGMASK   ((1 << (LENGTH(tags))) - 1)
 #define PAUSE_MILIS_AS_NANOS(X) ((X)*1000*1000)
 
@@ -71,9 +72,6 @@ typedef unsigned char uchar;
 #define STATUS_MAX_BLOCKS 40
 #define STATUS_PROGRAM "dwmblocks2"
 #define DWM_BAR_SEPARATOR ((char) 0x01)
-
-#define MAX(A, B)               ((A) > (B) ? (A) : (B))
-#define MIN(A, B)               ((A) < (B) ? (A) : (B))
 
 #define NET_INTERN_ATOM(X) do { \
     net_atoms[X] = XInternAtom(display, "_"#X, False); \
@@ -322,8 +320,6 @@ static Client *window_to_client(Window);
 static int window_text_property(Window, Atom, char *, uint);
 static long window_state(Window);
 
-static void *xcalloc(size_t, size_t);
-static void error(const char *, char *, ...);
 static void set_layout(const Layout *);
 static int get_root_pointer(int *, int *);
 static int get_text_pixels(char *);
@@ -428,60 +424,6 @@ static int tags_widths[LENGTH(tags)];
 
 /* compile-time check if all tags fit into an uint bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
-
-void *
-xcalloc(size_t nmemb, size_t size) {
-    void *p;
-
-    if (!(p = calloc(nmemb, size))) {
-        error(__func__, "Failed to allocate memory.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return p;
-}
-
-void error(const char *function, char *format, ...) {
-    int message_length;
-    int header_length;
-    va_list args;
-    char message[256];
-    char header[128];
-
-    header_length = snprintf(header, sizeof(header), "dwm %s()\n", function);
-
-    va_start(args, format);
-    message_length = vsnprintf(message, sizeof(message), format, args);
-    va_end(args);
-
-    if (message_length < 0 || header_length < 0) {
-        fprintf(stderr, "Error in vsnprintf()\n");
-        exit(EXIT_FAILURE);
-    }
-    if (message_length >= (int)sizeof(message)) {
-        fprintf(stderr, "vsnprintf: overflow.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    message[message_length] = '\0';
-    header[header_length] = '\0';
-    write(STDERR_FILENO, header, (size_t) header_length);
-    write(STDERR_FILENO, message, (size_t) message_length);
-
-    switch (fork()) {
-    case -1:
-        fprintf(stderr, "Error forking: %s\n", strerror(errno));
-        break;
-    case 0:
-        execlp("dunstify", "dunstify", "-u", "critical", "-t", "2000",
-                           header, message, NULL);
-        fprintf(stderr, "Error trying to exec dunstify.\n");
-        exit(EXIT_FAILURE);
-    default:
-        break;
-    }
-    return;
-}
 
 void
 user_alt_tab(const Arg *) {
@@ -994,7 +936,7 @@ user_signal_status_bar(const Arg *arg) {
         break;
     }
 
-    if (read(pipefd[0], buffer, sizeof(buffer)) <= 0) {
+    if (read(pipefd[0], buffer, SIZEOF(buffer)) <= 0) {
         close(pipefd[0]);
         status_program_pid = -1;
         return;
@@ -1443,7 +1385,7 @@ client_get_atom_property(Client *client, Atom property) {
     int success;
 
     success = XGetWindowProperty(display, client->window, property,
-                                0L, sizeof(atom), False, XA_ATOM,
+                                0L, SIZEOF(atom), False, XA_ATOM,
                                 &actual_type_return, &actual_format_return,
                                 &nitems_return, &nitems_return,
                                 (uchar **)&prop_return);
@@ -1493,7 +1435,7 @@ void
 client_new(Window window, XWindowAttributes *window_attributes) {
     Window trans_window = None;
     XWindowChanges window_changes;
-    Client *client = xcalloc(1, sizeof(*client));
+    Client *client = malloc2(SIZEOF(*client));
     Client *trans_client = NULL;
     int success;
 
@@ -2068,9 +2010,9 @@ client_update_size_hints(Client *client) {
 void
 client_update_title(Client *client) {
     if (!window_text_property(client->window, net_atoms[NET_WM_NAME],
-                              client->name, sizeof(client->name))) {
+                              client->name, SIZEOF(client->name))) {
         window_text_property(client->window, XA_WM_NAME,
-                             client->name, sizeof(client->name));
+                             client->name, SIZEOF(client->name));
     }
     if (client->name[0] == '\0')
         strcpy(client->name, broken);
@@ -2206,7 +2148,7 @@ void
 monitor_arrange_monitor(Monitor *monitor) {
     strncpy(monitor->layout_symbol,
             monitor->layout[monitor->lay_i]->symbol,
-            sizeof(monitor->layout_symbol));
+            SIZEOF(monitor->layout_symbol));
     if (monitor->layout[monitor->lay_i]->function)
         monitor->layout[monitor->lay_i]->function(monitor);
     return;
@@ -2294,15 +2236,15 @@ monitor_draw_bars(Monitor *monitor) {
 
         if (master_name) {
             if (client_with_icon) {
-                snprintf(tags_display, sizeof(tags_display), "%s", tags[i]);
+                snprintf(tags_display, SIZEOF(tags_display), "%s", tags[i]);
             } else {
                 ulong n = strcspn(master_name, tag_label_delim);
                 master_name[n] = '\0';
-                snprintf(tags_display, sizeof(tags_display),
+                snprintf(tags_display, SIZEOF(tags_display),
                          tag_label_format, tags[i], master_name);
             }
         } else {
-            snprintf(tags_display, sizeof(tags_display),
+            snprintf(tags_display, SIZEOF(tags_display),
                      tag_empty_format, tags[i]);
         }
         tags_widths[i] = w = get_text_pixels(tags_display);
@@ -2345,14 +2287,14 @@ monitor_draw_bars(Monitor *monitor) {
 
         if (monitor->selected_client) {
             Client *client = monitor->selected_client;
-            char buffer[sizeof(*(&client->name)) + 20];
+            char buffer[SIZEOF(*(&client->name)) + 20];
 
             if (monitor == live_monitor)
                 draw_setscheme(draw, scheme[SchemeSelected]);
             else
                 draw_setscheme(draw, scheme[SchemeNormal]);
 
-            snprintf(buffer, sizeof(buffer),
+            snprintf(buffer, SIZEOF(buffer),
                      "{%s%s%s%s%s%s } %s",
                     (client->tags & (1 << 0)) ? tags_space[0] : "",
                     (client->tags & (1 << 1)) ? tags_space[1] : "",
@@ -2397,7 +2339,7 @@ monitor_layout_columns(Monitor *monitor) {
     if (number_tiled == 0)
         return;
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, sizeof(monitor->layout_symbol),
+        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol),
                  "|%d|", number_tiled);
     }
 
@@ -2454,7 +2396,7 @@ monitor_layout_grid(Monitor *monitor) {
         return;
 
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, sizeof(monitor->layout_symbol),
+        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol),
                  "#%d#", number_tiled);
     }
 
@@ -2518,7 +2460,7 @@ monitor_layout_monocle(Monitor *monitor) {
     }
 
     if (number_clients > 0) {
-        snprintf(monitor->layout_symbol, sizeof(monitor->layout_symbol),
+        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol),
                  "[%u]", number_clients);
     }
 
@@ -2550,7 +2492,7 @@ monitor_layout_tile(Monitor *monitor) {
     if (number_tiled == 0)
         return;
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, sizeof(monitor->layout_symbol),
+        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol),
                  "=%d|", number_tiled);
     }
 
@@ -2670,8 +2612,8 @@ monitor_arrange(Monitor *monitor) {
 
 Monitor *
 monitor_create(void) {
-    Monitor *monitor = xcalloc(1, sizeof(*monitor));
-    Pertag *pertag = xcalloc(1, sizeof(*pertag));
+    Monitor *monitor = malloc2_zero(SIZEOF(*monitor));
+    Pertag *pertag = malloc2_zero(SIZEOF(*pertag));
 
     monitor->tagset[0] = monitor->tagset[1] = 1;
     monitor->master_fact = master_fact;
@@ -2683,7 +2625,7 @@ monitor_create(void) {
     monitor->layout[1] = &layouts[1 % LENGTH(layouts)];
     strncpy(monitor->layout_symbol,
             layouts[0].symbol,
-            sizeof(monitor->layout_symbol));
+            SIZEOF(monitor->layout_symbol));
 
     pertag->tag = pertag->old_tag = 1;
 
@@ -3726,7 +3668,7 @@ set_layout(const Layout *layout) {
 
     strncpy(monitor->layout_symbol,
             monitor->layout[monitor->lay_i]->symbol,
-            sizeof(monitor->layout_symbol));
+            SIZEOF(monitor->layout_symbol));
 
     if (monitor->selected_client)
         monitor_arrange(monitor);
@@ -3914,7 +3856,7 @@ setup_once(void) {
     cursor[CursorMove] = draw_cur_create(draw, XC_fleur);
 
     /* init appearance */
-    scheme = xcalloc(LENGTH(colors), sizeof(Clr *));
+    scheme = malloc2(LENGTH(colors)*SIZEOF(Clr *));
     for (int i = 0; i < LENGTH(colors); i += 1)
         scheme[i] = draw_scm_create(draw, colors[i], alphas[i], 3);
 
@@ -4023,10 +3965,10 @@ update_geometry(void) {
             number_monitors += 1;
 
         /* only consider unique geometries as separate screens */
-        unique = xcalloc((size_t) number_unique, sizeof(*unique));
+        unique = malloc2(number_unique*SIZEOF(*unique));
         while (i < number_unique) {
             if (is_unique_geometry(unique, j, &screen_info[i])) {
-                memcpy(&unique[j], &screen_info[i], sizeof(*unique));
+                memcpy(&unique[j], &screen_info[i], SIZEOF(*unique));
                 j += 1;
             }
 
@@ -4130,7 +4072,7 @@ status_update(void) {
     char *separator;
 
     if (!window_text_property(root, XA_WM_NAME,
-                              status_top.text, sizeof(status_top.text))) {
+                              status_top.text, SIZEOF(status_top.text))) {
         error(__func__, "Error getting XA_WM_NAME property.\n");
         strcpy(status_top.text, "dwm-"VERSION);
         strcpy(status_top.text, "dwm-"VERSION);
@@ -4142,12 +4084,12 @@ status_update(void) {
     separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
     if (separator) {
         ulong top_length = (ulong) (separator - status_top.text);
-        ulong bottom_length = sizeof(status_bottom.text) - top_length;
+        ulong bottom_length = SIZEOF(status_bottom.text) - top_length;
         *separator = '\0';
         separator += 1;
         memcpy(status_bottom.text, separator, bottom_length);
     } else {
-        memset(status_bottom.text, 0, sizeof(status_bottom.text));
+        memset(status_bottom.text, 0, SIZEOF(status_bottom.text));
     }
 
     status_parse_text(&status_top);

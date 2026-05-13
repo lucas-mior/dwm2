@@ -1,85 +1,175 @@
-#!/bin/sh
+#!/bin/sh -e
 
-# --- Configuration (from config.mk) ---
+# shellcheck disable=SC2086
+
+set -e
+
+error () {
+    >&2 printf "$@"
+    return
+}
+
+if [ -n "$BASH_VERSION" ]; then
+    # shellcheck disable=SC3044
+    shopt -s expand_aliases
+fi
+
+alias trace_on='set -x'
+alias trace_off='{ set +x; } 2>/dev/null'
+
+# --- Project Configuration ---
 VERSION="6.5"
-PREFIX="/usr/local"
-MANPREFIX="${PREFIX}/share/man"
-X11INC="/usr/X11R6/include"
-X11LIB="/usr/X11R6/lib"
+program="dwm"
+SRC="dwm.c"
 
-# Xinerama
+# --- System Paths ---
+PREFIX="${PREFIX:-/usr/local}"
+DESTDIR="${DESTDIR:-/}"
+FREETYPEINC="/usr/include/freetype2"
+HBINC="/usr/include/harfbuzz" # Ensure Harfbuzz is included for the new drw_text
+
+# --- Script Environment ---
+dir=$(dirname "$(readlink -f "$0")")
+cbase="cbase"
+cd "$dir" || exit
+script=$(basename "$0")
+
+# If targets file doesn't exist, create a default one for the script logic
+if [ ! -f ./targets ]; then
+    printf "build\nrelease\ndebug\ninstall\nuninstall\nclean" > ./targets
+fi
+
+target="${1:-build}"
+if ! grep -q "$target" ./targets; then
+    echo "usage: $script <targets>"
+    cat ./targets
+    exit 1
+fi
+
+# --- Flags & Libraries ---
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
+FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-# Freetype
-FREETYPELIBS="-lfontconfig -lXft"
-FREETYPEINC="/usr/include/freetype2"
+CPPFLAGS="-D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L"
+CPPFLAGS="$CPPFLAGS -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}"
+CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
 
-# Compiler and Flags
-CC="clang"
-INCS="-I${X11INC} -I${FREETYPEINC}"
-LIBS="-L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2"
+CFLAGS="$CFLAGS -std=c11 -Wfatal-errors -Wextra -Wall -Wno-padded"
+CFLAGS="$CFLAGS -Werror"
+LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
-CPPFLAGS="-D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}"
-CFLAGS="-std=c99 -Weverything -Wfatal-errors ${INCS} ${CPPFLAGS} \
-        -Wno-unsafe-buffer-usage -Wno-format-nonliteral \
-        -Wno-deprecated-declarations -Wno-c23-extensions \
-        -Wno-disabled-macro-expansion -Wno-unused-function -Wno-padded \
-        -O2 -flto"
-LDFLAGS="${LIBS}"
+exe="bin/$program"
+mkdir -p "$(dirname "$exe")"
 
-SRC="draw.c dwm.c"
+# --- Compiler Selection ---
+CC="${CC:-clang}"
 
-# --- Logic (from Makefile) ---
-
-build_dwm() {
-    echo "Building dwm..."
-    # Generate tags
-    ctags --kinds-C=+l *.h *.c
-    vtags.sed tags > .tags.vim
-    # Compile
-    ${CC} -g ${CFLAGS} -o dwm ${SRC} ${LDFLAGS}
+# --- Helper Functions ---
+option_remove() {
+    echo "$1" | sed -E "s| *$2 +| |g"
 }
 
-clean_dwm() {
+with_other () {
+    compiler="$1"
+    compiler_macro=$(echo "$compiler" | tr '[:lower:]' '[:upper:]' | tr ' ' '_')
+    compiler_macro="__${compiler_macro}__"
+    shift
+    args="$*"
+    trace_on
+    while ! problem=$($compiler "-D${compiler_macro}" $args 2>&1); do
+        trace_off
+        problem=$(echo "$problem" | head -n 1 | tr -d "'")
+        sleep 0.4
+        if echo "$problem" | grep -Eq "unknown (argument|option)"; then
+            arg=$(echo "$problem" | awk '{print $NF}')
+            args=$(option_remove "$args" "$arg")
+        else
+            printf "\nError compiling with $compiler:\n%s\n" "$problem"
+            return 1
+        fi
+        trace_on
+    done
+    return 0
+}
+
+# --- Target Configuration ---
+case "$target" in
+"debug")
+    CFLAGS="$CFLAGS -g3 -O0 -fsanitize=undefined"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
+    exe="bin/${program}_debug"
+    ;;
+"release"|"build")
+    CFLAGS="$CFLAGS -O2 -flto -march=native"
+    ;;
+"clean")
     echo "Cleaning..."
-    rm -f dwm dwm-${VERSION}.tar.gz tags .tags.vim
-}
+    rm -rf bin/ tags .tags.vim dwm
+    exit
+    ;;
+esac
 
-install_dwm() {
-    echo "Installing to ${DESTDIR}${PREFIX}..."
-    mkdir -p "${DESTDIR}${PREFIX}/bin"
-    cp -f dwm "${DESTDIR}${PREFIX}/bin"
-    chmod 755 "${DESTDIR}${PREFIX}/bin/dwm"
+# --- Compiler Specific Flags ---
+if [ "$CC" = "clang" ]; then
+    CFLAGS="$CFLAGS -Weverything"
+    CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
+    CFLAGS="$CFLAGS -Wno-format-nonliteral"
+    CFLAGS="$CFLAGS -Wno-disabled-macro-expansion"
+    CFLAGS="$CFLAGS -Wno-c23-extensions"
+    CFLAGS="$CFLAGS -Wno-unused-function"
+    CFLAGS="$CFLAGS -Wno-c++-keyword"
+    CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
+    CFLAGS="$CFLAGS -Wno-incompatible-pointer-types-discards-qualifiers"
+    CFLAGS="$CFLAGS -Wno-cast-qual"
+    CFLAGS="$CFLAGS -Wno-gnu-union-cast"
+    CFLAGS="$CFLAGS -Wno-shorten-64-to-32"
+    CFLAGS="$CFLAGS -Wno-pre-c11-compat"
+    CFLAGS="$CFLAGS -Wno-constant-logical-operand"
+    CFLAGS="$CFLAGS -Wno-float-equal"
+    CFLAGS="$CFLAGS -Wno-covered-switch-default"
+    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
+    CFLAGS="$CFLAGS -Wno-cast-align"
+    CFLAGS="$CFLAGS -Wno-declaration-after-statement"
+    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+fi
+
+# --- Execution Logic ---
+case "$target" in
+"uninstall")
+    trace_on
+    rm -f "${DESTDIR}${PREFIX}/bin/${program}"
+    rm -f "${DESTDIR}${MANPREFIX}/man1/${program}.1"
+    trace_off
+    exit
+    ;;
+"install")
+    if [ ! -f "$exe" ]; then
+        $0 build
+    fi
+    trace_on
+    install -Dm755 "$exe" "${DESTDIR}${PREFIX}/bin/${program}"
+    install -Dm644 "${program}.1" "${DESTDIR}${MANPREFIX}/man1/${program}.1"
+    trace_off
+    exit
+    ;;
+*)
+    trace_on
+    # Tag generation
+    find . -iname "*.[ch]" | xargs ctags --kinds-C=+l+d 2> /dev/null || true
+    if [ -f tags ]; then
+        vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
+    fi
     
-    mkdir -p "${DESTDIR}${MANPREFIX}/man1"
-    sed "s/VERSION/${VERSION}/g" < dwm.1 > "${DESTDIR}${MANPREFIX}/man1/dwm.1"
-    chmod 644 "${DESTDIR}${MANPREFIX}/man1/dwm.1"
-}
-
-uninstall_dwm() {
-    echo "Uninstalling..."
-    rm -f "${DESTDIR}${PREFIX}/bin/dwm" "${DESTDIR}${MANPREFIX}/man1/dwm.1"
-}
-
-# --- Execution ---
-
-case "$1" in
-    "all" | "")
-        build_dwm
-        ;;
-    "clean")
-        clean_dwm
-        ;;
-    "install")
-        if [ ! -f dwm ]; then build_dwm; fi
-        install_dwm
-        ;;
-    "uninstall")
-        uninstall_dwm
-        ;;
-    *)
-        echo "Usage: $0 {all|clean|install|uninstall}"
-        exit 1
-        ;;
+    # Build
+    if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
+        with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
+    else
+        $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
+    fi
+    
+    # Symlink to root for convenience
+    ln -sf "$exe" "$program"
+    trace_off
+    ;;
 esac

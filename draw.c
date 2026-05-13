@@ -6,9 +6,10 @@
 #include <X11/Xft/Xft.h>
 #include <Imlib2.h>
 
+#include "dwm.h"
 #include "draw.h"
+#include "util.c"
 
-#define MIN(A, B)               ((A) < (B) ? (A) : (B))
 #define BETWEEN(X, A, B)        ((A) <= (X) && (X) <= (B))
 
 #define UTF_INVALID 0xFFFD
@@ -20,19 +21,6 @@ static const long utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000
 static const long utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 static void die(const char *, ...) __attribute__((noreturn));
-static void *ecalloc(size_t nmemb, size_t size);
-
-void *
-ecalloc(size_t nmemb, size_t size)
-{
-	void *p;
-
-	if (!(p = calloc(nmemb, size))) {
-        fprintf(stderr, "Error allocating memory.\n");
-        exit(EXIT_FAILURE);
-    }
-	return p;
-}
 
 void
 die(const char *fmt, ...)
@@ -54,7 +42,7 @@ die(const char *fmt, ...)
 }
 
 static long
-utf8decodebyte(const char c, size_t *i)
+utf8decodebyte(const char c, int64 *i)
 {
 	for (*i = 0; *i < (UTF_SIZ + 1); ++(*i)) {
 		if (((unsigned char)c & utfmask[*i]) == utfbyte[*i])
@@ -63,8 +51,8 @@ utf8decodebyte(const char c, size_t *i)
 	return 0;
 }
 
-static size_t
-utf8validate(long *u, size_t i)
+static int64
+utf8validate(long *u, int64 i)
 {
 	if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
 		*u = UTF_INVALID;
@@ -72,10 +60,10 @@ utf8validate(long *u, size_t i)
 	return i;
 }
 
-static size_t
-utf8decode(const char *c, long *u, size_t clen)
+static int64
+utf8decode(const char *c, long *u, int64 clen)
 {
-	size_t i, j, len, type;
+	int64 i, j, len, type;
 	long udecoded;
 
 	*u = UTF_INVALID;
@@ -100,7 +88,7 @@ utf8decode(const char *c, long *u, size_t clen)
 Drw *
 draw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int h, Visual *visual, unsigned int depth, Colormap cmap)
 {
-	Drw *draw = ecalloc(1, sizeof(Drw));
+	Drw *draw = malloc2_zero(SIZEOF(Drw));
 
 	draw->dpy = dpy;
 	draw->screen = screen;
@@ -178,7 +166,7 @@ xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
 		die("no font specified.");
 	}
 
-	font = ecalloc(1, sizeof(Fnt));
+	font = malloc2_zero(sizeof(Fnt));
 	font->xfont = xfont;
 	font->pattern = pattern;
 	font->h = (uint) (xfont->ascent + xfont->descent);
@@ -199,14 +187,14 @@ xfont_free(Fnt *font)
 }
 
 Fnt*
-draw_fontset_create(Drw* draw, const char *fonts[], size_t fontcount)
+draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount)
 {
 	Fnt *cur, *ret = NULL;
 
 	if (!draw || !fonts)
 		return NULL;
 
-	for (size_t i = 1; i <= fontcount; i += 1) {
+	for (int64 i = 1; i <= fontcount; i += 1) {
 		if ((cur = xfont_create(draw, fonts[fontcount - i], NULL))) {
 			cur->next = ret;
 			ret = cur;
@@ -240,15 +228,17 @@ draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha)
 /* Wrapper to create color schemes. The caller has to call free(3) on the
  * returned color scheme when done using it. */
 Clr *
-draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], size_t clrcount)
+draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount)
 {
 	Clr *ret;
 
 	/* need at least two colors for a scheme */
-	if (!draw || !clrnames || clrcount < 2 || !(ret = ecalloc(clrcount, sizeof(XftColor))))
+	if (!draw
+            || !clrnames || clrcount < 2 ||
+            !(ret = malloc2_zero(clrcount*SIZEOF(XftColor))))
 		return NULL;
 
-	for (size_t i = 0; i < clrcount; i += 1)
+	for (int64 i = 0; i < clrcount; i += 1)
 		draw_clr_create(draw, &ret[i], clrnames[i], alphas[i]);
 	return ret;
 }
@@ -553,7 +543,7 @@ draw_cur_create(Drw *draw, int shape)
 {
 	Cur *cur;
 
-	if (!draw || !(cur = ecalloc(1, sizeof(Cur))))
+	if (!draw || !(cur = malloc2_zero(sizeof(Cur))))
 		return NULL;
 
 	cur->cursor = XCreateFontCursor(draw->dpy, (uint)shape);
