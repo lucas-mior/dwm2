@@ -168,6 +168,20 @@ case "$target" in
         $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
     fi
     
+    if [ "$target" = "debug" ]; then
+        trace_on
+
+        DISPLAY=:0 Xephyr -br -ac -noreset -screen 1280x720 :1 &
+        xephyr=$!
+        sleep 1
+        DISPLAY=:1 gdb bin/dwm_debug -ex run &
+        gdb=$!
+        DISPLAY=:1 st -e lfimg
+        kill -s SIGKILL $gdb
+        kill -s SIGKILL $xephyr
+
+        trace_off
+    fi
     trace_off
     ;;
 esac
