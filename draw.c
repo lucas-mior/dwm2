@@ -69,7 +69,7 @@ utf8decode(const char *c, long *u, int64 clen)
 }
 
 Drw *
-draw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int h, Visual *visual, unsigned int depth, Colormap cmap)
+draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *visual, uint32 depth, Colormap cmap)
 {
 	Drw *draw = malloc2_zero(SIZEOF(Drw));
 
@@ -90,7 +90,7 @@ draw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int 
 }
 
 void
-draw_resize(Drw *draw, unsigned int w, unsigned int h)
+draw_resize(Drw *draw, uint32 w, uint32 h)
 {
 	if (!draw)
 		return;
@@ -153,7 +153,7 @@ xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
 	font = malloc2_zero(sizeof(Fnt));
 	font->xfont = xfont;
 	font->pattern = pattern;
-	font->h = (uint) (xfont->ascent + xfont->descent);
+	font->h = (uint32) (xfont->ascent + xfont->descent);
 	font->dpy = draw->dpy;
 
 	return font;
@@ -197,7 +197,7 @@ draw_fontset_free(Fnt *font)
 }
 
 void
-draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha)
+draw_clr_create(Drw *draw, Clr *dest, const char *clrname, uint32 alpha)
 {
 	if (!draw || !dest || !clrname)
 		return;
@@ -214,7 +214,7 @@ draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha)
 /* Wrapper to create color schemes. The caller has to call free(3) on the
  * returned color scheme when done using it. */
 Clr *
-draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount)
+draw_scm_create(Drw *draw, const char *clrnames[], const uint32 alphas[], int64 clrcount)
 {
 	Clr *ret;
 
@@ -244,7 +244,7 @@ draw_setscheme(Drw *draw, Clr *scm)
 }
 
 Picture
-draw_picture_create_resized(Drw *draw, char *src, unsigned int srcw, unsigned int srch, unsigned int dstw, unsigned int dsth) {
+draw_picture_create_resized(Drw *draw, char *src, uint32 srcw, uint32 srch, uint32 dstw, uint32 dsth) {
 	Pixmap pm;
 	Picture pic;
 	GC gc;
@@ -312,7 +312,7 @@ draw_picture_create_resized(Drw *draw, char *src, unsigned int srcw, unsigned in
 }
 
 void
-draw_rect(Drw *draw, int x, int y, unsigned int w, unsigned int h, int filled, int invert)
+draw_rect(Drw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
 {
 	if (!draw || !draw->scheme)
 		return;
@@ -324,10 +324,10 @@ draw_rect(Drw *draw, int x, int y, unsigned int w, unsigned int h, int filled, i
 }
 
 int
-draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int lpad, const char *text, int invert)
+draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *text, int invert)
 {
 	int ty, ellipsis_x = 0;
-	unsigned int tmpw, ew, ellipsis_w = 0, ellipsis_len;
+	uint32 tmpw, ew, ellipsis_w = 0, ellipsis_len;
 	XftDraw *d = NULL;
 	Fnt *usedfont, *curfont, *nextfont;
 	int utf8strlen, utf8charlen, render = x || y || w || h;
@@ -342,16 +342,16 @@ draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 	enum { nomatches_len = 64 };
 	static struct {
         long codepoint[nomatches_len];
-        unsigned int idx;
+        uint32 idx;
         int padding;
     } nomatches;
-	static unsigned int ellipsis_width = 0;
+	static uint32 ellipsis_width = 0;
 
 	if (!draw || (render && (!draw->scheme || !w)) || !text || !draw->fonts)
 		return 0;
 
 	if (!render) {
-		w = invert ? (uint)invert : (uint)~invert;
+		w = invert ? (uint32)invert : (uint32)~invert;
 	} else {
 		XSetForeground(draw->dpy, draw->gc, draw->scheme[invert ? ColFg : ColBg].pixel);
 		XFillRectangle(draw->dpy, draw->drawable, draw->gc, x, y, w, h);
@@ -370,14 +370,14 @@ draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 		while (*text) {
 			utf8charlen = (int)utf8decode(text, &utf8codepoint, UTF_SIZ);
 			for (curfont = draw->fonts; curfont; curfont = curfont->next) {
-				charexists = charexists || XftCharExists(draw->dpy, curfont->xfont, (uint)utf8codepoint);
+				charexists = charexists || XftCharExists(draw->dpy, curfont->xfont, (uint32)utf8codepoint);
 				if (charexists) {
-					draw_font_getexts(curfont, text, (uint)utf8charlen, &tmpw, NULL);
+					draw_font_getexts(curfont, text, (uint32)utf8charlen, &tmpw, NULL);
 					if (ew + ellipsis_width <= w) {
 						/* keep track where the ellipsis still fits */
 						ellipsis_x = x + (int)ew;
 						ellipsis_w = w - ew;
-						ellipsis_len = (uint)utf8strlen;
+						ellipsis_len = (uint32)utf8strlen;
 					}
 
 					if (ew + tmpw > w) {
@@ -435,7 +435,7 @@ draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 			}
 
 			fccharset = FcCharSetCreate();
-			FcCharSetAddChar(fccharset, (uint)utf8codepoint);
+			FcCharSetAddChar(fccharset, (uint32)utf8codepoint);
 
 			if (!draw->fonts->pattern) {
 				/* Refer to the comment in xfont_create for more information. */
@@ -456,7 +456,7 @@ draw_text(Drw *draw, int x, int y, unsigned int w, unsigned int h, unsigned int 
 
 			if (match) {
 				usedfont = xfont_create(draw, NULL, match);
-				if (usedfont && XftCharExists(draw->dpy, usedfont->xfont, (uint)utf8codepoint)) {
+				if (usedfont && XftCharExists(draw->dpy, usedfont->xfont, (uint32)utf8codepoint)) {
 					for (curfont = draw->fonts; curfont->next; curfont = curfont->next)
 						; /* NOP */
 					curfont->next = usedfont;
@@ -472,11 +472,11 @@ no_match:
 	if (d)
 		XftDrawDestroy(d);
 
-	return (int)((uint)x + (render ? w : 0));
+	return (int)((uint32)x + (render ? w : 0));
 }
 
 void
-draw_pic(Drw *draw, int x, int y, unsigned int w, unsigned int h, Picture pic)
+draw_pic(Drw *draw, int x, int y, uint32 w, uint32 h, Picture pic)
 {
 	if (!draw)
 		return;
@@ -484,7 +484,7 @@ draw_pic(Drw *draw, int x, int y, unsigned int w, unsigned int h, Picture pic)
 }
 
 void
-draw_map(Drw *draw, Window win, int x, int y, unsigned int w, unsigned int h)
+draw_map(Drw *draw, Window win, int x, int y, uint32 w, uint32 h)
 {
 	if (!draw)
 		return;
@@ -493,25 +493,25 @@ draw_map(Drw *draw, Window win, int x, int y, unsigned int w, unsigned int h)
 	XSync(draw->dpy, False);
 }
 
-unsigned int
+uint32
 draw_fontset_getwidth(Drw *draw, const char *text)
 {
 	if (!draw || !draw->fonts || !text)
 		return 0;
-	return (uint)draw_text(draw, 0, 0, 0, 0, 0, text, 0);
+	return (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, 0);
 }
 
-unsigned int
-draw_fontset_getwidth_clamp(Drw *draw, const char *text, unsigned int n)
+uint32
+draw_fontset_getwidth_clamp(Drw *draw, const char *text, uint32 n)
 {
-	unsigned int tmp = 0;
+	uint32 tmp = 0;
 	if (draw && draw->fonts && text && n)
-		tmp = (uint)draw_text(draw, 0, 0, 0, 0, 0, text, (int)n);
-	return MIN(n, tmp);
+		tmp = (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, (int)n);
+	return (uint32)MIN(n, tmp);
 }
 
 void
-draw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w, unsigned int *h)
+draw_font_getexts(Fnt *font, const char *text, uint32 len, uint32 *w, uint32 *h)
 {
 	XGlyphInfo ext;
 
@@ -520,7 +520,7 @@ draw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w
 
 	XftTextExtentsUtf8(font->dpy, font->xfont, (XftChar8 *)text, (int)len, &ext);
 	if (w)
-		*w = (uint)ext.xOff;
+		*w = (uint32)ext.xOff;
 	if (h)
 		*h = font->h;
 }
@@ -533,7 +533,7 @@ draw_cur_create(Drw *draw, int shape)
 	if (!draw || !(cur = malloc2_zero(sizeof(Cur))))
 		return NULL;
 
-	cur->cursor = XCreateFontCursor(draw->dpy, (uint)shape);
+	cur->cursor = XCreateFontCursor(draw->dpy, (uint32)shape);
 
 	return cur;
 }
