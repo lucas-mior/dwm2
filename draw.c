@@ -414,6 +414,7 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
         uint32 i;
         int overflow = 0;
         int charexists = 0;
+        double last_scale = 1.0;
 
         if (!*text) {
             break;
@@ -429,13 +430,18 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
 
         for (i = 0; i < glyph_count; i += 1) {
             uint32 tmpw;
+            FT_UInt glyph_index;
+            XGlyphInfo ext;
+            int hb_adv;
+            int xft_adv;
 
             if (info[i].codepoint == 0) {
                 int is_missing = 0;
                 long utf8codepoint = 0;
+                int32 k = 0;
 
                 utf8decode(text + info[i].cluster, &utf8codepoint, UTF_SIZ);
-                for (int32 k = 0; k < nomatches_len; k += 1) {
+                for (k = 0; k < nomatches_len; k += 1) {
                     if (utf8codepoint == nomatches.codepoint[k]) {
                         is_missing = 1;
                         break;
@@ -445,7 +451,30 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
                     break;
                 }
             }
-            tmpw = pos[i].x_advance >> 6;
+
+            glyph_index = info[i].codepoint;
+            XftGlyphExtents(draw->dpy, usedfont->xfont, &glyph_index, 1, &ext);
+            hb_adv = pos[i].x_advance >> 6;
+            xft_adv = ext.xOff;
+
+            if (hb_adv > 0 && xft_adv > 0 && abs(hb_adv - xft_adv) > 10) {
+                last_scale = (double)xft_adv / (double)hb_adv;
+                pos[i].x_advance = (hb_position_t)(pos[i].x_advance * last_scale);
+                pos[i].y_advance = (hb_position_t)(pos[i].y_advance * last_scale);
+                pos[i].x_offset = (hb_position_t)(pos[i].x_offset * last_scale);
+                pos[i].y_offset = (hb_position_t)(pos[i].y_offset * last_scale);
+                tmpw = (uint32)xft_adv;
+            } else if (hb_adv == 0 && ext.xOff == 0 && last_scale != 1.0) {
+                pos[i].x_advance = (hb_position_t)(pos[i].x_advance * last_scale);
+                pos[i].y_advance = (hb_position_t)(pos[i].y_advance * last_scale);
+                pos[i].x_offset = (hb_position_t)(pos[i].x_offset * last_scale);
+                pos[i].y_offset = (hb_position_t)(pos[i].y_offset * last_scale);
+                tmpw = 0;
+            } else {
+                tmpw = (uint32)hb_adv;
+                last_scale = 1.0;
+            }
+
             if (ew + ellipsis_width <= w) {
                 ellipsis_x = x + (int)ew;
                 ellipsis_w = w - ew;
@@ -464,8 +493,9 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
                 int cx = x;
                 int ty = y + (int)((h - usedfont->h) / 2) + usedfont->xfont->ascent;
                 Clr *fg_color;
+                uint32 j;
 
-                for (uint32 j = 0; j < i; j += 1) {
+                for (j = 0; j < i; j += 1) {
                     specs[j].font = usedfont->xfont;
                     specs[j].glyph = info[j].codepoint;
                     specs[j].x = (short)(cx + (pos[j].x_offset >> 6));
@@ -521,7 +551,8 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
             if (!charexists) {
                 charexists = 1;
 
-                for (int32 k = 0; k < nomatches_len; k += 1) {
+                int32 k;
+                for (k = 0; k < nomatches_len; k += 1) {
                     if (utf8codepoint == nomatches.codepoint[k]) {
                         goto no_match;
                     }
