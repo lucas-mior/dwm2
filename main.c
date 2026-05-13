@@ -1531,7 +1531,7 @@ void
 client_new(Window window, XWindowAttributes *window_attributes) {
     Window trans_window = None;
     XWindowChanges window_changes;
-    Client *client = malloc2(SIZEOF(*client));
+    Client *client = malloc2_zero(SIZEOF(*client));
     Client *trans_client = NULL;
     int success;
 
