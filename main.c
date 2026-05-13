@@ -4114,6 +4114,7 @@ update_geometry(void) {
         int j = 0;
         int number_monitors = 0;
         int number_unique;
+        int32 unique_alloc_len;
 
         screen_info = XineramaQueryScreens(display, &number_unique);
         for (monitor = monitors; monitor; monitor = monitor->next) {
@@ -4121,7 +4122,8 @@ update_geometry(void) {
         }
 
         /* only consider unique geometries as separate screens */
-        unique = malloc2_zero(number_unique*SIZEOF(*unique));
+        unique_alloc_len = number_unique;
+        unique = malloc2_zero(unique_alloc_len*SIZEOF(*unique));
         while (i < number_unique) {
             if (is_unique_geometry(unique, j, &screen_info[i])) {
                 memcpy(&unique[j], &screen_info[i], SIZEOF(*unique));
@@ -4189,7 +4191,7 @@ update_geometry(void) {
             }
             monitor_cleanup_monitor(monitor);
         }
-        free(unique);
+        free2(unique, unique_alloc_len*SIZEOF(*unique));
     } else
 #endif /* XINERAMA */
     {  /* default monitor setup */
