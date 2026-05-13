@@ -2866,65 +2866,65 @@ grab_keys(void) {
 
 void
 handler_others(XEvent *event) {
-    switch (event->type) {
-    case CirculateNotify:
-        error("CirculateNotify");
-        break;
-    case CirculateRequest:
-        error("CirculateRequest");
-        break;
-    case ColormapNotify:
-        error("ColormapNotify");
-        break;
-    case CreateNotify:
-        error("CreateNotify");
-        break;
-    case FocusOut:
-        error("FocusOut");
-        break;
-    case GenericEvent:
-        error("GenericEvent");
-        break;
-    case GraphicsExpose:
-        error("GraphicsExpose");
-        break;
-    case GravityNotify:
-        error("GravityNotify");
-        break;
-    case KeymapNotify:
-        error("KeymapNotify");
-        break;
-    case LeaveNotify:
-        error("LeaveNotify");
-        break;
-    case MapNotify:
-        error("MapNotify");
-        break;
-    case NoExpose:
-        error("NoExpose");
-        break;
-    case ReparentNotify:
-        error("ReparentNotify");
-        break;
-    case ResizeRequest:
-        error("ResizeRequest");
-        break;
-    case SelectionClear:
-        error("SelectionClear");
-        break;
-    case SelectionNotify:
-        error("SelectionNotify");
-        break;
-    case SelectionRequest:
-        error("SelectionRequest");
-        break;
-    case VisibilityNotify:
-        error("VisibilityNotify");
-        break;
-    default:
-        error("unkown event type");
-        break;
-    }
+    /* switch (event->type) { */
+    /* case CirculateNotify: */
+    /*     error("CirculateNotify"); */
+    /*     break; */
+    /* case CirculateRequest: */
+    /*     error("CirculateRequest"); */
+    /*     break; */
+    /* case ColormapNotify: */
+    /*     error("ColormapNotify"); */
+    /*     break; */
+    /* case CreateNotify: */
+    /*     error("CreateNotify"); */
+    /*     break; */
+    /* case FocusOut: */
+    /*     error("FocusOut"); */
+    /*     break; */
+    /* case GenericEvent: */
+    /*     error("GenericEvent"); */
+    /*     break; */
+    /* case GraphicsExpose: */
+    /*     error("GraphicsExpose"); */
+    /*     break; */
+    /* case GravityNotify: */
+    /*     error("GravityNotify"); */
+    /*     break; */
+    /* case KeymapNotify: */
+    /*     error("KeymapNotify"); */
+    /*     break; */
+    /* case LeaveNotify: */
+    /*     error("LeaveNotify"); */
+    /*     break; */
+    /* case MapNotify: */
+    /*     error("MapNotify"); */
+    /*     break; */
+    /* case NoExpose: */
+    /*     error("NoExpose"); */
+    /*     break; */
+    /* case ReparentNotify: */
+    /*     error("ReparentNotify"); */
+    /*     break; */
+    /* case ResizeRequest: */
+    /*     error("ResizeRequest"); */
+    /*     break; */
+    /* case SelectionClear: */
+    /*     error("SelectionClear"); */
+    /*     break; */
+    /* case SelectionNotify: */
+    /*     error("SelectionNotify"); */
+    /*     break; */
+    /* case SelectionRequest: */
+    /*     error("SelectionRequest"); */
+    /*     break; */
+    /* case VisibilityNotify: */
+    /*     error("VisibilityNotify"); */
+    /*     break; */
+    /* default: */
+    /*     error("unkown event type"); */
+    /*     break; */
+    /* } */
     return;
 }
 
