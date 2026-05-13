@@ -175,7 +175,10 @@ case "$target" in
         sleep 1
         DISPLAY=:1 gdb bin/dwm_debug -ex run &
         gdb=$!
+        DISPLAY=:1 dwmblocks2 > /dev/null 2>&1 &
+        echo "🇩🇪" | DISPLAY=:1 xsel -b
         DISPLAY=:1 st -e lfimg
+
         kill -s KILL $gdb
         kill -s KILL $xephyr
 
