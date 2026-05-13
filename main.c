@@ -307,7 +307,7 @@ static void client_pop(Client *);
 static void client_resize(Client *, int32, int32, int32, int32, bool);
 static void client_resize_apply(Client *, int32, int32, int32, int32);
 static void client_send_monitor(Client *, Monitor *);
-static void client_set_client_state(Client *, long);
+static void client_set_client_state(Client *, int64);
 static void client_set_client_tag_prop(Client *);
 static void client_set_focus(Client *);
 static void client_set_fullscreen(Client *, bool);
@@ -341,7 +341,7 @@ static Monitor *monitor_from_rectangle(int32, int32, int32, int32);
 static Monitor *window_to_monitor(Window);
 static Client *window_to_client(Window);
 static int32 window_text_property(Window, Atom, char *, uint);
-static long window_state(Window);
+static int64 window_state(Window);
 
 static void set_layout(const Layout *);
 static int32 get_root_pointer(int32 *, int32 *);
@@ -1788,8 +1788,8 @@ client_send_monitor(Client *client, Monitor *monitor) {
 }
 
 void
-client_set_client_state(Client *client, long state) {
-    long data[] = {state, None};
+client_set_client_state(Client *client, int64 state) {
+    int64 data[] = {state, None};
 
     XChangeProperty(display, client->window, wm_atoms[WM_STATE],
                     wm_atoms[WM_STATE], 32, PropModeReplace, (uchar *)data, 2);
@@ -1817,7 +1817,7 @@ client_send_event(Client *client, Atom proto) {
         event.xclient.window = client->window;
         event.xclient.message_type = wm_atoms[WM_PROTOCOLS];
         event.xclient.format = 32;
-        event.xclient.data.l[0] = (long)proto;
+        event.xclient.data.l[0] = (int64)proto;
         event.xclient.data.l[1] = CurrentTime;
         XSendEvent(display, client->window, False, NoEventMask, &event);
     }
@@ -2007,7 +2007,7 @@ client_show_hide(Client *client) {
 
 void
 client_set_client_tag_prop(Client *client) {
-    long data[] = {(long)client->tags, (long)client->monitor->num};
+    int64 data[] = {(int64)client->tags, (int64)client->monitor->num};
     XChangeProperty(display, client->window, net_atoms[NET_CLIENT_INFO],
                     XA_CARDINAL, 32, PropModeReplace, (uchar *)data,
                     LENGTH(data));
@@ -2042,7 +2042,7 @@ client_unfocus(Client *client, bool set_focus) {
 
 void
 client_update_size_hints(Client *client) {
-    long supplied_return;
+    int64 supplied_return;
     bool has_maxes;
     bool mins_match_maxes;
     XSizeHints size_hints;
@@ -2767,10 +2767,10 @@ get_root_pointer(int32 *x, int32 *y) {
     return XQueryPointer(display, root, &dummy, &dummy, x, y, &di, &di, &dui);
 }
 
-long
+int64
 window_state(Window window) {
     int32 actual_format_return;
-    long result = -1;
+    int64 result = -1;
     uchar *prop_return = NULL;
     ulong nitems_return;
     ulong bytes_after_return;
@@ -3932,7 +3932,7 @@ setup_once(void) {
     XVisualInfo *visual_infos;
     XVisualInfo vinfo_template;
     int32 nitems_return;
-    long vinfo_mask = VisualScreenMask | VisualDepthMask | VisualClassMask;
+    int64 vinfo_mask = VisualScreenMask | VisualDepthMask | VisualClassMask;
     XSetWindowAttributes window_attributes;
     Atom UTF8STRING;
     struct sigaction signal_action;
