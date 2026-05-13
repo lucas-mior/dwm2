@@ -77,7 +77,7 @@
 
 #if 0
 #define DWM_DEBUG(...) do { \
-    error(__func__, __VA_ARGS__); \
+    error(__VA_ARGS__); \
 } while (0)
 #else
 #define DWM_DEBUG(...)
@@ -425,6 +425,7 @@ user_alt_tab(const Arg *arg) {
     Client *client;
     bool grabbed = false;
     int grab_status = 1000;
+    (void)arg;
 
     if (all_clients == NULL)
         return;
@@ -599,6 +600,7 @@ user_focus_stack(const Arg *arg) {
 
 void
 user_focus_urgent(const Arg *arg) {
+    (void)arg;
     for (Monitor *monitor = monitors; monitor; monitor = monitor->next) {
         Client *client;
 
@@ -648,6 +650,7 @@ user_more_masters(const Arg *arg) {
 
 void
 user_kill_client(const Arg *arg) {
+    (void)arg;
     Client *selected = live_monitor->selected_client;
     if (!selected)
         return;
@@ -668,6 +671,7 @@ user_kill_client(const Arg *arg) {
 
 void
 user_mouse_move(const Arg *arg) {
+    (void)arg;
     Client *client;
     Monitor *monitor_aux;
     XEvent event;
@@ -764,6 +768,7 @@ user_mouse_move(const Arg *arg) {
 
 void
 user_mouse_resize(const Arg *arg) {
+    (void)arg;
     Client *client;
     Monitor *monitor;
     XEvent event;
@@ -905,14 +910,14 @@ user_signal_status_bar(const Arg *arg) {
     signal_value.sival_int = arg->i | ((SIGRTMIN + status_signal) << 3);
 
     if (pipe(pipefd) < 0) {
-        error(__func__, "Error creating pipe: %s\n", strerror(errno));
+        error("Error creating pipe: %s\n", strerror(errno));
         status_program_pid = -1;
         return;
     }
 
     switch (fork()) {
     case -1:
-        error(__func__, "Error forking: %s\n", strerror(errno));
+        error("Error forking: %s\n", strerror(errno));
         close(pipefd[0]);
         close(pipefd[1]);
         status_program_pid = -1;
@@ -922,7 +927,7 @@ user_signal_status_bar(const Arg *arg) {
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]);
         execlp("pidof", "pidof", "-s", STATUS_PROGRAM, NULL);
-        error(__func__, "Error executing pidof.\n");
+        error("Error executing pidof.\n");
         exit(EXIT_FAILURE);
     default:
         close(pipefd[1]);
@@ -983,6 +988,7 @@ user_toggle_bar(const Arg *arg) {
 
 void
 user_toggle_floating(const Arg *arg) {
+    (void)arg;
     Client *client = live_monitor->selected_client;
 
     if (client == NULL)
@@ -1010,6 +1016,7 @@ user_toggle_floating(const Arg *arg) {
 
 void
 user_toggle_fullscreen(const Arg *arg) {
+    (void)arg;
     Client *client = live_monitor->selected_client;
     if (client)
         client_set_fullscreen(client, !client->is_fullscreen);
@@ -1032,10 +1039,10 @@ user_spawn(const Arg *arg) {
        sigaction(SIGCHLD, &signal_action, NULL);
 
        execvp(((char *const *)arg->v)[0], (char *const *)arg->v);
-       error(__func__, "dwm: execvp '%s' failed:", ((char *const *)arg->v)[0]);
+       error("dwm: execvp '%s' failed:", ((char *const *)arg->v)[0]);
        exit(EXIT_FAILURE);
    case -1:
-       error(__func__, "Error forking: %s\n", strerror(errno));
+       error("Error forking: %s\n", strerror(errno));
        break;
    default:
        break;
@@ -1106,6 +1113,7 @@ user_view_tag(const Arg *arg) {
 
 void
 user_window_view(const Arg *arg) {
+    (void)arg;
     Client *client = live_monitor->selected_client;
     view_tag(client->tags);
     return;
@@ -1113,6 +1121,7 @@ user_window_view(const Arg *arg) {
 
 void
 user_promote_to_master(const Arg *arg) {
+    (void)arg;
     Client *client = live_monitor->selected_client;
     Monitor *monitor = live_monitor;
     bool monitor_floating = !monitor->layout[monitor->lay_i]->function;
@@ -3404,7 +3413,7 @@ int
 handler_xerror_start(Display *error_display, XErrorEvent *error_event) {
     (void) error_display;
     (void) error_event;
-    error(__func__, "Error starting dwm: another window manager is running.\n");
+    error("Error starting dwm: another window manager is running.\n");
     exit(EXIT_FAILURE);
 }
 
@@ -3818,7 +3827,7 @@ setup_once(void) {
                      (uint)screen_width, (uint)screen_height,
                      visual, (uint)depth, color_map);
     if (!draw_fontset_create(draw, fonts, LENGTH(fonts))) {
-        error(__func__, "Error loading fonts for dwm.\n");
+        error("Error loading fonts for dwm.\n");
         exit(EXIT_FAILURE);
     }
     text_padding = (int) ((double) draw->fonts->h / 2.2);
@@ -4066,7 +4075,7 @@ status_update(void) {
 
     if (!window_text_property(root, XA_WM_NAME,
                               status_top.text, SIZEOF(status_top.text))) {
-        error(__func__, "Error getting XA_WM_NAME property.\n");
+        error("Error getting XA_WM_NAME property.\n");
         strcpy(status_top.text, "dwm-"VERSION);
         strcpy(status_top.text, "dwm-"VERSION);
         status_top.pixels = get_text_pixels(status_top.text) - text_padding + 2;
@@ -4096,15 +4105,15 @@ main(int argc, char *argv[]) {
         printf("dwm-"VERSION"\n");
         exit(EXIT_SUCCESS);
     } else if (argc != 1) {
-        error(__func__, "usage: dwm [-v]");
+        error("usage: dwm [-v]");
         exit(EXIT_FAILURE);
     }
 
     if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
-        error(__func__, "Warning: no locale support.\n");
+        error("Warning: no locale support.\n");
 
     if (!(display = XOpenDisplay(NULL))) {
-        error(__func__, "Error opening display.\n");
+        error("Error opening display.\n");
         exit(EXIT_FAILURE);
     }
     {
@@ -4125,7 +4134,7 @@ main(int argc, char *argv[]) {
 #ifdef __OpenBSD__
     char *pledge_args = "stdio rpath proc exec";
     if (pledge(pledge_args, NULL) == -1) {
-        error(__func__, "Error in pledge(%s)\n", pledge_args);
+        error("Error in pledge(%s)\n", pledge_args);
         exit(EXIT_FAILURE);
     }
 #endif /* __OpenBSD__ */
@@ -4165,7 +4174,7 @@ main(int argc, char *argv[]) {
         monitor_cleanup_monitor(monitors);
 
     if (dwm_restart) {
-        error(__func__, "restarting...");
+        error("restarting...");
         execvp(argv[0], argv);
     }
 
