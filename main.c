@@ -75,14 +75,6 @@
     wm_atoms[X] = XInternAtom(display, #X, False); \
 } while (0)
 
-#if 0
-#define DWM_DEBUG(...) do { \
-    error(__VA_ARGS__); \
-} while (0)
-#else
-#define DWM_DEBUG(...)
-#endif
-
 enum {
     NET_SUPPORTED,
     NET_WM_NAME,
@@ -2876,61 +2868,61 @@ void
 handler_others(XEvent *event) {
     switch (event->type) {
     case CirculateNotify:
-        DWM_DEBUG("CirculateNotify");
+        error("CirculateNotify");
         break;
     case CirculateRequest:
-        DWM_DEBUG("CirculateRequest");
+        error("CirculateRequest");
         break;
     case ColormapNotify:
-        DWM_DEBUG("ColormapNotify");
+        error("ColormapNotify");
         break;
     case CreateNotify:
-        DWM_DEBUG("CreateNotify");
+        error("CreateNotify");
         break;
     case FocusOut:
-        DWM_DEBUG("FocusOut");
+        error("FocusOut");
         break;
     case GenericEvent:
-        DWM_DEBUG("GenericEvent");
+        error("GenericEvent");
         break;
     case GraphicsExpose:
-        DWM_DEBUG("GraphicsExpose");
+        error("GraphicsExpose");
         break;
     case GravityNotify:
-        DWM_DEBUG("GravityNotify");
+        error("GravityNotify");
         break;
     case KeymapNotify:
-        DWM_DEBUG("KeymapNotify");
+        error("KeymapNotify");
         break;
     case LeaveNotify:
-        DWM_DEBUG("LeaveNotify");
+        error("LeaveNotify");
         break;
     case MapNotify:
-        DWM_DEBUG("MapNotify");
+        error("MapNotify");
         break;
     case NoExpose:
-        DWM_DEBUG("NoExpose");
+        error("NoExpose");
         break;
     case ReparentNotify:
-        DWM_DEBUG("ReparentNotify");
+        error("ReparentNotify");
         break;
     case ResizeRequest:
-        DWM_DEBUG("ResizeRequest");
+        error("ResizeRequest");
         break;
     case SelectionClear:
-        DWM_DEBUG("SelectionClear");
+        error("SelectionClear");
         break;
     case SelectionNotify:
-        DWM_DEBUG("SelectionNotify");
+        error("SelectionNotify");
         break;
     case SelectionRequest:
-        DWM_DEBUG("SelectionRequest");
+        error("SelectionRequest");
         break;
     case VisibilityNotify:
-        DWM_DEBUG("VisibilityNotify");
+        error("VisibilityNotify");
         break;
     default:
-        DWM_DEBUG("unkown event type");
+        error("unkown event type");
         break;
     }
     return;
@@ -3468,77 +3460,77 @@ handler_xerror(Display *error_display, XErrorEvent *error_event) {
     (void)error_display;
 
     if (error_code == BadWindow) {
-        DWM_DEBUG("BadWindow");
+        error("BadWindow");
         return 0;
     }
 
     switch (request_code) {
     case X_SetInputFocus:
         if (error_code == BadMatch) {
-            DWM_DEBUG("X_SetInputFocus -> BadMatch");
+            error("X_SetInputFocus -> BadMatch");
             return 0;
         } else {
-            DWM_DEBUG("X_SetInputFocus");
+            error("X_SetInputFocus");
             goto default_handlers;
         }
     case X_PolyText8:
         if (error_code == BadDrawable) {
-            DWM_DEBUG("X_PolyText8 -> BadDrawable");
+            error("X_PolyText8 -> BadDrawable");
             return 0;
         } else {
-            DWM_DEBUG("X_PolyText8");
+            error("X_PolyText8");
             goto default_handlers;
         }
     case X_PolyFillRectangle:
         if (error_code == BadDrawable) {
-            DWM_DEBUG("X_PolyFillRectangle -> BadDrawable");
+            error("X_PolyFillRectangle -> BadDrawable");
             return 0;
         } else {
-            DWM_DEBUG("X_PolyFillRectangle");
+            error("X_PolyFillRectangle");
             goto default_handlers;
         }
     case X_PolySegment:
         if (error_code == BadDrawable) {
-            DWM_DEBUG("X_PolySegment -> BadDrawable");
+            error("X_PolySegment -> BadDrawable");
             return 0;
         } else {
-            DWM_DEBUG("X_PolySegment");
+            error("X_PolySegment");
             goto default_handlers;
         }
     case X_ConfigureWindow:
         if (error_code == BadMatch) {
-            DWM_DEBUG("X_ConfigureWindow -> BadMatch");
+            error("X_ConfigureWindow -> BadMatch");
             return 0;
         } else {
-            DWM_DEBUG("X_ConfigureWindow");
+            error("X_ConfigureWindow");
             goto default_handlers;
         }
     case X_GrabButton:
         if (error_code == BadAccess) {
-            DWM_DEBUG("X_GrabButton -> BadAccess");
+            error("X_GrabButton -> BadAccess");
             return 0;
         } else {
-            DWM_DEBUG("X_GrabButton");
+            error("X_GrabButton");
             goto default_handlers;
         }
     case X_GrabKey:
         if (error_code == BadAccess) {
-            DWM_DEBUG("X_GrabKey -> BadAccess");
+            error("X_GrabKey -> BadAccess");
             return 0;
         } else {
             goto default_handlers;
         }
     case X_CopyArea:
         if (error_code == BadDrawable) {
-            DWM_DEBUG("X_CopyArea -> BadDrawable");
+            error("X_CopyArea -> BadDrawable");
             return 0;
         } else {
-            DWM_DEBUG("X_CopyArea");
+            error("X_CopyArea");
             goto default_handlers;
         }
     default:
-        DWM_DEBUG("Fatal error: request code=%d, error code=%d\n", request_code,
-                  error_code);
+        error("Fatal error: request code=%d, error code=%d\n", request_code,
+              error_code);
         goto default_handlers;
     }
 

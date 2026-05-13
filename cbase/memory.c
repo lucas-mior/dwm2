@@ -591,8 +591,7 @@ free2_(void *pointer, int64 size) {
                pointer, size)
 #else
 #define malloc2_zero(size) \
-    malloc_debug(__FILE__, __LINE__, (char *)__func__, \
-                 size, true)
+    xmalloc(size, true)
 #define malloc2(size) \
     xmalloc(size, false)
 #define realloc2(old, old_capacity, new_capacity, obj_size) \
