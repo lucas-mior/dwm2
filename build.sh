@@ -168,8 +168,6 @@ case "$target" in
         $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
     fi
     
-    # Symlink to root for convenience
-    ln -sf "$exe" "$program"
     trace_off
     ;;
 esac
