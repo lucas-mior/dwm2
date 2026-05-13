@@ -4238,8 +4238,8 @@ status_update(void) {
     if (!window_text_property(root, XA_WM_NAME, status_top.text,
                               SIZEOF(status_top.text))) {
         error("Error getting XA_WM_NAME property.\n");
-        strcpy(status_top.text, "dwm-" VERSION);
-        strcpy(status_top.text, "dwm-" VERSION);
+        strcpy(status_top.text, "dwm-" QUOTE(VERSION));
+        strcpy(status_top.text, "dwm-" QUOTE(VERSION));
         status_top.pixels = get_text_pixels(status_top.text) - text_padding + 2;
         status_bottom.pixels = status_top.pixels;
         return;
@@ -4264,7 +4264,7 @@ status_update(void) {
 int
 main(int argc, char *argv[]) {
     if (argc == 2 && !strcmp("-v", argv[1])) {
-        printf("dwm-" VERSION "\n");
+        printf("dwm-" QUOTE(VERSION) "\n");
         exit(EXIT_SUCCESS);
     } else if (argc != 1) {
         error("usage: dwm [-v]");
