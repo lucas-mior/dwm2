@@ -1491,13 +1491,12 @@ client_center(Client *client) {
 
 void
 client_new(Window window, XWindowAttributes *window_attributes) {
-    Client *client;
-    Client *trans_client = NULL;
     Window trans_window = None;
     XWindowChanges window_changes;
+    Client *client = xcalloc(1, sizeof(*client));
+    Client *trans_client = NULL;
     int success;
 
-    client = xcalloc(1, sizeof(*client));
     client->window = window;
 
     client->x = client->old_x = window_attributes->x;
