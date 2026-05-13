@@ -52,12 +52,6 @@
 #include "draw.h"
 #include "draw.c"
 
-typedef uint8_t uint8;
-typedef uint32_t uint32;
-typedef unsigned int uint;
-typedef unsigned long ulong;
-typedef unsigned char uchar;
-
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         \
     (mask & ~(numlock_mask|LockMask) \
