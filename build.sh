@@ -17,24 +17,20 @@ fi
 alias trace_on='set -x'
 alias trace_off='{ set +x; } 2>/dev/null'
 
-# --- Project Configuration ---
 VERSION="6.5"
 program="dwm"
 SRC="main.c"
 
-# --- System Paths ---
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
 FREETYPEINC="/usr/include/freetype2"
-HBINC="/usr/include/harfbuzz" # Ensure Harfbuzz is included for the new drw_text
+HBINC="/usr/include/harfbuzz"
 
-# --- Script Environment ---
 dir=$(dirname "$(readlink -f "$0")")
 cbase="cbase"
 cd "$dir" || exit
 script=$(basename "$0")
 
-# If targets file doesn't exist, create a default one for the script logic
 if [ ! -f ./targets ]; then
     printf "build\nrelease\ndebug\ninstall\nuninstall\nclean" > ./targets
 fi
@@ -46,7 +42,6 @@ if ! grep -q "$target" ./targets; then
     exit 1
 fi
 
-# --- Flags & Libraries ---
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
@@ -62,10 +57,8 @@ CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
-# --- Compiler Selection ---
 CC="${CC:-tcc}"
 
-# --- Helper Functions ---
 option_remove() {
     echo "$1" | sed -E "s| *$2 +| |g"
 }
@@ -93,7 +86,6 @@ with_other () {
     return 0
 }
 
-# --- Target Configuration ---
 case "$target" in
 "debug")
     CFLAGS="$CFLAGS -g3 -O0 -fsanitize=undefined"
@@ -110,7 +102,6 @@ case "$target" in
     ;;
 esac
 
-# --- Compiler Specific Flags ---
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
@@ -134,7 +125,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 fi
 
-# --- Execution Logic ---
 case "$target" in
 "uninstall")
     trace_on
@@ -155,13 +145,11 @@ case "$target" in
     ;;
 *)
     trace_on
-    # Tag generation
     find . -iname "*.[ch]" | xargs ctags --kinds-C=+l+d 2> /dev/null || true
     if [ -f tags ]; then
         vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
     fi
     
-    # Build
     if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
         with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
     else
