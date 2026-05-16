@@ -29,8 +29,6 @@
 #include "draw.h"
 #include "util.c"
 
-#define BETWEEN(X, A, B)        ((A) <= (X) && (X) <= (B))
-
 #define UTF_INVALID 0xFFFD
 #define UTF_SIZ     4
 
