@@ -545,7 +545,6 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
         uint32 i = 0;
         int overflow = 0;
         uint32 ew = 0;
-        int ellipsis_len = 0;
         double last_scale = 1.0;
 
         for (i = 0; i < glyph_count; i += 1) {
@@ -596,7 +595,6 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
             if (ew + ellipsis_width <= w) {
                 ellipsis_x = x + (int)ew;
                 ellipsis_w = w - ew;
-                ellipsis_len = (int)info[i].cluster;
             }
             if (ew + tmpw > w) {
                 overflow = 1;
