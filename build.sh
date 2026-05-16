@@ -134,6 +134,9 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-cast-align"
     CFLAGS="$CFLAGS -Wno-declaration-after-statement"
     CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+    CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
+    CFLAGS="$CFLAGS -Wno-documentation"
+    CFLAGS="$CFLAGS -Wno-reserved-identifier"
 fi
 
 case "$target" in
