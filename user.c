@@ -739,7 +739,9 @@ void
 user_window_view(const Arg *arg) {
     (void)arg;
     Client *client = live_monitor->selected_client;
-    view_tag(client->tags);
+    if (client) {
+        view_tag(client->tags);
+    }
     return;
 }
 

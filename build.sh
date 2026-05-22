@@ -176,12 +176,8 @@ case "$target" in
         DISPLAY=:0 Xephyr -br -ac -noreset -screen 1280x720 :1 &
         xephyr=$!
         sleep 1
-        DISPLAY=:1 gdb bin/dwm_debug -ex run &
-        gdb=$!
-        DISPLAY=:1 xsetroot -name "xsetroot ====🇩🇪==== ====😀====="
-        DISPLAY=:1 st -e lfimg
+        DISPLAY=:1 gdb bin/dwm_debug -ex run
 
-        kill -s KILL $gdb
         kill -s KILL $xephyr
 
         trace_off
