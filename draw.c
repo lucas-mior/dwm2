@@ -81,10 +81,10 @@ utf8decode(const char *c, long *u, int64 clen)
     return len;
 }
 
-Drw *
+Draw *
 draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *visual, uint32 depth, Colormap cmap)
 {
-    Drw *draw = malloc2_zero(SIZEOF(Drw));
+    Draw *draw = malloc2_zero(SIZEOF(Draw));
 
     draw->dpy = dpy;
     draw->screen = screen;
@@ -103,7 +103,7 @@ draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *v
 }
 
 void
-draw_resize(Drw *draw, uint32 w, uint32 h)
+draw_resize(Draw *draw, uint32 w, uint32 h)
 {
     if (!draw)
         return;
@@ -119,7 +119,7 @@ draw_resize(Drw *draw, uint32 w, uint32 h)
 }
 
 void
-draw_free(Drw *draw)
+draw_free(Draw *draw)
 {
     XRenderFreePicture(draw->dpy, draw->picture);
     XFreePixmap(draw->dpy, draw->drawable);
@@ -132,7 +132,7 @@ draw_free(Drw *draw)
  * draw_fontset_create instead.
  */
 static DwmFont *
-xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
+xfont_create(Draw *draw, const char *fontname, FcPattern *fontpattern)
 {
     DwmFont *font;
     XftFont *xfont = NULL;
@@ -193,7 +193,7 @@ xfont_free(DwmFont *font)
 }
 
 DwmFont*
-draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount)
+draw_fontset_create(Draw* draw, const char *fonts[], int64 fontcount)
 {
     DwmFont *cur, *ret = NULL;
 
@@ -220,7 +220,7 @@ draw_fontset_free(DwmFont *font)
 }
 
 void
-draw_clr_create(Drw *draw, XftColor *dest, const char *clrname, uint32 alpha)
+draw_clr_create(Draw *draw, XftColor *dest, const char *clrname, uint32 alpha)
 {
     if (!draw || !dest || !clrname)
         return;
@@ -235,7 +235,7 @@ draw_clr_create(Drw *draw, XftColor *dest, const char *clrname, uint32 alpha)
 }
 
 XftColor *
-draw_scm_create(Drw *draw, const char *clrnames[], const uint32 alphas[], int64 clrcount)
+draw_scm_create(Draw *draw, const char *clrnames[], const uint32 alphas[], int64 clrcount)
 {
     XftColor *ret;
 
@@ -251,21 +251,21 @@ draw_scm_create(Drw *draw, const char *clrnames[], const uint32 alphas[], int64 
 }
 
 void
-draw_setfontset(Drw *draw, DwmFont *set)
+draw_setfontset(Draw *draw, DwmFont *set)
 {
     if (draw)
         draw->fonts = set;
 }
 
 void
-draw_setscheme(Drw *draw, XftColor *scm)
+draw_setscheme(Draw *draw, XftColor *scm)
 {
     if (draw)
         draw->scheme = scm;
 }
 
 Picture
-draw_picture_create_resized(Drw *draw, char *src, uint32 srcw, uint32 srch, uint32 dstw, uint32 dsth) {
+draw_picture_create_resized(Draw *draw, char *src, uint32 srcw, uint32 srch, uint32 dstw, uint32 dsth) {
     Pixmap pm;
     Picture pic;
     GC gc;
@@ -333,7 +333,7 @@ draw_picture_create_resized(Drw *draw, char *src, uint32 srcw, uint32 srch, uint
 }
 
 void
-draw_rect(Drw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
+draw_rect(Draw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
 {
     if (!draw || !draw->scheme)
         return;
@@ -345,7 +345,7 @@ draw_rect(Drw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
 }
 
 int
-draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *text, int invert)
+draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *text, int invert)
 {
     int render = 0;
     XftDraw *d = NULL;
@@ -657,7 +657,7 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
 }
 
 void
-draw_pic(Drw *draw, int x, int y, uint32 w, uint32 h, Picture pic)
+draw_pic(Draw *draw, int x, int y, uint32 w, uint32 h, Picture pic)
 {
     if (!draw)
         return;
@@ -665,7 +665,7 @@ draw_pic(Drw *draw, int x, int y, uint32 w, uint32 h, Picture pic)
 }
 
 void
-draw_map(Drw *draw, Window win, int x, int y, uint32 w, uint32 h)
+draw_map(Draw *draw, Window win, int x, int y, uint32 w, uint32 h)
 {
     if (!draw)
         return;
@@ -675,7 +675,7 @@ draw_map(Drw *draw, Window win, int x, int y, uint32 w, uint32 h)
 }
 
 uint32
-draw_fontset_getwidth(Drw *draw, const char *text)
+draw_fontset_getwidth(Draw *draw, const char *text)
 {
     if (!draw || !draw->fonts || !text)
         return 0;
@@ -683,7 +683,7 @@ draw_fontset_getwidth(Drw *draw, const char *text)
 }
 
 uint32
-draw_fontset_getwidth_clamp(Drw *draw, const char *text, uint32 n)
+draw_fontset_getwidth_clamp(Draw *draw, const char *text, uint32 n)
 {
     uint32 tmp = 0;
     if (draw && draw->fonts && text && n)
@@ -707,7 +707,7 @@ draw_font_getexts(DwmFont *font, const char *text, uint32 len, uint32 *w, uint32
 }
 
 Cursor *
-draw_cur_create(Drw *draw, int shape)
+draw_cur_create(Draw *draw, int shape)
 {
     Cursor *cur;
 
@@ -720,7 +720,7 @@ draw_cur_create(Drw *draw, int shape)
 }
 
 void
-draw_cur_free(Drw *draw, Cursor *cursor)
+draw_cur_free(Draw *draw, Cursor *cursor)
 {
     if (!cursor)
         return;

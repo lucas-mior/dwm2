@@ -339,7 +339,7 @@ static bool dwm_running = true;
 
 static Cursor *cursor[CursorLast];
 static XftColor **scheme;
-static Drw *draw;
+static Draw *draw;
 
 static Monitor *monitors;
 static Monitor *live_monitor;
