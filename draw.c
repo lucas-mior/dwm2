@@ -28,58 +28,7 @@
 #include "dwm.h"
 #include "draw.h"
 #include "util.c"
-
-#define UTF_INVALID 0xFFFD
-#define UTF_SIZ     4
-
-static const unsigned char utfbyte[UTF_SIZ + 1] = {0x80,    0, 0xC0, 0xE0, 0xF0};
-static const unsigned char utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
-static const long utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000};
-static const long utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
-
-static long
-utf8decodebyte(const char c, int64 *i)
-{
-    for (*i = 0; *i < (UTF_SIZ + 1); ++(*i)) {
-        if (((unsigned char)c & utfmask[*i]) == utfbyte[*i])
-            return (unsigned char)c & ~utfmask[*i];
-    }
-    return 0;
-}
-
-static int64
-utf8validate(long *u, int64 i)
-{
-    if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
-        *u = UTF_INVALID;
-    for (i = 1; *u > utfmax[i]; i += 1);
-    return i;
-}
-
-static int64
-utf8decode(const char *c, long *u, int64 clen)
-{
-    int64 i, j, len, type;
-    long udecoded;
-
-    *u = UTF_INVALID;
-    if (!clen)
-        return 0;
-    udecoded = utf8decodebyte(c[0], &len);
-    if (!BETWEEN(len, 1, UTF_SIZ))
-        return 1;
-    for (i = 1, j = 1; i < clen && j < len; i += 1, j += 1) {
-        udecoded = (udecoded << 6) | utf8decodebyte(c[i], &type);
-        if (type)
-            return j;
-    }
-    if (j < len)
-        return 0;
-    *u = udecoded;
-    utf8validate(u, len);
-
-    return len;
-}
+#include "utf8.c"
 
 Draw *
 draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *visual, uint32 depth, Colormap cmap)
@@ -355,7 +304,7 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
     uint32 ellipsis_w = 0;
     enum { nomatches_len = 64 };
     static struct {
-        long codepoint[nomatches_len];
+        uint32 codepoint[nomatches_len];
         uint32 idx;
         int padding;
     } nomatches;
@@ -404,15 +353,15 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
     buffer = hb_buffer_create();
 
     while (*text) {
-        long utf8codepoint = 0;
-        int utf8charlen = 0;
+        uint32 utf8codepoint = 0;
+        int32 utf8charlen = 0;
         DwmFont *curfont = NULL;
         DwmFont *nextfont = NULL;
         int charexists = 0;
         char *scan = NULL;
         int chunk_len = 0;
 
-        utf8charlen = (int)utf8decode(text, &utf8codepoint, UTF_SIZ);
+        utf8charlen = utf8_decode((char *)text, &utf8codepoint, 4);
 
         for (curfont = draw->fonts; curfont; curfont = curfont->next) {
             if (XftCharExists(draw->dpy, curfont->xfont, (uint32)utf8codepoint)) {
@@ -483,12 +432,12 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
         scan = (char *)text;
 
         while (*scan) {
-            long cp = 0;
-            int clen = 0;
+            uint32 cp = 0;
+            int32 clen = 0;
             DwmFont *f = NULL;
             int is_combo = 0;
 
-            clen = (int)utf8decode(scan, &cp, UTF_SIZ);
+            clen = utf8_decode(scan, &cp, 4);
 
             /* preserve complex emoji joiners and variation selectors in the current chunk */
             if (cp == 0x200D) {
