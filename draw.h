@@ -31,7 +31,7 @@ typedef struct DwmFont {
 
 enum { ColFg, ColBg, ColBorder }; /* XftColor scheme index */
 
-typedef struct {
+typedef struct Drw {
     unsigned int w, h;
     Display *dpy;
     int screen;
