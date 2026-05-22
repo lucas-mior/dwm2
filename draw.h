@@ -20,10 +20,6 @@
 
 #include "util.c"
 
-typedef struct {
-    Cursor cursor;
-} Cur;
-
 typedef struct Fnt {
     Display *dpy;
     unsigned int h;
@@ -33,8 +29,7 @@ typedef struct Fnt {
     struct Fnt *next;
 } Fnt;
 
-enum { ColFg, ColBg, ColBorder }; /* Clr scheme index */
-typedef XftColor Clr;
+enum { ColFg, ColBg, ColBorder }; /* XftColor scheme index */
 
 typedef struct {
     unsigned int w, h;
@@ -47,7 +42,7 @@ typedef struct {
     Drawable drawable;
     Picture picture;
     GC gc;
-    Clr *scheme;
+    XftColor *scheme;
     Fnt *fonts;
 } Drw;
 
@@ -64,16 +59,16 @@ unsigned int draw_fontset_getwidth_clamp(Drw *draw, const char *text, unsigned i
 void draw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w, unsigned int *h);
 
 /* Colorscheme abstraction */
-void draw_clr_create(Drw *draw, Clr *dest, const char *clrname, unsigned int alpha);
-Clr *draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount);
+void draw_clr_create(Drw *draw, XftColor *dest, const char *clrname, unsigned int alpha);
+XftColor *draw_scm_create(Drw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount);
 
 /* Cursor abstraction */
-Cur *draw_cur_create(Drw *draw, int shape);
-void draw_cur_free(Drw *draw, Cur *cursor);
+Cursor *draw_cur_create(Drw *draw, int shape);
+void draw_cur_free(Drw *draw, Cursor *cursor);
 
 /* Drawing context manipulation */
 void draw_setfontset(Drw *draw, Fnt *set);
-void draw_setscheme(Drw *draw, Clr *scm);
+void draw_setscheme(Drw *draw, XftColor *scm);
 
 Picture draw_picture_create_resized(Drw *draw, char *src, unsigned int src_w, unsigned int src_h, unsigned int dst_w, unsigned int dst_h);
 

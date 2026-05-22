@@ -220,7 +220,7 @@ draw_fontset_free(Fnt *font)
 }
 
 void
-draw_clr_create(Drw *draw, Clr *dest, const char *clrname, uint32 alpha)
+draw_clr_create(Drw *draw, XftColor *dest, const char *clrname, uint32 alpha)
 {
     if (!draw || !dest || !clrname)
         return;
@@ -234,10 +234,10 @@ draw_clr_create(Drw *draw, Clr *dest, const char *clrname, uint32 alpha)
     dest->pixel = (dest->pixel & 0x00ffffffU) | (alpha << 24);
 }
 
-Clr *
+XftColor *
 draw_scm_create(Drw *draw, const char *clrnames[], const uint32 alphas[], int64 clrcount)
 {
-    Clr *ret;
+    XftColor *ret;
 
     /* need at least two colors for a scheme */
     if (!draw
@@ -258,7 +258,7 @@ draw_setfontset(Drw *draw, Fnt *set)
 }
 
 void
-draw_setscheme(Drw *draw, Clr *scm)
+draw_setscheme(Drw *draw, XftColor *scm)
 {
     if (draw)
         draw->scheme = scm;
@@ -608,7 +608,7 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
                 XftGlyphFontSpec *specs = malloc2_zero(i * SIZEOF(XftGlyphFontSpec));
                 int cx = x;
                 int ty = y + (int)((h - usedfont->h) / 2) + usedfont->xfont->ascent;
-                Clr *fg_color = NULL;
+                XftColor *fg_color = NULL;
                 uint32 j = 0;
 
                 for (j = 0; j < i; j += 1) {
@@ -706,26 +706,26 @@ draw_font_getexts(Fnt *font, const char *text, uint32 len, uint32 *w, uint32 *h)
         *h = font->h;
 }
 
-Cur *
+Cursor *
 draw_cur_create(Drw *draw, int shape)
 {
-    Cur *cur;
+    Cursor *cur;
 
-    if (!draw || !(cur = malloc2_zero(sizeof(Cur))))
+    if (!draw || !(cur = malloc2_zero(sizeof(Cursor))))
         return NULL;
 
-    cur->cursor = XCreateFontCursor(draw->dpy, (uint32)shape);
+    *cur = XCreateFontCursor(draw->dpy, (uint32)shape);
 
     return cur;
 }
 
 void
-draw_cur_free(Drw *draw, Cur *cursor)
+draw_cur_free(Drw *draw, Cursor *cursor)
 {
     if (!cursor)
         return;
 
-    XFreeCursor(draw->dpy, cursor->cursor);
+    XFreeCursor(draw->dpy, *cursor);
     free(cursor);
 }
 

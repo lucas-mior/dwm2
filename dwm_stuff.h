@@ -1,6 +1,7 @@
 #if !defined(DWM_STUFF_H)
 #define DWM_STUFF_H
 
+#include <X11/Xlib.h>
 #include "dwm.h"
 
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
@@ -336,8 +337,8 @@ static int32 depth;
 static bool dwm_restart = false;
 static bool dwm_running = true;
 
-static Cur *cursor[CursorLast];
-static Clr **scheme;
+static Cursor *cursor[CursorLast];
+static XftColor **scheme;
 static Drw *draw;
 
 static Monitor *monitors;

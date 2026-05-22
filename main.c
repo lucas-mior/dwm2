@@ -1376,7 +1376,7 @@ setup_once(void) {
     cursor[CursorMove] = draw_cur_create(draw, XC_fleur);
 
     /* init appearance */
-    scheme = malloc2_zero(LENGTH(colors)*SIZEOF(Clr *));
+    scheme = malloc2_zero(LENGTH(colors)*SIZEOF(XftColor *));
     for (int32 i = 0; i < LENGTH(colors); i += 1) {
         scheme[i] = draw_scm_create(draw, colors[i], alphas[i], 3);
     }
@@ -1404,7 +1404,7 @@ setup_once(void) {
     XDeleteProperty(display, root, net_atoms[NET_CLIENT_INFO]);
 
     /* select events */
-    window_attributes.cursor = cursor[CursorNormal]->cursor;
+    window_attributes.cursor = *cursor[CursorNormal];
     window_attributes.event_mask
         = SubstructureRedirectMask | SubstructureNotifyMask | ButtonPressMask
           | PointerMotionMask | EnterWindowMask | LeaveWindowMask
@@ -1441,7 +1441,7 @@ configure_bars_windows(void) {
             monitor->top_bar_window = window;
 
             XDefineCursor(display, monitor->top_bar_window,
-                          cursor[CursorNormal]->cursor);
+                          *cursor[CursorNormal]);
             XMapRaised(display, monitor->top_bar_window);
             XSetClassHint(display, monitor->top_bar_window, &class_hint);
         }
@@ -1453,7 +1453,7 @@ configure_bars_windows(void) {
             monitor->bottom_bar_window = window;
 
             XDefineCursor(display, monitor->bottom_bar_window,
-                          cursor[CursorNormal]->cursor);
+                          *cursor[CursorNormal]);
             XMapRaised(display, monitor->bottom_bar_window);
             XSetClassHint(display, monitor->bottom_bar_window, &class_hint);
         }
