@@ -655,27 +655,14 @@ draw_font_getexts(DwmFont *font, const char *text, uint32 len, uint32 *w, uint32
         *h = font->h;
 }
 
-Cursor *
+Cursor
 draw_cur_create(Draw *draw, int shape)
 {
-    Cursor *cur;
+    Cursor cur;
 
-    if (!draw || !(cur = malloc2_zero(sizeof(Cursor))))
-        return NULL;
-
-    *cur = XCreateFontCursor(draw->dpy, (uint32)shape);
+    cur = XCreateFontCursor(draw->dpy, (uint32)shape);
 
     return cur;
-}
-
-void
-draw_cur_free(Draw *draw, Cursor *cursor)
-{
-    if (!cursor)
-        return;
-
-    XFreeCursor(draw->dpy, *cursor);
-    free(cursor);
 }
 
 #endif /* DRAW_C */

@@ -63,8 +63,7 @@ void draw_clr_create(Draw *draw, XftColor *dest, const char *clrname, unsigned i
 XftColor *draw_scm_create(Draw *draw, const char *clrnames[], const unsigned int alphas[], int64 clrcount);
 
 /* Cursor abstraction */
-Cursor *draw_cur_create(Draw *draw, int shape);
-void draw_cur_free(Draw *draw, Cursor *cursor);
+Cursor draw_cur_create(Draw *draw, int shape);
 
 /* Drawing context manipulation */
 void draw_setfontset(Draw *draw, DwmFont *set);

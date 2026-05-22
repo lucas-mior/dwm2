@@ -337,7 +337,7 @@ static int32 depth;
 static bool dwm_restart = false;
 static bool dwm_running = true;
 
-static Cursor *cursor[CursorLast];
+static Cursor cursor[CursorLast];
 static XftColor **scheme;
 static Draw *draw;
 

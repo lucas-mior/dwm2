@@ -1404,7 +1404,7 @@ setup_once(void) {
     XDeleteProperty(display, root, net_atoms[NET_CLIENT_INFO]);
 
     /* select events */
-    window_attributes.cursor = *cursor[CursorNormal];
+    window_attributes.cursor = cursor[CursorNormal];
     window_attributes.event_mask
         = SubstructureRedirectMask | SubstructureNotifyMask | ButtonPressMask
           | PointerMotionMask | EnterWindowMask | LeaveWindowMask
@@ -1441,7 +1441,7 @@ configure_bars_windows(void) {
             monitor->top_bar_window = window;
 
             XDefineCursor(display, monitor->top_bar_window,
-                          *cursor[CursorNormal]);
+                          cursor[CursorNormal]);
             XMapRaised(display, monitor->top_bar_window);
             XSetClassHint(display, monitor->top_bar_window, &class_hint);
         }
@@ -1453,7 +1453,7 @@ configure_bars_windows(void) {
             monitor->bottom_bar_window = window;
 
             XDefineCursor(display, monitor->bottom_bar_window,
-                          *cursor[CursorNormal]);
+                          cursor[CursorNormal]);
             XMapRaised(display, monitor->bottom_bar_window);
             XSetClassHint(display, monitor->bottom_bar_window, &class_hint);
         }
@@ -1704,9 +1704,6 @@ main(int32 argc, char *argv[]) {
         execvp(argv[0], argv);
     }
 
-    for (int32 i = 0; i < CursorLast; i += 1) {
-        draw_cur_free(draw, cursor[i]);
-    }
     for (int32 i = 0; i < LENGTH(colors); i += 1) {
         free2(scheme[i], 3);
     }
