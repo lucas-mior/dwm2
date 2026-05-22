@@ -1,3 +1,6 @@
+#if !defined(CONFIG_H)
+#define CONFIG_H
+
 /* See LICENSE file for copyright and license details. */
 
 static const float master_fact  = 0.50;
@@ -149,3 +152,4 @@ static const Button buttons[] = {
 { ClickBottomBar, ControlMask, Button1, user_signal_status_bar, {.i = 7} },
 };
 
+#endif

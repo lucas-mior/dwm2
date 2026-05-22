@@ -2,6 +2,7 @@
 #define CLIENT_C
 
 #include "dwm_stuff.h"
+#include "config.h"
 
 void
 client_apply_rules(Client *client) {
