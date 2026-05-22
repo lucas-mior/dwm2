@@ -20,14 +20,14 @@
 
 #include "util.c"
 
-typedef struct Fnt {
+typedef struct DwmFont {
     Display *dpy;
     unsigned int h;
     XftFont *xfont;
     FcPattern *pattern;
     hb_font_t *hbfont;
-    struct Fnt *next;
-} Fnt;
+    struct DwmFont *next;
+} DwmFont;
 
 enum { ColFg, ColBg, ColBorder }; /* XftColor scheme index */
 
@@ -43,7 +43,7 @@ typedef struct {
     Picture picture;
     GC gc;
     XftColor *scheme;
-    Fnt *fonts;
+    DwmFont *fonts;
 } Drw;
 
 /* Drawable abstraction */
@@ -51,12 +51,12 @@ Drw *draw_create(Display *dpy, int screen, Window win, unsigned int w, unsigned 
 void draw_resize(Drw *draw, unsigned int w, unsigned int h);
 void draw_free(Drw *draw);
 
-/* Fnt abstraction */
-Fnt *draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount);
-void draw_fontset_free(Fnt* set);
+/* DwmFont abstraction */
+DwmFont *draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount);
+void draw_fontset_free(DwmFont* set);
 unsigned int draw_fontset_getwidth(Drw *draw, const char *text);
 unsigned int draw_fontset_getwidth_clamp(Drw *draw, const char *text, unsigned int n);
-void draw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w, unsigned int *h);
+void draw_font_getexts(DwmFont *font, const char *text, unsigned int len, unsigned int *w, unsigned int *h);
 
 /* Colorscheme abstraction */
 void draw_clr_create(Drw *draw, XftColor *dest, const char *clrname, unsigned int alpha);
@@ -67,7 +67,7 @@ Cursor *draw_cur_create(Drw *draw, int shape);
 void draw_cur_free(Drw *draw, Cursor *cursor);
 
 /* Drawing context manipulation */
-void draw_setfontset(Drw *draw, Fnt *set);
+void draw_setfontset(Drw *draw, DwmFont *set);
 void draw_setscheme(Drw *draw, XftColor *scm);
 
 Picture draw_picture_create_resized(Drw *draw, char *src, unsigned int src_w, unsigned int src_h, unsigned int dst_w, unsigned int dst_h);

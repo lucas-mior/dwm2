@@ -131,10 +131,10 @@ draw_free(Drw *draw)
 /* This function is an implementation detail. Library users should use
  * draw_fontset_create instead.
  */
-static Fnt *
+static DwmFont *
 xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
 {
-    Fnt *font;
+    DwmFont *font;
     XftFont *xfont = NULL;
     FcPattern *pattern = NULL;
     FT_Face face;
@@ -164,7 +164,7 @@ xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
         exit(EXIT_FAILURE);
     }
 
-    font = malloc2_zero(sizeof(Fnt));
+    font = malloc2_zero(sizeof(DwmFont));
     font->xfont = xfont;
     font->pattern = pattern;
     font->h = (uint32) (xfont->ascent + xfont->descent);
@@ -178,7 +178,7 @@ xfont_create(Drw *draw, const char *fontname, FcPattern *fontpattern)
 }
 
 static void
-xfont_free(Fnt *font)
+xfont_free(DwmFont *font)
 {
     if (!font)
         return;
@@ -192,10 +192,10 @@ xfont_free(Fnt *font)
     return;
 }
 
-Fnt*
+DwmFont*
 draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount)
 {
-    Fnt *cur, *ret = NULL;
+    DwmFont *cur, *ret = NULL;
 
     if (!draw || !fonts)
         return NULL;
@@ -210,7 +210,7 @@ draw_fontset_create(Drw* draw, const char *fonts[], int64 fontcount)
 }
 
 void
-draw_fontset_free(Fnt *font)
+draw_fontset_free(DwmFont *font)
 {
     if (font) {
         draw_fontset_free(font->next);
@@ -251,7 +251,7 @@ draw_scm_create(Drw *draw, const char *clrnames[], const uint32 alphas[], int64 
 }
 
 void
-draw_setfontset(Drw *draw, Fnt *set)
+draw_setfontset(Drw *draw, DwmFont *set)
 {
     if (draw)
         draw->fonts = set;
@@ -349,7 +349,7 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
 {
     int render = 0;
     XftDraw *d = NULL;
-    Fnt *usedfont = NULL;
+    DwmFont *usedfont = NULL;
     hb_buffer_t *buffer = NULL;
     int ellipsis_x = 0;
     uint32 ellipsis_w = 0;
@@ -406,8 +406,8 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
     while (*text) {
         long utf8codepoint = 0;
         int utf8charlen = 0;
-        Fnt *curfont = NULL;
-        Fnt *nextfont = NULL;
+        DwmFont *curfont = NULL;
+        DwmFont *nextfont = NULL;
         int charexists = 0;
         char *scan = NULL;
         int chunk_len = 0;
@@ -485,7 +485,7 @@ draw_text(Drw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *
         while (*scan) {
             long cp = 0;
             int clen = 0;
-            Fnt *f = NULL;
+            DwmFont *f = NULL;
             int is_combo = 0;
 
             clen = (int)utf8decode(scan, &cp, UTF_SIZ);
@@ -692,7 +692,7 @@ draw_fontset_getwidth_clamp(Drw *draw, const char *text, uint32 n)
 }
 
 void
-draw_font_getexts(Fnt *font, const char *text, uint32 len, uint32 *w, uint32 *h)
+draw_font_getexts(DwmFont *font, const char *text, uint32 len, uint32 *w, uint32 *h)
 {
     XGlyphInfo ext;
 
