@@ -361,7 +361,7 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
         char *scan = NULL;
         int chunk_len = 0;
 
-        utf8charlen = utf8_decode((char *)text, &utf8codepoint, 4);
+        utf8charlen = utf8_decode_raw((char *)text, &utf8codepoint, 4);
 
         for (curfont = draw->fonts; curfont; curfont = curfont->next) {
             if (XftCharExists(draw->dpy, curfont->xfont, (uint32)utf8codepoint)) {
@@ -437,7 +437,7 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
             DwmFont *f = NULL;
             int is_combo = 0;
 
-            clen = utf8_decode(scan, &cp, 4);
+            clen = utf8_decode_raw(scan, &cp, 4);
 
             /* preserve complex emoji joiners and variation selectors in the current chunk */
             if (cp == 0x200D) {
