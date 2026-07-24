@@ -108,12 +108,19 @@ monitor_focus(Monitor *monitor, bool set_focus) {
 
 void
 monitor_cleanup_monitor(Monitor *monitor) {
+    if (!monitor) {
+        return;
+    }
+
     if (monitor == monitors) {
         monitors = monitors->next;
     } else {
         Monitor *monitor_aux = monitors;
         while (monitor_aux && monitor_aux->next != monitor) {
             monitor_aux = monitor_aux->next;
+        }
+        if (!monitor_aux) {
+            return;
         }
         monitor_aux->next = monitor->next;
     }
@@ -272,6 +279,7 @@ monitor_layout_columns(Monitor *monitor) {
     int32 x = 0;
     int32 y = 0;
     int32 mon_w;
+    int32 number_masters;
 
     for (Client *client_aux = client_next_tiled(monitor->clients); client_aux;
          client_aux = client_next_tiled(client_aux->next)) {
@@ -285,8 +293,9 @@ monitor_layout_columns(Monitor *monitor) {
                  number_tiled);
     }
 
-    if (number_tiled > monitor->number_masters) {
-        if (monitor->number_masters != 0) {
+    number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
+    if (number_tiled > number_masters) {
+        if (number_masters != 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
         } else {
             mon_w = 0;
@@ -299,14 +308,22 @@ monitor_layout_columns(Monitor *monitor) {
          client = client_next_tiled(client->next)) {
         int32 w;
         int32 h;
-        if (i < monitor->number_masters) {
-            w = (mon_w - x) / (MIN(number_tiled, monitor->number_masters) - i);
+        if (i < number_masters) {
+            int32 remaining = number_masters - i;
+            if (remaining <= 0) {
+                break;
+            }
+            w = (mon_w - x) / remaining;
             client_resize(client, x + monitor->win_x, monitor->win_y,
                           w - (2*client->border_pixels),
                           monitor->win_h - (2*client->border_pixels), false);
             x += client_pixels_width(client);
         } else {
-            h = (monitor->win_h - y) / (number_tiled - i);
+            int32 remaining = number_tiled - i;
+            if (remaining <= 0) {
+                break;
+            }
+            h = (monitor->win_h - y) / remaining;
             client_resize(client, x + monitor->win_x, monitor->win_y + y,
                           monitor->win_w - x - (2*client->border_pixels),
                           h - (2*client->border_pixels), false);
@@ -425,6 +442,7 @@ monitor_layout_tile(Monitor *monitor) {
     int32 mon_w = 0;
     int32 mon_y = 0;
     int32 tile_y = 0;
+    int32 number_masters;
 
     for (Client *client_aux = client_next_tiled(monitor->clients); client_aux;
          client_aux = client_next_tiled(client_aux->next)) {
@@ -438,8 +456,9 @@ monitor_layout_tile(Monitor *monitor) {
                  number_tiled);
     }
 
-    if (number_tiled > monitor->number_masters) {
-        if (monitor->number_masters != 0) {
+    number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
+    if (number_tiled > number_masters) {
+        if (number_masters != 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
         } else {
             mon_w = 0;
@@ -452,17 +471,24 @@ monitor_layout_tile(Monitor *monitor) {
          client = client_next_tiled(client->next)) {
         int32 h;
         int32 borders = 2*client->border_pixels;
-        int32 min_number = (int32)MIN(number_tiled, monitor->number_masters);
 
-        if (i < monitor->number_masters) {
-            h = (monitor->win_h - mon_y) / (min_number - i);
+        if (i < number_masters) {
+            int32 remaining = number_masters - i;
+            if (remaining <= 0) {
+                break;
+            }
+            h = (monitor->win_h - mon_y) / remaining;
             client_resize(client, monitor->win_x, monitor->win_y + mon_y,
                           mon_w - borders, h - borders, false);
             if (mon_y + client_pixels_height(client) < monitor->win_h) {
                 mon_y += client_pixels_height(client);
             }
         } else {
-            h = (monitor->win_h - tile_y) / (number_tiled - i);
+            int32 remaining = number_tiled - i;
+            if (remaining <= 0) {
+                break;
+            }
+            h = (monitor->win_h - tile_y) / remaining;
             client_resize(client, monitor->win_x + mon_w,
                           monitor->win_y + tile_y,
                           monitor->win_w - mon_w - borders, h - borders, false);
@@ -1081,22 +1107,23 @@ void
 view_tag(uint32 arg_tags) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = live_monitor->pertag;
+    uint32 selected_tags = arg_tags & TAGMASK;
 
-    if ((arg_tags & TAGMASK) == monitor->tagset[monitor->selected_tags]) {
+    if (selected_tags == monitor->tagset[monitor->selected_tags]) {
         return;
     }
 
     monitor->selected_tags ^= 1; /* toggle selected_client tagset */
 
-    if (arg_tags & TAGMASK) {
-        monitor->tagset[monitor->selected_tags] = arg_tags & TAGMASK;
+    if (selected_tags) {
+        monitor->tagset[monitor->selected_tags] = selected_tags;
         pertag->old_tag = pertag->tag;
 
-        if (arg_tags == (uint32)~0) {
+        if (selected_tags == TAGMASK) {
             pertag->tag = 0;
         } else {
             uint32 i = 0;
-            while (!(arg_tags & 1 << i)) {
+            while (!(selected_tags & (1u << i))) {
                 i += 1;
             }
             pertag->tag = i + 1;

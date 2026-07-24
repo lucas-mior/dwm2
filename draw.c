@@ -351,6 +351,12 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
     }
 
     buffer = hb_buffer_create();
+    if (!buffer) {
+        if (d) {
+            XftDrawDestroy(d);
+        }
+        return 0;
+    }
 
     while (*text) {
         uint32 utf8codepoint = 0;
@@ -429,6 +435,9 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char 
         }
 
         usedfont = nextfont;
+        if (!usedfont || !usedfont->hbfont) {
+            break;
+        }
         scan = (char *)text;
 
         while (*scan) {

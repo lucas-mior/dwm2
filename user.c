@@ -76,17 +76,22 @@ user_alt_tab(const Arg *arg) {
                 XUngrabButton(display, AnyButton, AnyModifier, None);
                 grabbed = false;
                 alt_tab_direction = !alt_tab_direction;
-                view_tag(client->tags);
+                if (client) {
+                    view_tag(client->tags);
+                }
             }
             break;
         case ButtonPress: {
             XButtonPressedEvent *button_event = &(event.xbutton);
+            Client *clicked;
             monitor = window_to_monitor(button_event->window);
             if (monitor && (monitor != live_monitor)) {
                 monitor_focus(monitor, true);
             }
 
-            if ((client = window_to_client(button_event->window))) {
+            clicked = window_to_client(button_event->window);
+            if (clicked) {
+                client = clicked;
                 client_focus(client);
             }
             XAllowEvents(display, AsyncBoth, CurrentTime);
@@ -97,7 +102,9 @@ user_alt_tab(const Arg *arg) {
             XUngrabButton(display, AnyButton, AnyModifier, None);
             grabbed = false;
             alt_tab_direction = !alt_tab_direction;
-            view_tag(client->tags);
+            if (client) {
+                view_tag(client->tags);
+            }
             break;
         default:
             break;
@@ -521,6 +528,7 @@ user_signal_status_bar(const Arg *arg) {
     union sigval signal_value;
     int32 pipefd[2];
     char buffer[32] = {0};
+    ssize_t bytes_read;
 
     if (!status_signal) {
         return;
@@ -529,7 +537,6 @@ user_signal_status_bar(const Arg *arg) {
 
     if (pipe(pipefd) < 0) {
         error("Error creating pipe: %s\n", strerror(errno));
-        status_program_pid = -1;
         return;
     }
 
@@ -538,7 +545,6 @@ user_signal_status_bar(const Arg *arg) {
         error("Error forking: %s\n", strerror(errno));
         close(pipefd[0]);
         close(pipefd[1]);
-        status_program_pid = -1;
         return;
     case 0:
         close(pipefd[0]);
@@ -552,14 +558,18 @@ user_signal_status_bar(const Arg *arg) {
         break;
     }
 
-    if (read(pipefd[0], buffer, SIZEOF(buffer)) <= 0) {
+    bytes_read = read(pipefd[0], buffer, SIZEOF(buffer) - 1);
+    if (bytes_read <= 0) {
         close(pipefd[0]);
-        status_program_pid = -1;
         return;
     }
+    buffer[bytes_read] = '\0';
     close(pipefd[0]);
 
     status_program_pid = atoi(buffer);
+    if (status_program_pid <= 0) {
+        return;
+    }
     sigqueue(status_program_pid, SIGUSR1, signal_value);
     return;
 }
@@ -707,16 +717,13 @@ user_toggle_view(const Arg *arg) {
 
     monitor->tagset[monitor->selected_tags] = new_tags;
 
-    if (new_tags == (uint32)~0) {
+    if (new_tags == TAGMASK) {
         pertag->old_tag = pertag->tag;
         pertag->tag = 0;
-    }
-
-    /* test if the user did not select the same tag */
-    if (!(new_tags & 1 << (pertag->tag - 1))) {
+    } else if (pertag->tag == 0 || !(new_tags & (1u << (pertag->tag - 1)))) {
         uint32 i = 0;
         pertag->old_tag = pertag->tag;
-        while (!(new_tags & 1 << i)) {
+        while (!(new_tags & (1u << i))) {
             i += 1;
         }
         pertag->tag = i + 1;

@@ -9,7 +9,7 @@
     (mask & ~(numlock_mask|LockMask) \
     & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define MOUSEMASK (BUTTONMASK|PointerMotionMask)
-#define TAGMASK   ((1 << (LENGTH(tags))) - 1)
+#define TAGMASK   ((1u << (LENGTH(tags))) - 1u)
 #define PAUSE_MILIS_AS_NANOS(X) ((X)*1000*1000)
 
 #define TAG_DISPLAY_SIZE 32

@@ -147,6 +147,8 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
     CFLAGS="$CFLAGS -Wno-documentation"
     CFLAGS="$CFLAGS -Wno-reserved-identifier"
+    CFLAGS="$CFLAGS -Wno-assign-enum"
+    CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
 fi
 
 case "$target" in
