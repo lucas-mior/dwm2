@@ -25,6 +25,9 @@
 #include "draw.h"
 #include "draw.c"
 
+#define CBASE_IMPLEMENT
+#include "cbase.h"
+
 #include "dwm_stuff.h"
 
 static void (*handlers[LASTEvent])(XEvent *) = {
