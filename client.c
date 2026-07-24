@@ -838,7 +838,7 @@ client_unfocus(Client *client, bool set_focus) {
 
 void
 client_update_size_hints(Client *client) {
-    int64 supplied_return;
+    long supplied_return;
     bool has_maxes;
     bool mins_match_maxes;
     XSizeHints size_hints;
