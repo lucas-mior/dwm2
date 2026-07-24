@@ -32,7 +32,7 @@ cd "$dir" || exit
 script=$(basename "$0")
 
 if [ ! -f ./targets ]; then
-    printf "build\nrelease\ndebug\ninstall\nuninstall\nclean" > ./targets
+    printf "build\nrelease\ndebug\ncheck\ninstall\nuninstall\nclean\n" > ./targets
 fi
 
 target="${1:-build}"
@@ -99,6 +99,16 @@ case "$target" in
     trace_on
     clang $CPPFLAGS $CFLAGS -Werror main.c -o "$exe" $LDFLAGS
     trace_off
+    exit
+    ;;
+"check")
+    CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" "$0" build
+    CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
+    CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
+    CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
+    CFLAGS="$CFLAGS -fno-color-diagnostics"
+    CC=clang CFLAGS="$CFLAGS" "$0" build
     exit
     ;;
 "debug")
