@@ -151,7 +151,7 @@ monitor_draw_bars(Monitor *monitor) {
     }
 
     /* bottom bar */
-    draw_setscheme(draw, scheme[SchemeNormal]);
+    draw_setscheme(draw, scheme[SCHEME_NORMAL]);
     draw_rect(draw, 0, 0, (uint32)monitor->win_w, bar_height, true, true);
     if (monitor == live_monitor) {
         draw_status_text(&status_bottom, monitor->win_w);
@@ -162,7 +162,7 @@ monitor_draw_bars(Monitor *monitor) {
     /* top bar: draw status first so it can be overdrawn by tags later */
     /* only drawn status on selected monitor */
     if (monitor == live_monitor) {
-        draw_setscheme(draw, scheme[SchemeNormal]);
+        draw_setscheme(draw, scheme[SCHEME_NORMAL]);
 
         draw_status_text(&status_top, monitor->win_w);
         text_pixels = status_top.pixels;
@@ -208,9 +208,9 @@ monitor_draw_bars(Monitor *monitor) {
         tags_widths[i] = w = get_text_pixels(tags_display);
 
         if (monitor->tagset[monitor->selected_tags] & 1 << i) {
-            draw_setscheme(draw, scheme[SchemeSelected]);
+            draw_setscheme(draw, scheme[SCHEME_SELECTED]);
         } else {
-            draw_setscheme(draw, scheme[SchemeNormal]);
+            draw_setscheme(draw, scheme[SCHEME_NORMAL]);
         }
 
         draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding, tags_display,
@@ -231,7 +231,7 @@ monitor_draw_bars(Monitor *monitor) {
         }
     }
     w = get_text_pixels(monitor->layout_symbol);
-    draw_setscheme(draw, scheme[SchemeNormal]);
+    draw_setscheme(draw, scheme[SCHEME_NORMAL]);
     draw_x = draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding,
                        monitor->layout_symbol, false);
 
@@ -244,9 +244,9 @@ monitor_draw_bars(Monitor *monitor) {
             char buffer[SIZEOF(*(&client->name)) + 20];
 
             if (monitor == live_monitor) {
-                draw_setscheme(draw, scheme[SchemeSelected]);
+                draw_setscheme(draw, scheme[SCHEME_SELECTED]);
             } else {
-                draw_setscheme(draw, scheme[SchemeNormal]);
+                draw_setscheme(draw, scheme[SCHEME_NORMAL]);
             }
 
             snprintf(buffer, SIZEOF(buffer), "{%s%s%s%s%s%s } %s",
@@ -264,7 +264,7 @@ monitor_draw_bars(Monitor *monitor) {
                           monitor->selected_client->is_fixed, 0);
             }
         } else {
-            draw_setscheme(draw, scheme[SchemeNormal]);
+            draw_setscheme(draw, scheme[SCHEME_NORMAL]);
             draw_rect(draw, draw_x, 0, (uint32)w, bar_height, true, true);
         }
     }
@@ -1412,9 +1412,9 @@ setup_once(void) {
     NET_INTERN_ATOM(NET_CLIENT_INFO);
 
     /* init cursors */
-    cursor[CursorNormal] = draw_cur_create(draw, XC_left_ptr);
-    cursor[CursorResize] = draw_cur_create(draw, XC_sizing);
-    cursor[CursorMove] = draw_cur_create(draw, XC_fleur);
+    cursor[CURSOR_NORMAL] = draw_cur_create(draw, XC_left_ptr);
+    cursor[CURSOR_RESIZE] = draw_cur_create(draw, XC_sizing);
+    cursor[CURSOR_MOVE] = draw_cur_create(draw, XC_fleur);
 
     /* init appearance */
     scheme = malloc2_zero(LENGTH(colors)*SIZEOF(XftColor *));
@@ -1445,7 +1445,7 @@ setup_once(void) {
     XDeleteProperty(display, root, net_atoms[NET_CLIENT_INFO]);
 
     /* select events */
-    window_attributes.cursor = cursor[CursorNormal];
+    window_attributes.cursor = cursor[CURSOR_NORMAL];
     window_attributes.event_mask
         = SubstructureRedirectMask | SubstructureNotifyMask | ButtonPressMask
           | PointerMotionMask | EnterWindowMask | LeaveWindowMask
@@ -1482,7 +1482,7 @@ configure_bars_windows(void) {
             monitor->top_bar_window = window;
 
             XDefineCursor(display, monitor->top_bar_window,
-                          cursor[CursorNormal]);
+                          cursor[CURSOR_NORMAL]);
             XMapRaised(display, monitor->top_bar_window);
             XSetClassHint(display, monitor->top_bar_window, &class_hint);
         }
@@ -1494,7 +1494,7 @@ configure_bars_windows(void) {
             monitor->bottom_bar_window = window;
 
             XDefineCursor(display, monitor->bottom_bar_window,
-                          cursor[CursorNormal]);
+                          cursor[CURSOR_NORMAL]);
             XMapRaised(display, monitor->bottom_bar_window);
             XSetClassHint(display, monitor->bottom_bar_window, &class_hint);
         }

@@ -298,7 +298,7 @@ user_mouse_move(const Arg *arg) {
     ocy = client->y;
 
     success = XGrabPointer(display, root, False, MOUSEMASK, GrabModeAsync,
-                           GrabModeAsync, None, cursor[CursorMove],
+                           GrabModeAsync, None, cursor[CURSOR_MOVE],
                            CurrentTime);
     if (success != GrabSuccess) {
         return;
@@ -401,7 +401,7 @@ user_mouse_resize(const Arg *arg) {
     monitor_restack(live_monitor);
 
     success = XGrabPointer(display, root, False, MOUSEMASK, GrabModeAsync,
-                           GrabModeAsync, None, cursor[CursorResize],
+                           GrabModeAsync, None, cursor[CURSOR_RESIZE],
                            CurrentTime);
     if (success != GrabSuccess) {
         return;

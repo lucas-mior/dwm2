@@ -25,17 +25,17 @@ static const char *fonts[]          = {
 };
 static const char *colors[][3]      = {
     /*                    fg          bg         border  */
-    [SchemeNormal]   = { "#ffffff", "#000000", "#000000" },
-    [SchemeInverse]  = { "#000000", "#004400", "#000000" },
-    [SchemeSelected] = { "#ffffff", "#004400", "green"   },
-    [SchemeUrgent]   = { "red",     "red",     "red"     },
+    [SCHEME_NORMAL]   = { "#ffffff", "#000000", "#000000" },
+    [SCHEME_INVERSE]  = { "#000000", "#004400", "#000000" },
+    [SCHEME_SELECTED] = { "#ffffff", "#004400", "green"   },
+    [SCHEME_URGENT]   = { "red",     "red",     "red"     },
 };
 #define OPAQUE 0xffU
 static const unsigned int alphas[][3] = {
     /*                   fg      bg    border */
-    [SchemeNormal]   = { OPAQUE, 0x80, 0x00   },
-    [SchemeSelected] = { OPAQUE, 0x80, OPAQUE },
-    [SchemeUrgent]   = { OPAQUE, 0x80, OPAQUE },
+    [SCHEME_NORMAL]   = { OPAQUE, 0x80, 0x00   },
+    [SCHEME_SELECTED] = { OPAQUE, 0x80, OPAQUE },
+    [SCHEME_URGENT]   = { OPAQUE, 0x80, OPAQUE },
 };
 
 static const char *tags[] = { "F1", "F2", "F3", "1", "2", "3" };

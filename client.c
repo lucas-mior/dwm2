@@ -257,7 +257,7 @@ client_focus(Client *client) {
         client_attach_stack(client);
         client_grab_buttons(client, true);
         XSetWindowBorder(display, client->window,
-                         scheme[SchemeSelected][ColBorder].pixel);
+                         scheme[SCHEME_SELECTED][ColBorder].pixel);
         client_set_focus(client);
     } else {
         XSetInputFocus(display, live_monitor->top_bar_window,
@@ -371,7 +371,7 @@ client_new(Window window, XWindowAttributes *window_attributes) {
 
     window_changes.border_width = client->border_pixels;
     XConfigureWindow(display, window, CWBorderWidth, &window_changes);
-    XSetWindowBorder(display, window, scheme[SchemeNormal][ColBorder].pixel);
+    XSetWindowBorder(display, window, scheme[SCHEME_NORMAL][ColBorder].pixel);
 
     /* propagates border_pixels, if size doesn'trans_client change */
     client_configure(client);
@@ -717,7 +717,7 @@ client_update_wm_hints(Client *client) {
         client->is_urgent = urgent;
         if (client->is_urgent) {
             XSetWindowBorder(display, client->window,
-                             scheme[SchemeUrgent][ColBorder].pixel);
+                             scheme[SCHEME_URGENT][ColBorder].pixel);
         }
     }
 
@@ -831,7 +831,7 @@ client_unfocus(Client *client, bool set_focus) {
 
     client_grab_buttons(client, false);
     XSetWindowBorder(display, client->window,
-                     scheme[SchemeNormal][ColBorder].pixel);
+                     scheme[SCHEME_NORMAL][ColBorder].pixel);
 
     if (set_focus) {
         XSetInputFocus(display, root, RevertToPointerRoot, CurrentTime);

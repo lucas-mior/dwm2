@@ -64,16 +64,16 @@ enum Direction {
 };
 
 enum {
-    CursorNormal,
-    CursorResize,
-    CursorMove,
-    CursorLast
+    CURSOR_NORMAL,
+    CURSOR_RESIZE,
+    CURSOR_MOVE,
+    CURSOR_LAST
 };
 enum {
-    SchemeNormal,
-    SchemeInverse,
-    SchemeSelected,
-    SchemeUrgent
+    SCHEME_NORMAL,
+    SCHEME_INVERSE,
+    SCHEME_SELECTED,
+    SCHEME_URGENT
 };
 enum {
     ClickBarTags,
@@ -347,7 +347,7 @@ static int32 depth;
 static bool dwm_restart = false;
 static bool dwm_running = true;
 
-static Cursor cursor[CursorLast];
+static Cursor cursor[CURSOR_LAST];
 static XftColor **scheme;
 static Draw *draw;
 
