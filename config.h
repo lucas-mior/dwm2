@@ -8,17 +8,21 @@
 static float master_fact  = 0.50;
 static bool resizehints    = true;
 static bool lockfullscreen = false;
-static unsigned int border_pixels = 3;
-static unsigned int tabModKey = 0x40;
-static unsigned int tabCycleKey = 0x17;
-static unsigned int key_j = 44;
-static unsigned int key_semicolon = 47;
-static unsigned int key_l = 46;
-static unsigned int key_k = 45;
-static unsigned int superKey = 133;
-static int SNAP_PIXELS       = 32;
+static int32 border_pixels = 3;
+
+static uint32 tabModKey = 0x40;
+static uint32 tabCycleKey = 0x17;
+static uint32 key_j = 44;
+static uint32 key_semicolon = 47;
+static uint32 key_l = 46;
+static uint32 key_k = 45;
+static uint32 superKey = 133;
+
+static int32 SNAP_PIXELS       = 32;
+
 #define ICONSIZE 22   /* icon size */
 #define ICONSPACING 5 /* space between icon and title */
+
 static char *fonts[]          = {
     "LiberationSans:size=16",
     "Noto Color Emoji:size=12:antialias=true:autohint=true",
