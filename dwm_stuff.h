@@ -77,7 +77,7 @@ enum {
 };
 enum {
     CLICK_BAR_TAGS,
-    CLICK_BAR_LAYOUTSymbol,
+    CLICK_BAR_LAYOUT_SYMBOL,
     CLICK_BAR_STATUS,
     CLICK_BAR_TITLE,
 

@@ -822,7 +822,7 @@ handler_button_press(XEvent *event) {
             click = CLICK_BAR_TAGS;
             arg.ui = 1 << i;
         } else if (button_x < x + get_text_pixels(monitor->layout_symbol)) {
-            click = CLICK_BAR_LAYOUTSymbol;
+            click = CLICK_BAR_LAYOUT_SYMBOL;
         } else if (button_x > monitor->win_w - status_top.pixels) {
             click = CLICK_BAR_STATUS;
             status_get_signal_number(status_top.blocks_signal, button_x);
