@@ -182,15 +182,13 @@ draw_scm_create(Draw *draw, char *clrnames[], uint32 alphas[], int64 clrcount) {
 }
 
 void
-draw_setfontset(Draw *draw, DwmFont *set)
-{
+draw_setfontset(Draw *draw, DwmFont *set) {
     if (draw)
         draw->fonts = set;
 }
 
 void
-draw_setscheme(Draw *draw, XftColor *scm)
-{
+draw_setscheme(Draw *draw, XftColor *scm) {
     if (draw)
         draw->scheme = scm;
 }
