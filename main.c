@@ -801,7 +801,7 @@ handler_button_press(XEvent *event) {
     Monitor *monitor;
     XButtonPressedEvent *button_event = &event->xbutton;
     int32 button_x = button_event->x;
-    uint32 click = ClickRootWin;
+    uint32 click = CLICK_ROOT_WIN;
 
     /* focus monitor if necessary */
     monitor = window_to_monitor(button_event->window);
@@ -819,24 +819,24 @@ handler_button_press(XEvent *event) {
         } while (button_x >= x && ++i < LENGTH(tags));
 
         if (i < LENGTH(tags)) {
-            click = ClickBarTags;
+            click = CLICK_BAR_TAGS;
             arg.ui = 1 << i;
         } else if (button_x < x + get_text_pixels(monitor->layout_symbol)) {
-            click = ClickBarLayoutSymbol;
+            click = CLICK_BAR_LAYOUTSymbol;
         } else if (button_x > monitor->win_w - status_top.pixels) {
-            click = ClickBarStatus;
+            click = CLICK_BAR_STATUS;
             status_get_signal_number(status_top.blocks_signal, button_x);
         } else {
-            click = ClickBarTitle;
+            click = CLICK_BAR_TITLE;
         }
     } else if (button_event->window == monitor->bottom_bar_window) {
-        click = ClickBottomBar;
+        click = CLICK_BOTTOM_BAR;
         status_get_signal_number(status_bottom.blocks_signal, button_x);
     } else if ((client = window_to_client(button_event->window))) {
         client_focus(client);
         monitor_restack(monitor);
         XAllowEvents(display, ReplayPointer, CurrentTime);
-        click = ClickClientWin;
+        click = CLICK_CLIENT_WIN;
     }
 
     for (uint32 i = 0; i < LENGTH(buttons); i += 1) {
@@ -851,7 +851,7 @@ handler_button_press(XEvent *event) {
         }
 
         if (buttons[i].function) {
-            if (click == ClickBarTags && buttons[i].arg.i == 0) {
+            if (click == CLICK_BAR_TAGS && buttons[i].arg.i == 0) {
                 buttons[i].function(&arg);
             } else {
                 buttons[i].function(&buttons[i].arg);

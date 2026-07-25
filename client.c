@@ -301,7 +301,7 @@ client_grab_buttons(Client *client, bool focused) {
                     BUTTONMASK, GrabModeSync, GrabModeSync, None, None);
     }
     for (int32 i = 0; i < LENGTH(buttons); i += 1) {
-        if (buttons[i].click != ClickClientWin) {
+        if (buttons[i].click != CLICK_CLIENT_WIN) {
             continue;
         }
 

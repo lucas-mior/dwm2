@@ -76,14 +76,15 @@ enum {
     SCHEME_URGENT
 };
 enum {
-    ClickBarTags,
-    ClickBarLayoutSymbol,
-    ClickBarStatus,
-    ClickBarTitle,
-    ClickBottomBar,
-    ClickClientWin,
-    ClickRootWin,
-    ClickLast
+    CLICK_BAR_TAGS,
+    CLICK_BAR_LAYOUTSymbol,
+    CLICK_BAR_STATUS,
+    CLICK_BAR_TITLE,
+
+    CLICK_BOTTOM_BAR,
+    CLICK_CLIENT_WIN,
+    CLICK_ROOT_WIN,
+    CLICK_LAST
 };
 
 typedef union {
