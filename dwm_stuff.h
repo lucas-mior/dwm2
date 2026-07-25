@@ -1,8 +1,8 @@
 #if !defined(DWM_STUFF_H)
 #define DWM_STUFF_H
 
-#include <X11/Xlib.h>
 #include "dwm.h"
+#include "cbase.h"
 
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         \

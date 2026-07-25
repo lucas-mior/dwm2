@@ -14,4 +14,6 @@
 
 #include <X11/Xft/Xft.h>
 
+#undef SIZEOF
+
 #endif

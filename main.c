@@ -21,13 +21,13 @@
  * To understand everything else, start reading main().
  */
 
+#include "dwm.h"
+
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#include "dwm.h"
 #include "draw.h"
 #include "draw.c"
-
 #include "dwm_stuff.h"
 
 static void (*handlers[LASTEvent])(XEvent *) = {
