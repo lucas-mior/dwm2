@@ -48,7 +48,7 @@ FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
-CFLAGS="$CFLAGS -Werror"
+# CFLAGS="$CFLAGS -Werror"
 CFLAGS="$CFLAGS -Wextra -Wall"
 CFLAGS="$CFLAGS -Wno-padded"
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"

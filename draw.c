@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define draw draw2
+
 Draw *
 draw_create(Display *dpy, int screen_here, Window root_here,
             uint32 w, uint32 h, Visual *visual_here, uint32 depth_here, Colormap cmap) {
@@ -32,8 +34,7 @@ draw_create(Display *dpy, int screen_here, Window root_here,
 }
 
 void
-draw_resize(Draw *draw, uint32 w, uint32 h)
-{
+draw_resize(Draw *draw, uint32 w, uint32 h) {
     if (!draw)
         return;
 
@@ -48,8 +49,7 @@ draw_resize(Draw *draw, uint32 w, uint32 h)
 }
 
 void
-draw_free(Draw *draw)
-{
+draw_free(Draw *draw) {
     XRenderFreePicture(draw->dpy, draw->picture);
     XFreePixmap(draw->dpy, draw->drawable);
     XFreeGC(draw->dpy, draw->gc);
@@ -62,8 +62,7 @@ draw_free(Draw *draw)
  * draw_fontset_create instead.
  */
 static DwmFont *
-xfont_create(Draw *draw, const char *fontname, FcPattern *fontpattern)
-{
+xfont_create(Draw *draw, char *fontname, FcPattern *fontpattern) {
     DwmFont *font;
     XftFont *xfont = NULL;
     FcPattern *pattern = NULL;
@@ -79,7 +78,7 @@ xfont_create(Draw *draw, const char *fontname, FcPattern *fontpattern)
             fprintf(stderr, "error, cannot load font from name: '%s'\n", fontname);
             return NULL;
         }
-        if (!(pattern = FcNameParse((const FcChar8 *) fontname))) {
+        if (!(pattern = FcNameParse((FcChar8 *) fontname))) {
             fprintf(stderr, "error, cannot parse font name to pattern: '%s'\n", fontname);
             XftFontClose(draw->dpy, xfont);
             return NULL;
@@ -108,8 +107,7 @@ xfont_create(Draw *draw, const char *fontname, FcPattern *fontpattern)
 }
 
 static void
-xfont_free(DwmFont *font)
-{
+xfont_free(DwmFont *font) {
     if (!font)
         return;
     if (font->pattern)
@@ -124,8 +122,7 @@ xfont_free(DwmFont *font)
 }
 
 DwmFont*
-draw_fontset_create(Draw* draw, const char *fonts[], int64 fontcount)
-{
+draw_fontset_create(Draw* draw, char *fonts[], int64 fontcount) {
     DwmFont *cur, *ret = NULL;
 
     if (!draw || !fonts)
@@ -141,8 +138,7 @@ draw_fontset_create(Draw* draw, const char *fonts[], int64 fontcount)
 }
 
 void
-draw_fontset_free(DwmFont *font)
-{
+draw_fontset_free(DwmFont *font) {
     if (font) {
         draw_fontset_free(font->next);
         xfont_free(font);
@@ -151,8 +147,7 @@ draw_fontset_free(DwmFont *font)
 }
 
 void
-draw_clr_create(Draw *draw, XftColor *dest, const char *clrname, uint32 alpha)
-{
+draw_clr_create(Draw *draw, XftColor *dest, char *clrname, uint32 alpha) {
     if (!draw || !dest || !clrname)
         return;
 
@@ -166,8 +161,8 @@ draw_clr_create(Draw *draw, XftColor *dest, const char *clrname, uint32 alpha)
 }
 
 XftColor *
-draw_scm_create(Draw *draw, const char *clrnames[], const uint32 alphas[], int64 clrcount)
-{
+draw_scm_create(Draw *draw,
+                char *clrnames[], uint32 alphas[], int64 clrcount) {
     XftColor *ret;
 
     /* need at least two colors for a scheme */
@@ -276,7 +271,7 @@ draw_rect(Draw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
 }
 
 int
-draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, const char *text, int invert)
+draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, char *text, int invert)
 {
     int render = 0;
     XftDraw *d = NULL;
@@ -615,7 +610,7 @@ draw_map(Draw *draw, Window win, int x, int y, uint32 w, uint32 h)
 }
 
 uint32
-draw_fontset_getwidth(Draw *draw, const char *text)
+draw_fontset_getwidth(Draw *draw, char *text)
 {
     if (!draw || !draw->fonts || !text)
         return 0;
@@ -623,7 +618,7 @@ draw_fontset_getwidth(Draw *draw, const char *text)
 }
 
 uint32
-draw_fontset_getwidth_clamp(Draw *draw, const char *text, uint32 n)
+draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n)
 {
     uint32 tmp = 0;
     if (draw && draw->fonts && text && n)
@@ -632,7 +627,7 @@ draw_fontset_getwidth_clamp(Draw *draw, const char *text, uint32 n)
 }
 
 void
-draw_font_getexts(DwmFont *font, const char *text, uint32 len, uint32 *w, uint32 *h)
+draw_font_getexts(DwmFont *font, char *text, uint32 len, uint32 *w, uint32 *h)
 {
     XGlyphInfo ext;
 
@@ -655,5 +650,7 @@ draw_cur_create(Draw *draw, int shape)
 
     return cur;
 }
+
+#undef draw
 
 #endif /* DRAW_C */

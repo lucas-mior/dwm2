@@ -62,17 +62,17 @@ void draw_resize(Draw *draw, unsigned int w, unsigned int h);
 void draw_free(Draw *draw);
 
 /* DwmFont abstraction */
-DwmFont *draw_fontset_create(Draw *draw, const char *fonts[], int64 fontcount);
+DwmFont *draw_fontset_create(Draw *draw, char *fonts[], int64 fontcount);
 void draw_fontset_free(DwmFont *set);
-unsigned int draw_fontset_getwidth(Draw *draw, const char *text);
+unsigned int draw_fontset_getwidth(Draw *draw, char *text);
 unsigned int draw_fontset_getwidth_clamp(
     Draw *draw,
-    const char *text,
+    char *text,
     unsigned int n
 );
 void draw_font_getexts(
     DwmFont *font,
-    const char *text,
+    char *text,
     unsigned int len,
     unsigned int *w,
     unsigned int *h
@@ -82,13 +82,13 @@ void draw_font_getexts(
 void draw_clr_create(
     Draw *draw,
     XftColor *dest,
-    const char *clrname,
+    char *clrname,
     unsigned int alpha
 );
 XftColor *draw_scm_create(
     Draw *draw,
-    const char *clrnames[],
-    const unsigned int alphas[],
+    char *clrnames[],
+    unsigned int alphas[],
     int64 clrcount
 );
 
@@ -125,7 +125,7 @@ int draw_text(
     unsigned int w,
     unsigned int h,
     unsigned int lpad,
-    const char *text,
+    char *text,
     int invert
 );
 void draw_pic(
@@ -234,15 +234,15 @@ typedef union {
     int32 i;
     uint32 ui;
     float f;
-    const void *v;
+    void *v;
 } Arg;
 
 typedef struct {
     uint32 click;
     uint32 mask;
     int64 button;
-    void (*function)(const Arg *arg);
-    const Arg arg;
+    void (*function)(Arg *arg);
+    Arg arg;
 } Button;
 
 typedef struct Monitor Monitor;
@@ -278,19 +278,19 @@ struct Client {
 typedef struct {
     ulong mod;
     KeySym keysym;
-    void (*function)(const Arg *);
-    const Arg arg;
+    void (*function)(Arg *);
+    Arg arg;
 } Key;
 
 typedef struct {
-    const char *symbol;
+    char *symbol;
     void (*function)(Monitor *);
 } Layout;
 
 typedef struct Pertag Pertag;
 struct Monitor {
     char layout_symbol[16];
-    const Layout *layout[2];
+    Layout *layout[2];
 
     Client *clients;
     Client *selected_client;
@@ -318,9 +318,9 @@ struct Monitor {
 };
 
 typedef struct {
-    const char *class;
-    const char *instance;
-    const char *title;
+    char *class;
+    char *instance;
+    char *title;
 
     uint32 tags;
     uint32 switchtotag;
@@ -347,30 +347,30 @@ static StatusBar status_top = {0};
 static StatusBar status_bottom = {0};
 static int32 status_signal;
 
-static void user_alt_tab(const Arg *);
-static void user_aspect_resize(const Arg *);
-static void user_focus_monitor(const Arg *);
-static void user_focus_stack(const Arg *);
-static void user_focus_urgent(const Arg *);
-static void user_kill_client(const Arg *);
-static void user_more_masters(const Arg *);
-static void user_mouse_move(const Arg *);
-static void user_mouse_resize(const Arg *);
-static void user_promote_to_master(const Arg *);
-static void user_quit_dwm(const Arg *);
-static void user_set_layout(const Arg *);
-static void user_set_master_fact(const Arg *);
-static void user_signal_status_bar(const Arg *);
-static void user_spawn(const Arg *);
-static void user_tag(const Arg *);
-static void user_tag_monitor(const Arg *);
-static void user_toggle_bar(const Arg *);
-static void user_toggle_floating(const Arg *);
-static void user_toggle_fullscreen(const Arg *);
-static void user_toggle_tag(const Arg *);
-static void user_toggle_view(const Arg *);
-static void user_view_tag(const Arg *);
-static void user_window_view(const Arg *);
+static void user_alt_tab(Arg *);
+static void user_aspect_resize(Arg *);
+static void user_focus_monitor(Arg *);
+static void user_focus_stack(Arg *);
+static void user_focus_urgent(Arg *);
+static void user_kill_client(Arg *);
+static void user_more_masters(Arg *);
+static void user_mouse_move(Arg *);
+static void user_mouse_resize(Arg *);
+static void user_promote_to_master(Arg *);
+static void user_quit_dwm(Arg *);
+static void user_set_layout(Arg *);
+static void user_set_master_fact(Arg *);
+static void user_signal_status_bar(Arg *);
+static void user_spawn(Arg *);
+static void user_tag(Arg *);
+static void user_tag_monitor(Arg *);
+static void user_toggle_bar(Arg *);
+static void user_toggle_floating(Arg *);
+static void user_toggle_fullscreen(Arg *);
+static void user_toggle_tag(Arg *);
+static void user_toggle_view(Arg *);
+static void user_view_tag(Arg *);
+static void user_window_view(Arg *);
 
 static int32 handler_xerror(Display *, XErrorEvent *);
 static int32 handler_xerror_dummy(Display *, XErrorEvent *);
@@ -456,7 +456,7 @@ static Client *window_to_client(Window);
 static int32 window_text_property(Window, Atom, char *, uint32);
 static int64 window_state(Window);
 
-static void set_layout(const Layout *);
+static void set_layout(Layout *);
 static int32 get_root_pointer(int32 *, int32 *);
 static int32 get_text_pixels(char *);
 static int32 update_geometry(void);
@@ -475,7 +475,7 @@ static void update_numlock_mask(void);
 static void status_update(void);
 static void view_tag(uint32);
 
-static const char broken[] = "broken";
+static char broken[] = "broken";
 
 static int32 screen;
 static int32 screen_width;

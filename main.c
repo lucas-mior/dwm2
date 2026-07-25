@@ -67,7 +67,7 @@ static void (*handlers[LASTEvent])(XEvent *) = {
 #include "handlers.c"
 
 struct Pertag {
-    const Layout *layouts[LENGTH(tags) + 1][2];
+    Layout *layouts[LENGTH(tags) + 1][2];
     int32 number_masters[LENGTH(tags) + 1];
     float master_facts[LENGTH(tags) + 1];
     uint32 selected_layouts[LENGTH(tags) + 1];
@@ -1199,7 +1199,7 @@ toggle_bar(int32 which) {
 }
 
 void
-set_layout(const Layout *layout) {
+set_layout(Layout *layout) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = monitor->pertag;
 

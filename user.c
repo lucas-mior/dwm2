@@ -4,7 +4,7 @@
 #include "dwm.h"
 
 static void
-user_alt_tab(const Arg *arg) {
+user_alt_tab(Arg *arg) {
     static bool alt_tab_direction = false;
     Monitor *old_monitor = live_monitor;
     Client *client;
@@ -114,7 +114,7 @@ user_alt_tab(const Arg *arg) {
 }
 
 void
-user_aspect_resize(const Arg *arg) {
+user_aspect_resize(Arg *arg) {
     Monitor *monitor = live_monitor;
     Client *client = live_monitor->selected_client;
     float ratio;
@@ -143,7 +143,7 @@ user_aspect_resize(const Arg *arg) {
 }
 
 void
-user_focus_monitor(const Arg *arg) {
+user_focus_monitor(Arg *arg) {
     Monitor *monitor;
 
     if (!monitors->next) {
@@ -158,7 +158,7 @@ user_focus_monitor(const Arg *arg) {
 }
 
 void
-user_focus_stack(const Arg *arg) {
+user_focus_stack(Arg *arg) {
     Client *client = NULL;
 
     if (!live_monitor->selected_client) {
@@ -202,7 +202,7 @@ user_focus_stack(const Arg *arg) {
 }
 
 void
-user_focus_urgent(const Arg *arg) {
+user_focus_urgent(Arg *arg) {
     (void)arg;
     for (Monitor *monitor = monitors; monitor; monitor = monitor->next) {
         Client *client;
@@ -229,7 +229,7 @@ user_focus_urgent(const Arg *arg) {
 }
 
 void
-user_more_masters(const Arg *arg) {
+user_more_masters(Arg *arg) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = monitor->pertag;
     int32 number_slaves = -1;
@@ -253,7 +253,7 @@ user_more_masters(const Arg *arg) {
 }
 
 void
-user_kill_client(const Arg *arg) {
+user_kill_client(Arg *arg) {
     (void)arg;
     Client *selected = live_monitor->selected_client;
     if (!selected) {
@@ -275,7 +275,7 @@ user_kill_client(const Arg *arg) {
 }
 
 void
-user_mouse_move(const Arg *arg) {
+user_mouse_move(Arg *arg) {
     (void)arg;
     Client *client;
     Monitor *monitor_aux;
@@ -382,7 +382,7 @@ user_mouse_move(const Arg *arg) {
 }
 
 void
-user_mouse_resize(const Arg *arg) {
+user_mouse_resize(Arg *arg) {
     (void)arg;
     Client *client;
     Monitor *monitor;
@@ -481,7 +481,7 @@ user_mouse_resize(const Arg *arg) {
 }
 
 void
-user_quit_dwm(const Arg *arg) {
+user_quit_dwm(Arg *arg) {
     if (arg->i) {
         dwm_restart = true;
     }
@@ -490,13 +490,13 @@ user_quit_dwm(const Arg *arg) {
 }
 
 void
-user_set_layout(const Arg *arg) {
+user_set_layout(Arg *arg) {
     set_layout(arg->v);
     return;
 }
 
 void
-user_set_master_fact(const Arg *arg) {
+user_set_master_fact(Arg *arg) {
     float factor;
     Pertag *pertag = live_monitor->pertag;
 
@@ -524,7 +524,7 @@ user_set_master_fact(const Arg *arg) {
 }
 
 void
-user_signal_status_bar(const Arg *arg) {
+user_signal_status_bar(Arg *arg) {
     pid_t status_program_pid;
     union sigval signal_value;
     int32 pipefd[2];
@@ -576,7 +576,7 @@ user_signal_status_bar(const Arg *arg) {
 }
 
 void
-user_tag(const Arg *arg) {
+user_tag(Arg *arg) {
     Client *selected_client = live_monitor->selected_client;
     uint32 which_tag = arg->ui & TAGMASK;
 
@@ -590,7 +590,7 @@ user_tag(const Arg *arg) {
 }
 
 void
-user_tag_monitor(const Arg *arg) {
+user_tag_monitor(Arg *arg) {
     Monitor *monitor = monitor_from_direction(arg->i);
     Client *selected = live_monitor->selected_client;
 
@@ -611,13 +611,13 @@ user_tag_monitor(const Arg *arg) {
 }
 
 void
-user_toggle_bar(const Arg *arg) {
+user_toggle_bar(Arg *arg) {
     toggle_bar(arg->i);
     return;
 }
 
 void
-user_toggle_floating(const Arg *arg) {
+user_toggle_floating(Arg *arg) {
     (void)arg;
     Client *client = live_monitor->selected_client;
 
@@ -645,7 +645,7 @@ user_toggle_floating(const Arg *arg) {
 }
 
 void
-user_toggle_fullscreen(const Arg *arg) {
+user_toggle_fullscreen(Arg *arg) {
     (void)arg;
     Client *client = live_monitor->selected_client;
     if (client) {
@@ -655,7 +655,7 @@ user_toggle_fullscreen(const Arg *arg) {
 }
 
 void
-user_spawn(const Arg *arg) {
+user_spawn(Arg *arg) {
     struct sigaction signal_action;
 
     switch (fork()) {
@@ -670,8 +670,8 @@ user_spawn(const Arg *arg) {
         signal_action.sa_handler = SIG_DFL;
         sigaction(SIGCHLD, &signal_action, NULL);
 
-        execvp(((char *const *)arg->v)[0], (char *const *)arg->v);
-        error("dwm: execvp '%s' failed:", ((char *const *)arg->v)[0]);
+        execvp(((char **)arg->v)[0], (char **)arg->v);
+        error("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
         exit(EXIT_FAILURE);
     case -1:
         error("Error forking: %s\n", strerror(errno));
@@ -683,7 +683,7 @@ user_spawn(const Arg *arg) {
 }
 
 void
-user_toggle_tag(const Arg *arg) {
+user_toggle_tag(Arg *arg) {
     uint32 newtags;
 
     if (!live_monitor->selected_client) {
@@ -701,7 +701,7 @@ user_toggle_tag(const Arg *arg) {
 }
 
 void
-user_toggle_view(const Arg *arg) {
+user_toggle_view(Arg *arg) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = live_monitor->pertag;
     uint32 new_tags;
@@ -738,13 +738,13 @@ user_toggle_view(const Arg *arg) {
 }
 
 void
-user_view_tag(const Arg *arg) {
+user_view_tag(Arg *arg) {
     view_tag(arg->ui);
     return;
 }
 
 void
-user_window_view(const Arg *arg) {
+user_window_view(Arg *arg) {
     (void)arg;
     Client *client = live_monitor->selected_client;
     if (client) {
@@ -754,7 +754,7 @@ user_window_view(const Arg *arg) {
 }
 
 void
-user_promote_to_master(const Arg *arg) {
+user_promote_to_master(Arg *arg) {
     (void)arg;
     Client *client = live_monitor->selected_client;
     Monitor *monitor = live_monitor;
