@@ -1164,10 +1164,10 @@ monitor_restore_pertag(Monitor *monitor, Pertag *pertag) {
         = pertag->layouts[tag][monitor->lay_i ^ 1];
 
     if (monitor->show_top_bar != pertag->top_bars[tag]) {
-        toggle_bar(BarTop);
+        toggle_bar(BAR_TOP);
     }
     if (monitor->show_bottom_bar != pertag->bottom_bars[tag]) {
-        toggle_bar(BarBottom);
+        toggle_bar(BAR_BOTTOM);
     }
     return;
 }
@@ -1179,7 +1179,7 @@ toggle_bar(int32 which) {
     Window bar_window;
     int32 bar_y;
 
-    if (which == BarTop) {
+    if (which == BAR_TOP) {
         monitor->show_top_bar = !monitor->show_top_bar;
         pertag->top_bars[pertag->tag] = monitor->show_top_bar;
 
@@ -1715,7 +1715,7 @@ main(int32 argc, char *argv[]) {
         view_tag(1 << 5);
         set_layout(&layouts[2]);
 
-        toggle_bar(BarBottom);
+        toggle_bar(BAR_BOTTOM);
 
         view_tag(1 << 1);
     }

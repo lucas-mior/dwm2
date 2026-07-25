@@ -52,8 +52,8 @@ enum {
 };
 
 enum {
-    BarBottom,
-    BarTop
+    BAR_BOTTOM,
+    BAR_TOP
 };
 
 enum Direction {
