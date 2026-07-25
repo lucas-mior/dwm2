@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// adhoc solution for draw shadowing global static draw from dwm.h
 #define draw draw2
 
 Draw *
