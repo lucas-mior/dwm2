@@ -128,7 +128,8 @@ xfont_free(DwmFont *font) {
 
 DwmFont*
 draw_fontset_create(Draw* draw, char *fonts[], int64 fontcount) {
-    DwmFont *cur, *ret = NULL;
+    DwmFont *cur;
+    DwmFont *ret = NULL;
 
     if (!draw || !fonts)
         return NULL;
