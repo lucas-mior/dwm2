@@ -630,8 +630,7 @@ draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n) {
 }
 
 void
-draw_font_getexts(DwmFont *font, char *text, uint32 len, uint32 *w, uint32 *h)
-{
+draw_font_getexts(DwmFont *font, char *text, uint32 len, uint32 *w, uint32 *h) {
     XGlyphInfo ext;
 
     if (!font || !text)
