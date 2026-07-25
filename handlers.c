@@ -48,6 +48,8 @@ handler_configure_request(XEvent *event) {
     XWindowChanges window_changes;
     bool mon_floating;
 
+    // TODO: This uses live_monitor before knowing the requested client.
+    // Clients on other monitors get the wrong layout floating state.
     mon_floating = !live_monitor->layout[live_monitor->lay_i]->function;
 
     if ((client = window_to_client(conf_request_event->window))) {

@@ -122,6 +122,8 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
 
         /* adjust for aspect limits */
         if (client->min_aspect > 0 && client->max_aspect > 0) {
+            // TODO: Do not round aspect limits before scaling.
+            // Fractional ratios otherwise produce wrong sizes.
             if (client->max_aspect < (float)*w / (float)*h) {
                 *w = *h*((int32)(client->max_aspect + 0.5f));
             } else if (client->min_aspect < (float)*h / (float)*w) {
@@ -387,6 +389,8 @@ client_new(Window window, XWindowAttributes *window_attributes) {
             display, client->window, net_atoms[NET_CLIENT_INFO], 0L, 2L, False,
             XA_CARDINAL, &actual_type_return, &actual_format_return,
             &nitems_return, &bytes_after_return, (uchar **)&prop_return);
+        // TODO: Initialize prop_return and nitems_return before this call.
+        // XGetWindowProperty failure leaves the later reads undefined.
         if (success == Success && nitems_return == 2) {
             client->tags = (uint32)*prop_return;
             for (Monitor *mon = monitors; mon; mon = mon->next) {
@@ -539,6 +543,7 @@ client_resize_apply(Client *client, int32 x, int32 y, int32 w, int32 h) {
 
     window_changes.border_width = client->border_pixels;
 
+    // TODO: Use client->monitor here; live_monitor may be different.
     for (Client *client_aux = client_next_tiled(live_monitor->clients);
          client_aux; client_aux = client_next_tiled(client_aux->next)) {
         n += 1;
@@ -646,6 +651,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
             return;
         }
         client->was_floating = client->is_floating;
+        // TODO: This overwrites the original X border saved for unmanage.
         client->old_border_pixels = client->border_pixels;
         client->border_pixels = 0;
         client->is_floating = true;

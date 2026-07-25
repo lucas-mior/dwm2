@@ -145,6 +145,7 @@ monitor_draw_bars(Monitor *monitor) {
     char *masters_names[LENGTH(tags)] = {0};
     Client *clients_with_icon[LENGTH(tags)] = {0};
 
+    // TODO: This skips drawing the bottom bar when only the top bar is hidden.
     if (!monitor->show_top_bar) {
         return;
     }
@@ -179,6 +180,7 @@ monitor_draw_bars(Monitor *monitor) {
 
             if (!masters_names[i] && client->tags & (1 << i)) {
                 XClassHint class_hint = {NULL, NULL};
+                // TODO: XGetClassHint allocates both strings; this leaks them.
                 XGetClassHint(display, client->window, &class_hint);
                 masters_names[i] = class_hint.res_class;
             }
@@ -873,6 +875,7 @@ draw_status_text(StatusBar *status_bar, int32 monitor_width) {
         BlockSignal *block = &status_bar->blocks_signal[i];
         int32 text_pixels = block->max_x - block->min_x;
 
+        // TODO: This mutates parsed hitboxes on every redraw, accumulating x0.
         block->max_x += x0;
         block->min_x += x0;
 
@@ -897,6 +900,7 @@ status_parse_text(StatusBar *status_bar) {
 
     while (*status) {
         if ((uchar)(*status) < ' ') {
+            // TODO: Check i against STATUS_MAX_BLOCKS before writing blocks[i].
             blocks[i].signal = byte;
             byte = *status;
             *status = '\0';
@@ -915,6 +919,7 @@ status_parse_text(StatusBar *status_bar) {
         status += 1;
     }
     {
+        // TODO: This final block also overflows if i reached the cap.
         blocks[i].signal = byte;
 
         text_pixels = get_text_pixels(text) - text_padding + 2;
@@ -934,6 +939,8 @@ void
 status_get_signal_number(BlockSignal *blocks, int32 button_x) {
     status_signal = 0;
 
+    // TODO: Iterate only over parsed blocks; unused entries keep
+    // stale hitboxes.
     for (int32 i = 0; i < STATUS_MAX_BLOCKS; i += 1) {
         if (blocks[i].min_x <= button_x && button_x <= blocks[i].max_x) {
             status_signal = blocks[i].signal;
@@ -1570,6 +1577,7 @@ update_geometry(void) {
             while ((client = monitor->clients)) {
                 dirty = true;
                 monitor->clients = client->next;
+                // TODO: This corrupts all_clients unless client is its head.
                 all_clients = client->all_next;
                 client_detach_stack(client);
                 client->monitor = monitors;
@@ -1639,6 +1647,7 @@ status_update(void) {
     separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
     if (separator) {
         int64 top_length = separator - status_top.text;
+        // TODO: This copies one byte past status_top.text after the separator.
         int64 bottom_length = SIZEOF(status_bottom.text) - top_length;
         *separator = '\0';
         separator += 1;
@@ -1735,6 +1744,7 @@ main(int32 argc, char *argv[]) {
     }
 
     for (int32 i = 0; i < LENGTH(colors); i += 1) {
+        // TODO: scheme[i] was allocated as 3 XftColor objects, not 3 bytes.
         free2(scheme[i], 3);
     }
     free2(scheme, LENGTH(colors)*SIZEOF(*scheme));

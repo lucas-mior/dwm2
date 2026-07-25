@@ -74,6 +74,7 @@ draw_free(Draw *draw)
     XFreePixmap(draw->dpy, draw->drawable);
     XFreeGC(draw->dpy, draw->gc);
     draw_fontset_free(draw->fonts);
+    // TODO: draw was allocated with malloc2_zero; free() breaks debug memory.
     free(draw);
 }
 
@@ -137,6 +138,7 @@ xfont_free(DwmFont *font)
         hb_font_destroy(font->hbfont);
     }
     XftFontClose(font->dpy, font->xfont);
+    // TODO: font was allocated with malloc2_zero; free() breaks debug memory.
     free(font);
     return;
 }

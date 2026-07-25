@@ -35,6 +35,7 @@ user_alt_tab(const Arg *arg) {
                                         GrabModeAsync, CurrentTime);
         }
         if (grab_status == GrabSuccess) {
+            // TODO: None is not a valid grab_window for XGrabButton.
             grabbed = XGrabButton(display, AnyButton, AnyModifier, None, False,
                                   BUTTONMASK, GrabModeAsync, GrabModeAsync,
                                   None, None);
@@ -305,6 +306,7 @@ user_mouse_move(const Arg *arg) {
     }
 
     if (!get_root_pointer(&x, &y)) {
+        // TODO: Ungrab the pointer before returning from this grabbed state.
         return;
     }
 
