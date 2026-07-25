@@ -94,7 +94,7 @@ xfont_create(Draw *draw, char *fontname, FcPattern *fontpattern) {
         exit(EXIT_FAILURE);
     }
 
-    font = malloc2_zero(sizeof(DwmFont));
+    font = malloc2_zero(SIZEOF(*font));
     font->xfont = xfont;
     font->pattern = pattern;
     font->h = (uint32) (xfont->ascent + xfont->descent);
@@ -109,16 +109,20 @@ xfont_create(Draw *draw, char *fontname, FcPattern *fontpattern) {
 
 static void
 xfont_free(DwmFont *font) {
-    if (!font)
+    if (font == NULL) {
         return;
-    if (font->pattern)
+    }
+
+    if (font->pattern) {
         FcPatternDestroy(font->pattern);
+    }
     if (font->hbfont) {
         hb_font_destroy(font->hbfont);
     }
+
     XftFontClose(font->dpy, font->xfont);
-    // TODO: font was allocated with malloc2_zero; free() breaks debug memory.
-    free(font);
+    free2(font, SIZEOF(*font));
+
     return;
 }
 
