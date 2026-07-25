@@ -5,27 +5,27 @@
 
 #include "dwm.h"
 
-static const float master_fact  = 0.50;
-static const bool resizehints    = true;
-static const bool lockfullscreen = false;
-static const unsigned int border_pixels = 3;
-static const unsigned int tabModKey = 0x40;
-static const unsigned int tabCycleKey = 0x17;
-static const unsigned int key_j = 44;
-static const unsigned int key_semicolon = 47;
-static const unsigned int key_l = 46;
-static const unsigned int key_k = 45;
-static const unsigned int superKey = 133;
-static const int SNAP_PIXELS       = 32;
+static float master_fact  = 0.50;
+static bool resizehints    = true;
+static bool lockfullscreen = false;
+static unsigned int border_pixels = 3;
+static unsigned int tabModKey = 0x40;
+static unsigned int tabCycleKey = 0x17;
+static unsigned int key_j = 44;
+static unsigned int key_semicolon = 47;
+static unsigned int key_l = 46;
+static unsigned int key_k = 45;
+static unsigned int superKey = 133;
+static int SNAP_PIXELS       = 32;
 #define ICONSIZE 22   /* icon size */
 #define ICONSPACING 5 /* space between icon and title */
-static const char *fonts[]          = {
+static char *fonts[]          = {
     "LiberationSans:size=16",
     "Noto Color Emoji:size=12:antialias=true:autohint=true",
     "LiterationMono Nerd Font:size=12:style=Regular",
     "OpenMoji Color:size=16",
 };
-static const char *colors[][3]      = {
+static char *colors[][3]      = {
     /*                    fg          bg         border  */
     [SCHEME_NORMAL]   = { "#ffffff", "#000000", "#000000" },
     [SCHEME_INVERSE]  = { "#000000", "#004400", "#000000" },
@@ -33,21 +33,21 @@ static const char *colors[][3]      = {
     [SCHEME_URGENT]   = { "red",     "red",     "red"     },
 };
 #define OPAQUE 0xffU
-static const unsigned int alphas[][3] = {
+static unsigned int alphas[][3] = {
     /*                   fg      bg    border */
     [SCHEME_NORMAL]   = { OPAQUE, 0x80, 0x00   },
     [SCHEME_SELECTED] = { OPAQUE, 0x80, OPAQUE },
     [SCHEME_URGENT]   = { OPAQUE, 0x80, OPAQUE },
 };
 
-static const char *tags[] = { "F1", "F2", "F3", "1", "2", "3" };
-static const char *tags_space[] = { "F1", " F2", " F3", " 1", " 2", " 3" };
+static char *tags[] = { "F1", "F2", "F3", "1", "2", "3" };
+static char *tags_space[] = { "F1", " F2", " F3", " 1", " 2", " 3" };
 
-static const char tag_label_format[] = "%s: %s"; /* format of a tag label */
-static const char tag_empty_format[] = "%s";     /* format of an empty tag */
-static const char tag_label_delim[] = ":-_\n";   /* format of an empty tag */
+static char tag_label_format[] = "%s: %s"; /* format of a tag label */
+static char tag_empty_format[] = "%s";     /* format of an empty tag */
+static char tag_label_delim[] = ":-_\n";   /* format of an empty tag */
 
-static const Rule rules[] = {
+static Rule rules[] = {
 /* xprop(1):
  *    WM_CLASS(STRING) = instance, class
  *    WM_NAME(STRING) = title
@@ -70,7 +70,7 @@ static const Rule rules[] = {
 { NULL, NULL, "Plant Identification Progress",   0, 0,    -1,      true,          false,},
 };
 
-static const Layout layouts[] = {
+static Layout layouts[] = {
     /* symbol     arrange function */
     { "[]=",      monitor_layout_tile },
     { "><>",      NULL },
@@ -128,7 +128,7 @@ TAGKEYS(                        XK_3,                            5)
 { 0,                            XK_F11,  user_toggle_fullscreen, {0}},
 };
 
-static const Button buttons[] = {
+static Button buttons[] = {
 /* click          event mask   button   function                argument */
 { CLICK_BAR_TAGS,   0,           Button1, user_view_tag,          {0} },
 { CLICK_BAR_TAGS,   0,           Button3, user_toggle_view,       {0} },
