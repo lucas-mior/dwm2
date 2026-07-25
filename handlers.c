@@ -28,10 +28,11 @@ handler_client_message(XEvent *event) {
         }
     } else if (message_type == net_atoms[NET_ACTIVE_WINDOW]) {
         uint32 i;
-        for (i = 0; i < LENGTH(tags) && !((1 << i) & client->tags); i += 1)
-            ;
+
+        for (i = 0; i < LENGTH(tags) && !((1 << i) & client->tags); i += 1);
+
         if (i < LENGTH(tags)) {
-            const Arg a = {.ui = 1 << i};
+            Arg a = {.ui = 1 << i};
             live_monitor = client->monitor;
             user_view_tag(&a);
             client_focus(client);

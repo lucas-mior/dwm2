@@ -6,8 +6,8 @@
 
 void
 client_apply_rules(Client *client) {
-    const char *class;
-    const char *instance;
+    char *class;
+    char *instance;
     XClassHint class_hint = {NULL, NULL};
 
     client->is_floating = false;
@@ -17,7 +17,7 @@ client_apply_rules(Client *client) {
     instance = class_hint.res_name ? class_hint.res_name : broken;
 
     for (int32 i = 0; i < LENGTH(rules); i += 1) {
-        const Rule *rule = &rules[i];
+        Rule *rule = &rules[i];
         Monitor *monitor_aux;
 
         if ((!rule->title || strstr(client->name, rule->title))
@@ -548,7 +548,7 @@ client_resize_apply(Client *client, int32 x, int32 y, int32 w, int32 h) {
     }
 
     if (!(client->is_floating)) {
-        const Layout *layout = live_monitor->layout[live_monitor->lay_i];
+        Layout *layout = live_monitor->layout[live_monitor->lay_i];
         if (layout->function == monitor_layout_monocle || n == 1) {
             window_changes.border_width = 0;
             client->w = window_changes.width += client->border_pixels*2;
@@ -955,7 +955,7 @@ client_update_icon(Client *client) {
 
     do {
         ulong *pointer = prop_return;
-        const ulong *end = prop_return + nitems_return;
+        ulong *end = prop_return + nitems_return;
         uint32 bstd = UINT32_MAX;
         uint32 d;
 
