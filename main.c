@@ -1634,8 +1634,8 @@ void
 status_update(void) {
     char *separator;
 
-    if (!window_text_property(root, XA_WM_NAME, status_top.text,
-                              SIZEOF(status_top.text))) {
+    if (!window_text_property(root, XA_WM_NAME,
+                              status_top.text, SIZEOF(status_top.text))) {
         error("Error getting XA_WM_NAME property.\n");
         strcpy(status_top.text, "dwm-" QUOTE(VERSION));
         strcpy(status_top.text, "dwm-" QUOTE(VERSION));
