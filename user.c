@@ -35,8 +35,7 @@ user_alt_tab(const Arg *arg) {
                                         GrabModeAsync, CurrentTime);
         }
         if (grab_status == GrabSuccess) {
-            // TODO: None is not a valid grab_window for XGrabButton.
-            grabbed = XGrabButton(display, AnyButton, AnyModifier, None, False,
+            grabbed = XGrabButton(display, AnyButton, AnyModifier, root, False,
                                   BUTTONMASK, GrabModeAsync, GrabModeAsync,
                                   None, None);
             break;
@@ -74,7 +73,7 @@ user_alt_tab(const Arg *arg) {
         case KeyRelease:
             if (event.xkey.keycode == tabModKey) {
                 XUngrabKeyboard(display, CurrentTime);
-                XUngrabButton(display, AnyButton, AnyModifier, None);
+                XUngrabButton(display, AnyButton, AnyModifier, root);
                 grabbed = false;
                 alt_tab_direction = !alt_tab_direction;
                 if (client) {
@@ -100,7 +99,7 @@ user_alt_tab(const Arg *arg) {
         }
         case ButtonRelease:
             XUngrabKeyboard(display, CurrentTime);
-            XUngrabButton(display, AnyButton, AnyModifier, None);
+            XUngrabButton(display, AnyButton, AnyModifier, root);
             grabbed = false;
             alt_tab_direction = !alt_tab_direction;
             if (client) {
