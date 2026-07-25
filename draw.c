@@ -615,16 +615,14 @@ draw_map(Draw *draw, Window win, int x, int y, uint32 w, uint32 h) {
 }
 
 uint32
-draw_fontset_getwidth(Draw *draw, char *text)
-{
+draw_fontset_getwidth(Draw *draw, char *text) {
     if (!draw || !draw->fonts || !text)
         return 0;
     return (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, 0);
 }
 
 uint32
-draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n)
-{
+draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n) {
     uint32 tmp = 0;
     if (draw && draw->fonts && text && n)
         tmp = (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, (int)n);
@@ -647,8 +645,7 @@ draw_font_getexts(DwmFont *font, char *text, uint32 len, uint32 *w, uint32 *h)
 }
 
 Cursor
-draw_cur_create(Draw *draw, int shape)
-{
+draw_cur_create(Draw *draw, int shape) {
     Cursor cur;
 
     cur = XCreateFontCursor(draw->dpy, (uint32)shape);
