@@ -3,47 +3,28 @@
 #if !defined(DRAW_C)
 #define DRAW_C
 
+#include "dwm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <X11/Xlib.h>
-#include <X11/Xft/Xft.h>
-#include <Imlib2.h>
-
-#include <X11/cursorfont.h>
-#include <X11/keysym.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/Xproto.h>
-#include <X11/Xutil.h>
-
-#ifdef XINERAMA
-#include <X11/extensions/Xinerama.h>
-#endif /* XINERAMA */
-
-#include <X11/Xft/Xft.h>
-#include <hb.h>
-#include <hb-ft.h>
-
-#include "cbase.h"
-#include "dwm.h"
-#include "draw.h"
 
 Draw *
-draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *visual, uint32 depth, Colormap cmap)
-{
+draw_create(Display *dpy, int screen_here, Window root_here,
+            uint32 w, uint32 h, Visual *visual_here, uint32 depth_here, Colormap cmap) {
     Draw *draw = malloc2_zero(SIZEOF(Draw));
 
     draw->dpy = dpy;
-    draw->screen = screen;
-    draw->root = root;
+    draw->screen = screen_here;
+    draw->root = root_here;
     draw->w = w;
     draw->h = h;
-    draw->visual = visual;
-    draw->depth = depth;
+    draw->visual = visual_here;
+    draw->depth = depth_here;
     draw->cmap = cmap;
-    draw->drawable = XCreatePixmap(dpy, root, w, h, depth);
+    draw->drawable = XCreatePixmap(dpy, root_here, w, h, depth_here);
     draw->picture = XRenderCreatePicture(dpy, draw->drawable, XRenderFindVisualFormat(dpy, visual), 0, NULL);
+
     draw->gc = XCreateGC(dpy, draw->drawable, 0, NULL);
     XSetLineAttributes(dpy, draw->gc, 1, LineSolid, CapButt, JoinMiter);
 

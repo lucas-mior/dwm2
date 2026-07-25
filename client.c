@@ -1,7 +1,7 @@
 #if !defined(CLIENT_C)
 #define CLIENT_C
 
-#include "dwm_stuff.h"
+#include "dwm.h"
 #include "config.h"
 
 void

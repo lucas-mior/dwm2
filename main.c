@@ -21,14 +21,10 @@
  * To understand everything else, start reading main().
  */
 
+#define CBASE_IMPLEMENT
 #include "dwm.h"
 
-#define CBASE_IMPLEMENT
-#include "cbase.h"
-
-#include "draw.h"
 #include "draw.c"
-#include "dwm_stuff.h"
 
 static void (*handlers[LASTEvent])(XEvent *) = {
     [ButtonPress] = handler_button_press,

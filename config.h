@@ -3,6 +3,8 @@
 
 /* See LICENSE file for copyright and license details. */
 
+#include "dwm.h"
+
 static const float master_fact  = 0.50;
 static const bool resizehints    = true;
 static const bool lockfullscreen = false;

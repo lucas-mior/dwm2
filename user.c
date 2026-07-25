@@ -1,7 +1,7 @@
 #if !defined(USER_C)
 #define USER_C
 
-#include "dwm_stuff.h"
+#include "dwm.h"
 
 static void
 user_alt_tab(const Arg *arg) {

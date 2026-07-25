@@ -1,7 +1,7 @@
 #if !defined(HANDLERS_C)
 #define HANDLERS_C
 
-#include "dwm_stuff.h"
+#include "dwm.h"
 
 void
 handler_client_message(XEvent *event) {
