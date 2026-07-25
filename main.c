@@ -1744,8 +1744,7 @@ main(int32 argc, char *argv[]) {
     }
 
     for (int32 i = 0; i < LENGTH(colors); i += 1) {
-        // TODO: scheme[i] was allocated as 3 XftColor objects, not 3 bytes.
-        free2(scheme[i], 3);
+        free2(scheme[i], 3*SIZEOF(*scheme[i]));
     }
     free2(scheme, LENGTH(colors)*SIZEOF(*scheme));
 
