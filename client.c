@@ -380,8 +380,8 @@ client_new(Window window, XWindowAttributes *window_attributes) {
     client_update_wm_hints(client);
     {
         int32 actual_format_return;
-        ulong *prop_return;
-        ulong nitems_return;
+        ulong *prop_return = NULL;
+        ulong nitems_return = 0;
         ulong bytes_after_return;
         Atom actual_type_return;
 
@@ -389,8 +389,6 @@ client_new(Window window, XWindowAttributes *window_attributes) {
             display, client->window, net_atoms[NET_CLIENT_INFO], 0L, 2L, False,
             XA_CARDINAL, &actual_type_return, &actual_format_return,
             &nitems_return, &bytes_after_return, (uchar **)&prop_return);
-        // TODO: Initialize prop_return and nitems_return before this call.
-        // XGetWindowProperty failure leaves the later reads undefined.
         if (success == Success && nitems_return == 2) {
             client->tags = (uint32)*prop_return;
             for (Monitor *mon = monitors; mon; mon = mon->next) {
