@@ -989,10 +989,10 @@ monitor_from_rectangle(int32 x, int32 y, int32 w, int32 h) {
 }
 
 Monitor *
-monitor_from_direction(int32 direction) {
+monitor_from_direction(int32 step) {
     Monitor *monitor = NULL;
 
-    if (direction > 0) {
+    if (step > 0) {
         if (!(monitor = live_monitor->next)) {
             monitor = monitors;
         }
@@ -1045,7 +1045,7 @@ window_to_monitor(Window window) {
 }
 
 void
-focus_direction(int32 direction) {
+focus_direction(enum Direction direction) {
     Client *selected = live_monitor->selected_client;
     Client *client = NULL;
     Client *client_aux;
@@ -1074,25 +1074,28 @@ focus_direction(int32 direction) {
         }
 
         switch (direction) {
-        case 0:  // left (has preference -1)
+        case DirectionLeft:
             dist = selected->x - client_aux->x - client_aux->w;
-            client_score = (int32)MIN(abs(dist), abs(dist + selected->monitor->win_w));
+            client_score = (int32)MIN(abs(dist),
+                                      abs(dist + selected->monitor->win_w));
             client_score += abs(selected->y - client_aux->y) - 1;
             break;
-        case 1:  // right
+        case DirectionRight:
             dist = client_aux->x - selected->x - selected->w;
-            client_score = (int32)MIN(abs(dist), abs(dist + selected->monitor->win_w));
+            client_score = (int32)MIN(abs(dist),
+                                      abs(dist + selected->monitor->win_w));
             client_score += abs(client_aux->y - selected->y);
             break;
-        case 2:  // up (has preference -1)
+        case DirectionUp:
             dist = selected->y - client_aux->y - client_aux->h;
-            client_score = (int32)MIN(abs(dist), abs(dist + selected->monitor->win_h));
+            client_score = (int32)MIN(abs(dist),
+                                      abs(dist + selected->monitor->win_h));
             client_score += abs(selected->x - client_aux->x) - 1;
             break;
-        default:
-        case 3:  // down
+        case DirectionDown:
             dist = client_aux->y - selected->y - selected->h;
-            client_score = (int32)MIN(abs(dist), abs(dist + selected->monitor->win_h));
+            client_score = (int32)MIN(abs(dist),
+                                      abs(dist + selected->monitor->win_h));
             client_score += abs(client_aux->x - selected->x);
             break;
         }

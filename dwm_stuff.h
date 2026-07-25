@@ -55,6 +55,14 @@ enum {
     BarBottom,
     BarTop
 };
+
+enum Direction {
+    DirectionLeft,
+    DirectionRight,
+    DirectionUp,
+    DirectionDown,
+};
+
 enum {
     CursorNormal,
     CursorResize,
@@ -304,7 +312,7 @@ static int32 update_geometry(void);
 static void configure_bars_windows(void);
 static void draw_bars(void);
 static void draw_status_text(StatusBar *, int32);
-static void focus_direction(int32);
+static void focus_direction(enum Direction);
 static void focus_next(bool);
 static void grab_keys(void);
 static void scan_windows_once(void);
