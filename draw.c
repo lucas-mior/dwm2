@@ -167,8 +167,7 @@ draw_clr_create(Draw *draw, XftColor *dest, char *clrname, uint32 alpha) {
 }
 
 XftColor *
-draw_scm_create(Draw *draw,
-                char *clrnames[], uint32 alphas[], int64 clrcount) {
+draw_scm_create(Draw *draw, char *clrnames[], uint32 alphas[], int64 clrcount) {
     XftColor *ret;
 
     /* need at least two colors for a scheme */
@@ -197,7 +196,9 @@ draw_setscheme(Draw *draw, XftColor *scm)
 }
 
 Picture
-draw_picture_create_resized(Draw *draw, char *src, uint32 srcw, uint32 srch, uint32 dstw, uint32 dsth) {
+draw_picture_create_resized(Draw *draw, char *src,
+                            uint32 srcw, uint32 srch,
+                            uint32 dstw, uint32 dsth) {
     Pixmap pm;
     Picture pic;
     GC gc;
