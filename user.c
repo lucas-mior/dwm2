@@ -60,13 +60,13 @@ user_alt_tab(const Arg *arg) {
             if (event.xkey.keycode == tabCycleKey) {
                 focus_next(alt_tab_direction);
             } else if (event.xkey.keycode == key_j) {
-                focus_direction(DirectionLeft);
+                focus_direction(DIRECTION_LEFT);
             } else if (event.xkey.keycode == key_semicolon) {
-                focus_direction(DirectionRight);
+                focus_direction(DIRECTION_RIGHT);
             } else if (event.xkey.keycode == key_l) {
-                focus_direction(DirectionUp);
+                focus_direction(DIRECTION_UP);
             } else if (event.xkey.keycode == key_k) {
-                focus_direction(DirectionDown);
+                focus_direction(DIRECTION_DOWN);
             }
             client = live_monitor->selected_client;
             break;

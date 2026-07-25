@@ -1074,25 +1074,25 @@ focus_direction(enum Direction direction) {
         }
 
         switch (direction) {
-        case DirectionLeft:
+        case DIRECTION_LEFT:
             dist = selected->x - client_aux->x - client_aux->w;
             client_score = (int32)MIN(abs(dist),
                                       abs(dist + selected->monitor->win_w));
             client_score += abs(selected->y - client_aux->y) - 1;
             break;
-        case DirectionRight:
+        case DIRECTION_RIGHT:
             dist = client_aux->x - selected->x - selected->w;
             client_score = (int32)MIN(abs(dist),
                                       abs(dist + selected->monitor->win_w));
             client_score += abs(client_aux->y - selected->y);
             break;
-        case DirectionUp:
+        case DIRECTION_UP:
             dist = selected->y - client_aux->y - client_aux->h;
             client_score = (int32)MIN(abs(dist),
                                       abs(dist + selected->monitor->win_h));
             client_score += abs(selected->x - client_aux->x) - 1;
             break;
-        case DirectionDown:
+        case DIRECTION_DOWN:
         default:
             dist = client_aux->y - selected->y - selected->h;
             client_score = (int32)MIN(abs(dist),
