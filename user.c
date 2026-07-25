@@ -306,7 +306,7 @@ user_mouse_move(const Arg *arg) {
     }
 
     if (!get_root_pointer(&x, &y)) {
-        // TODO: Ungrab the pointer before returning from this grabbed state.
+        XUngrabPointer(display, CurrentTime);
         return;
     }
 
