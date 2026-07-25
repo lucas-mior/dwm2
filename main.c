@@ -21,12 +21,12 @@
  * To understand everything else, start reading main().
  */
 
+#define CBASE_IMPLEMENT
+#include "cbase.h"
+
 #include "dwm.h"
 #include "draw.h"
 #include "draw.c"
-
-#define CBASE_IMPLEMENT
-#include "cbase.h"
 
 #include "dwm_stuff.h"
 

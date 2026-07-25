@@ -18,8 +18,6 @@
 #include <hb.h>
 #include <hb-ft.h>
 
-#include "util.c"
-
 typedef struct DwmFont {
     Display *dpy;
     unsigned int h;

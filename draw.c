@@ -25,10 +25,9 @@
 #include <hb.h>
 #include <hb-ft.h>
 
+#include "cbase.h"
 #include "dwm.h"
 #include "draw.h"
-#include "util.c"
-#include "utf8.c"
 
 Draw *
 draw_create(Display *dpy, int screen, Window root, uint32 w, uint32 h, Visual *visual, uint32 depth, Colormap cmap)
