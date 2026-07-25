@@ -36,7 +36,7 @@ draw_create(Display *dpy, int screen_here, Window root_here,
 
 void
 draw_resize(Draw *draw, uint32 w, uint32 h) {
-    if (!draw)
+    if (draw == NULL)
         return;
 
     draw->w = w;
@@ -266,8 +266,8 @@ draw_picture_create_resized(Draw *draw, char *src,
 }
 
 void
-draw_rect(Draw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
-{
+draw_rect(Draw *draw,
+          int x, int y, uint32 w, uint32 h, int filled, int invert) {
     if (!draw || !draw->scheme)
         return;
     XSetForeground(draw->dpy, draw->gc, invert ? draw->scheme[ColBg].pixel : draw->scheme[ColFg].pixel);
@@ -278,8 +278,8 @@ draw_rect(Draw *draw, int x, int y, uint32 w, uint32 h, int filled, int invert)
 }
 
 int
-draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, char *text, int invert)
-{
+draw_text(Draw *draw,
+          int x, int y, uint32 w, uint32 h, uint32 lpad, char *text, int invert) {
     int render = 0;
     XftDraw *d = NULL;
     DwmFont *usedfont = NULL;
@@ -298,7 +298,7 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, char *text,
         render = 1;
     }
 
-    if (!draw) {
+    if (draw == NULL) {
         return 0;
     }
     if (render) {
@@ -599,17 +599,15 @@ draw_text(Draw *draw, int x, int y, uint32 w, uint32 h, uint32 lpad, char *text,
 }
 
 void
-draw_pic(Draw *draw, int x, int y, uint32 w, uint32 h, Picture pic)
-{
-    if (!draw)
+draw_pic(Draw *draw, int x, int y, uint32 w, uint32 h, Picture pic) {
+    if (draw == NULL)
         return;
     XRenderComposite(draw->dpy, PictOpOver, pic, None, draw->picture, 0, 0, 0, 0, x, y, w, h);
 }
 
 void
-draw_map(Draw *draw, Window win, int x, int y, uint32 w, uint32 h)
-{
-    if (!draw)
+draw_map(Draw *draw, Window win, int x, int y, uint32 w, uint32 h) {
+    if (draw == NULL)
         return;
 
     XCopyArea(draw->dpy, draw->drawable, win, draw->gc, x, y, w, h, x, y);
