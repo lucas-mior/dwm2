@@ -1093,6 +1093,7 @@ focus_direction(enum Direction direction) {
             client_score += abs(selected->x - client_aux->x) - 1;
             break;
         case DirectionDown:
+        default:
             dist = client_aux->y - selected->y - selected->h;
             client_score = (int32)MIN(abs(dist),
                                       abs(dist + selected->monitor->win_h));
