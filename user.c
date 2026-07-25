@@ -2,6 +2,7 @@
 #define USER_C
 
 #include "dwm.h"
+#include "config.h"
 
 static void
 user_alt_tab(Arg *arg) {
