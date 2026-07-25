@@ -54,9 +54,11 @@ draw_free(Draw *draw) {
     XRenderFreePicture(draw->dpy, draw->picture);
     XFreePixmap(draw->dpy, draw->drawable);
     XFreeGC(draw->dpy, draw->gc);
+
     draw_fontset_free(draw->fonts);
-    // TODO: draw was allocated with malloc2_zero; free() breaks debug memory.
-    free(draw);
+
+    free2(draw, SIZEOF(*draw));
+    return;
 }
 
 /* This function is an implementation detail. Library users should use
