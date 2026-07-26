@@ -138,7 +138,6 @@ handler_configure_notify(XEvent *event) {
         return;
     }
 
-    /* TODO: update_geometry handling sucks, needs to be simplified */
     dirty = screen_width != configure_event->width
             || screen_height != configure_event->height;
     screen_width = configure_event->width;
