@@ -1248,8 +1248,8 @@ set_layout(Layout *layout) {
         pertag->layouts[pertag->tag][monitor->lay_i] = layout;
     }
 
-    SNPRINTF(monitor->layout_symbol, "%s",
-             monitor->layout[monitor->lay_i]->symbol);
+    SNPRINTF(monitor->layout_symbol,
+             "%s", monitor->layout[monitor->lay_i]->symbol);
 
     if (monitor->selected_client) {
         monitor_arrange(monitor);
