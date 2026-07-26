@@ -168,8 +168,8 @@ monitor_draw_bars(Monitor *monitor) {
         if (monitor == live_monitor) {
             draw_status_text(&status_bottom, monitor->win_w);
         }
-        draw_map(draw, monitor->bottom_bar_window,
-                 0, 0, (uint32)monitor->win_w, bar_height);
+        draw_map(draw, monitor->bottom_bar_window, 0, 0, (uint32)monitor->win_w,
+                 bar_height);
     }
 
     if (!monitor->show_top_bar) {
@@ -291,8 +291,8 @@ monitor_draw_bars(Monitor *monitor) {
             draw_rect(draw, draw_x, 0, (uint32)w, bar_height, true, true);
         }
     }
-    draw_map(draw, monitor->top_bar_window,
-             0, 0, (uint32)monitor->win_w, bar_height);
+    draw_map(draw, monitor->top_bar_window, 0, 0, (uint32)monitor->win_w,
+             bar_height);
 
     return;
 }
@@ -854,14 +854,18 @@ handler_button_press(XEvent *event) {
         } else if (button_x < x + get_text_pixels(monitor->layout_symbol)) {
             click = CLICK_BAR_LAYOUT_SYMBOL;
         } else if (button_x > monitor->win_w - status_top.pixels) {
+            int32 status_x = monitor->win_w - status_top.pixels;
+
             click = CLICK_BAR_STATUS;
-            status_get_signal_number(status_top.blocks_signal, button_x);
+            status_get_signal_number(&status_top, button_x - status_x);
         } else {
             click = CLICK_BAR_TITLE;
         }
     } else if (button_event->window == monitor->bottom_bar_window) {
+        int32 status_x = (monitor->win_w - status_bottom.pixels) / 2;
+
         click = CLICK_BOTTOM_BAR;
-        status_get_signal_number(status_bottom.blocks_signal, button_x);
+        status_get_signal_number(&status_bottom, button_x - status_x);
     } else if ((client = window_to_client(button_event->window))) {
         client_focus(client);
         monitor_restack(monitor);
@@ -893,7 +897,6 @@ handler_button_press(XEvent *event) {
 
 void
 draw_status_text(StatusBar *status_bar, int32 monitor_width) {
-    int32 pixels = 0;
     int32 x0;
 
     if (status_bar == &status_top) {
@@ -906,14 +909,9 @@ draw_status_text(StatusBar *status_bar, int32 monitor_width) {
         BlockSignal *block = &status_bar->blocks_signal[i];
         int32 text_pixels = block->max_x - block->min_x;
 
-        // TODO: This mutates parsed hitboxes on every redraw, accumulating x0.
-        block->max_x += x0;
-        block->min_x += x0;
-
         if (text_pixels) {
-            draw_text(draw, x0 + pixels, 0, (uint32)text_pixels, bar_height, 0,
-                      &(status_bar->text[block->text_i]), 0);
-            pixels += text_pixels;
+            draw_text(draw, x0 + block->min_x, 0, (uint32)text_pixels,
+                      bar_height, 0, &(status_bar->text[block->text_i]), 0);
         }
     }
     return;
@@ -928,11 +926,10 @@ status_parse_text(StatusBar *status_bar) {
     int32 total_pixels = 0;
     char byte = *status;
 
-    while (*status) {
+    while (*status && i < STATUS_MAX_BLOCKS) {
         if ((uchar)(*status) < ' ') {
             int32 text_pixels;
 
-            // TODO: Check i against STATUS_MAX_BLOCKS before writing blocks[i].
             blocks[i].signal = byte;
             byte = *status;
             *status = '\0';
@@ -950,10 +947,9 @@ status_parse_text(StatusBar *status_bar) {
         }
         status += 1;
     }
-    {
+    if (i < STATUS_MAX_BLOCKS) {
         int32 text_pixels;
 
-        // TODO: This final block also overflows if i reached the cap.
         blocks[i].signal = byte;
 
         text_pixels = get_text_pixels(text) - text_padding + 2;
@@ -963,21 +959,22 @@ status_parse_text(StatusBar *status_bar) {
         blocks[i].text_i = (int32)(text - status_bar->text);
 
         total_pixels += text_pixels;
+        i += 1;
     }
-    status_bar->number_blocks = i + 1;
+    status_bar->number_blocks = i;
     status_bar->pixels = total_pixels;
     return;
 }
 
 void
-status_get_signal_number(BlockSignal *blocks, int32 button_x) {
+status_get_signal_number(StatusBar *status_bar, int32 button_x) {
     status_signal = 0;
 
-    // TODO: Iterate only over parsed blocks; unused entries keep
-    // stale hitboxes.
-    for (int32 i = 0; i < STATUS_MAX_BLOCKS; i += 1) {
-        if (blocks[i].min_x <= button_x && button_x <= blocks[i].max_x) {
-            status_signal = blocks[i].signal;
+    for (int32 i = 0; i < status_bar->number_blocks; i += 1) {
+        BlockSignal *block = &status_bar->blocks_signal[i];
+
+        if (block->min_x <= button_x && button_x <= block->max_x) {
+            status_signal = block->signal;
             break;
         }
     }

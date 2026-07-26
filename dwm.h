@@ -496,7 +496,7 @@ static void focus_next(bool);
 static void grab_keys(void);
 static void scan_windows_once(void);
 static void setup_once(void);
-static void status_get_signal_number(BlockSignal *, int32);
+static void status_get_signal_number(StatusBar *, int32);
 static void status_parse_text(StatusBar *);
 static void toggle_bar(int32);
 static void update_numlock_mask(void);
