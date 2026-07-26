@@ -200,9 +200,10 @@ monitor_draw_bars(Monitor *monitor) {
 
             if ((masters_names[i] == NULL) && (client->tags & (1 << i))) {
                 XClassHint class_hint = {NULL, NULL};
-                // TODO: XGetClassHint allocates both strings; this leaks them.
+
                 XGetClassHint(display, client->window, &class_hint);
                 masters_names[i] = class_hint.res_class;
+                XFree(class_hint.res_name);
             }
         }
     }
@@ -247,6 +248,7 @@ monitor_draw_bars(Monitor *monitor) {
             draw_x += icon_width + padding;
             tags_widths[i] += icon_width + padding;
         }
+        XFree(master_name);
     }
     w = get_text_pixels(monitor->layout_symbol);
     draw_setscheme(draw, scheme[SCHEME_NORMAL]);
