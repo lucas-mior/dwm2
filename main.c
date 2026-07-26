@@ -1693,8 +1693,8 @@ status_update(void) {
     separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
     if (separator) {
         int64 top_length = separator - status_top.text;
-        // TODO: This copies one byte past status_top.text after the separator.
-        int64 bottom_length = SIZEOF(status_bottom.text) - top_length;
+        int64 bottom_length = SIZEOF(status_top.text) - top_length - 1;
+
         *separator = '\0';
         separator += 1;
         memcpy64(status_bottom.text, separator, bottom_length);
