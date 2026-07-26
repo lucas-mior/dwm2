@@ -2,6 +2,7 @@
 #define HANDLERS_C
 
 #include "dwm.h"
+#include "config.h"
 
 void
 handler_client_message(XEvent *event) {
@@ -49,13 +50,11 @@ handler_configure_request(XEvent *event) {
     Client *client;
     XConfigureRequestEvent *conf_request_event = &event->xconfigurerequest;
     XWindowChanges window_changes;
-    bool mon_floating;
-
-    // TODO: This uses live_monitor before knowing the requested client.
-    // Clients on other monitors get the wrong layout floating state.
-    mon_floating = !live_monitor->layout[live_monitor->lay_i]->function;
 
     if ((client = window_to_client(conf_request_event->window))) {
+        Monitor *monitor = client->monitor;
+        bool mon_floating = !monitor->layout[monitor->lay_i]->function;
+
         if (conf_request_event->value_mask & CWBorderWidth) {
             client->border_pixels = conf_request_event->border_width;
             XSync(display, False);
@@ -63,11 +62,9 @@ handler_configure_request(XEvent *event) {
         }
 
         if (client->is_floating || mon_floating) {
-            Monitor *monitor;
             bool mask_xy;
             bool mask_hw;
 
-            monitor = client->monitor;
             if (conf_request_event->value_mask & CWX) {
                 client->old_x = client->x;
                 client->x = monitor->mon_x + conf_request_event->x;
