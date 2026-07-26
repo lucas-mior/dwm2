@@ -1034,6 +1034,7 @@ monitor_from_direction(int32 step) {
             /* find previous monitor */
         }
     }
+
     return monitor;
 }
 
