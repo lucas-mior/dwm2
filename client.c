@@ -4,6 +4,25 @@
 #include "dwm.h"
 #include "config.h"
 
+static bool
+optional_string_contains(char *string, char *maybe_needle) {
+    bool result = true;
+
+    if (maybe_needle) {
+        void *match;
+        int32 string_len = strlen32(string);
+        int32 needle_len = strlen32(maybe_needle);
+
+        match = memmem64(string, string_len, maybe_needle, needle_len);
+        result = false;
+        if (match) {
+            result = true;
+        }
+    }
+
+    return result;
+}
+
 void
 client_apply_rules(Client *client) {
     char *class;
@@ -13,16 +32,24 @@ client_apply_rules(Client *client) {
     client->is_floating = false;
     client->tags = 0;
     XGetClassHint(display, client->window, &class_hint);
-    class = class_hint.res_class ? class_hint.res_class : broken;
-    instance = class_hint.res_name ? class_hint.res_name : broken;
+    if (class_hint.res_class) {
+        class = class_hint.res_class;
+    } else {
+        class = broken;
+    }
+    if (class_hint.res_name) {
+        instance = class_hint.res_name;
+    } else {
+        instance = broken;
+    }
 
     for (int32 i = 0; i < LENGTH(rules); i += 1) {
         Rule *rule = &rules[i];
         Monitor *monitor_aux;
 
-        if ((!rule->title || strstr(client->name, rule->title))
-            && (!rule->class || strstr(class, rule->class))
-            && (!rule->instance || strstr(instance, rule->instance))) {
+        if (optional_string_contains(client->name, rule->title)
+            && optional_string_contains(class, rule->class)
+            && optional_string_contains(instance, rule->instance)) {
             client->is_floating = rule->is_floating;
             client->is_fake_fullscreen = rule->is_fake_fullscreen;
             client->tags |= rule->tags;
@@ -33,8 +60,9 @@ client_apply_rules(Client *client) {
 
             for (monitor_aux = monitors;
                  monitor_aux && monitor_aux->num != rule->monitor;
-                 monitor_aux = monitor_aux->next)
-                ;
+                 monitor_aux = monitor_aux->next) {
+                /* find matching monitor */
+            }
             if (monitor_aux) {
                 client->monitor = monitor_aux;
             }
@@ -201,13 +229,15 @@ client_detach(Client *client) {
     Client **clients;
 
     for (clients = &client->monitor->clients; *clients && *clients != client;
-         clients = &(*clients)->next)
-        ;
+         clients = &(*clients)->next) {
+        /* find client link */
+    }
     *clients = client->next;
 
     for (clients = &all_clients; *clients && *clients != client;
-         clients = &(*clients)->all_next)
-        ;
+         clients = &(*clients)->all_next) {
+        /* find global client link */
+    }
     *clients = client->all_next;
 
     return;
@@ -219,15 +249,17 @@ client_detach_stack(Client *client) {
 
     for (client_aux = &client->monitor->stack;
          *client_aux && *client_aux != client;
-         client_aux = &(*client_aux)->stack_next)
-        ;
+         client_aux = &(*client_aux)->stack_next) {
+        /* find stack link */
+    }
     *client_aux = client->stack_next;
 
     if (client == client->monitor->selected_client) {
         Client *t;
         for (t = client->monitor->stack; t && !client_is_visible(t);
-             t = t->stack_next)
-            ;
+             t = t->stack_next) {
+            /* find next visible client */
+        }
         client->monitor->selected_client = t;
     }
     return;
@@ -236,10 +268,11 @@ client_detach_stack(Client *client) {
 void
 client_focus(Client *client) {
     Client *selected = live_monitor->selected_client;
-    if (!client || !client_is_visible(client)) {
+    if ((client == NULL) || !client_is_visible(client)) {
         for (client = live_monitor->stack; client && !client_is_visible(client);
-             client = client->stack_next)
-            ;
+             client = client->stack_next) {
+            /* find next visible client */
+        }
     }
 
     if (selected && selected != client) {
@@ -517,7 +550,14 @@ client_pop(Client *client) {
 }
 
 void
-client_resize(Client *client, int32 x, int32 y, int32 w, int32 h, bool interact) {
+client_resize(
+    Client *client,
+    int32 x,
+    int32 y,
+    int32 w,
+    int32 h,
+    bool interact
+) {
     if (client_apply_size_hints(client, &x, &y, &w, &h, interact)) {
         client_resize_apply(client, x, y, w, h);
     }
@@ -547,7 +587,7 @@ client_resize_apply(Client *client, int32 x, int32 y, int32 w, int32 h) {
         n += 1;
     }
 
-    if (!(client->is_floating)) {
+    if (!client->is_floating) {
         Layout *layout = live_monitor->layout[live_monitor->lay_i];
         if (layout->function == monitor_layout_monocle || n == 1) {
             window_changes.border_width = 0;
@@ -705,7 +745,7 @@ client_update_wm_hints(Client *client) {
     XWMHints *wm_hints;
     bool urgent;
 
-    if (!(wm_hints = XGetWMHints(display, client->window))) {
+    if ((wm_hints = XGetWMHints(display, client->window)) == NULL) {
         return;
     }
 
@@ -755,7 +795,7 @@ client_set_urgent(Client *client, bool urgent) {
     XWMHints *wm_hints;
 
     client->is_urgent = urgent;
-    if (!(wm_hints = XGetWMHints(display, client->window))) {
+    if ((wm_hints = XGetWMHints(display, client->window)) == NULL) {
         return;
     }
 
@@ -850,7 +890,7 @@ client_update_size_hints(Client *client) {
 
     success = XGetWMNormalHints(display, client->window, &size_hints,
                                 &supplied_return);
-    if (!success) {
+    if (success == 0) {
         /* size_hints is uninitialized,
          * ensure that size_hints.flags aren't used */
         size_hints.flags = PSize;
@@ -916,7 +956,7 @@ client_update_title(Client *client) {
                              SIZEOF(client->name));
     }
     if (client->name[0] == '\0') {
-        strcpy(client->name, broken);
+        SNPRINTF(client->name, "%s", broken);
     }
     return;
 }
@@ -932,8 +972,10 @@ client_update_icon(Client *client) {
 
     ulong *pixel_find = NULL;
     uint32 *pixel_find32;
-    uint32 width_find, height_find;
-    uint32 icon_width, icon_height;
+    uint32 width_find;
+    uint32 height_find;
+    uint32 icon_width;
+    uint32 icon_height;
     uint32 area_find = 0;
     uint32 *picture_width = &client->icon_width;
     uint32 *picture_height = &client->icon_height;
@@ -972,7 +1014,11 @@ client_update_icon(Client *client) {
                 break;
             }
 
-            max_dim = w > h ? w : h;
+            if (w > h) {
+                max_dim = w;
+            } else {
+                max_dim = h;
+            }
             if (max_dim >= ICONSIZE && (d = max_dim - ICONSIZE) < bstd) {
                 bstd = d;
                 pixel_find = pointer;
@@ -998,7 +1044,11 @@ client_update_icon(Client *client) {
                 break;
             }
 
-            max_dim = w > h ? w : h;
+            if (w > h) {
+                max_dim = w;
+            } else {
+                max_dim = h;
+            }
             if ((d = ICONSIZE - max_dim) < bstd) {
                 bstd = d;
                 pixel_find = pointer;
@@ -1007,7 +1057,7 @@ client_update_icon(Client *client) {
         }
     } while (false);
 
-    if (!pixel_find) {
+    if (pixel_find == NULL) {
         XFree(prop_return);
         return;
     }
@@ -1041,7 +1091,8 @@ client_update_icon(Client *client) {
         uint8 a = pixel >> 24u;
         uint32 rb = (a*(pixel & 0xFF00FFu)) >> 8u;
         uint32 g = (a*(pixel & 0x00FF00u)) >> 8u;
-        pixel_find32[i] = (rb & 0xFF00FFu) | (g & 0x00FF00u) | ((uint32)a << 24u);
+        pixel_find32[i] = (rb & 0xFF00FFu) | (g & 0x00FF00u)
+                          |((uint32)a << 24u);
     }
 
     client->icon

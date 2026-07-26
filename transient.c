@@ -5,38 +5,47 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int main(void) {
-    Display *d;
-    Window r, f, t = None;
-    XSizeHints h;
-    XEvent e;
+int32
+main(void) {
+    Display *display2;
+    Window root2;
+    Window floating_window;
+    Window transient_window = None;
+    XSizeHints size_hints;
+    XEvent event;
 
-    d = XOpenDisplay(NULL);
-    if (!d)
-        exit(1);
-    r = DefaultRootWindow(d);
+    display2 = XOpenDisplay(NULL);
+    if (display2 == NULL) {
+        exit(EXIT_FAILURE);
+    }
+    root2 = DefaultRootWindow(display2);
 
-    f = XCreateSimpleWindow(d, r, 100, 100, 400, 400, 0, 0, 0);
-    h.min_width = h.max_width = h.min_height = h.max_height = 400;
-    h.flags = PMinSize | PMaxSize;
-    XSetWMNormalHints(d, f, &h);
-    XStoreName(d, f, "floating");
-    XMapWindow(d, f);
+    floating_window = XCreateSimpleWindow(display2, root2, 100, 100, 400, 400,
+                                          0, 0, 0);
+    size_hints.min_width = 400;
+    size_hints.max_width = 400;
+    size_hints.min_height = 400;
+    size_hints.max_height = 400;
+    size_hints.flags = PMinSize | PMaxSize;
+    XSetWMNormalHints(display2, floating_window, &size_hints);
+    XStoreName(display2, floating_window, "floating");
+    XMapWindow(display2, floating_window);
 
-    XSelectInput(d, f, ExposureMask);
-    while (1) {
-        XNextEvent(d, &e);
+    XSelectInput(display2, floating_window, ExposureMask);
+    while (true) {
+        XNextEvent(display2, &event);
 
-        if (t == None) {
+        if (transient_window == None) {
             sleep(5);
-            t = XCreateSimpleWindow(d, r, 50, 50, 100, 100, 0, 0, 0);
-            XSetTransientForHint(d, t, f);
-            XStoreName(d, t, "transient");
-            XMapWindow(d, t);
-            XSelectInput(d, t, ExposureMask);
+            transient_window = XCreateSimpleWindow(display2, root2, 50, 50,
+                                                   100, 100, 0, 0, 0);
+            XSetTransientForHint(display2, transient_window, floating_window);
+            XStoreName(display2, transient_window, "transient");
+            XMapWindow(display2, transient_window);
+            XSelectInput(display2, transient_window, ExposureMask);
         }
     }
 
-    XCloseDisplay(d);
-    exit(0);
+    XCloseDisplay(display2);
+    exit(EXIT_SUCCESS);
 }

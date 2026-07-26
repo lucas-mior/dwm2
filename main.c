@@ -84,10 +84,31 @@ _Static_assert(LENGTH(tags) <= 31, "limit of 31 tags");
 #include "user.c"
 #include "client.c"
 
+static bool
+tag_label_is_delimiter(char character) {
+    for (int32 i = 0; tag_label_delim[i] != '\0'; i += 1) {
+        if (tag_label_delim[i] == character) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static int32
+tag_label_name_length(char *name) {
+    int32 len = 0;
+
+    while ((name[len] != '\0') && !tag_label_is_delimiter(name[len])) {
+        len += 1;
+    }
+    return len;
+}
+
+
 void
 monitor_arrange_monitor(Monitor *monitor) {
-    strncpy(monitor->layout_symbol, monitor->layout[monitor->lay_i]->symbol,
-            SIZEOF(monitor->layout_symbol));
+    SNPRINTF(monitor->layout_symbol, "%s",
+             monitor->layout[monitor->lay_i]->symbol);
     if (monitor->layout[monitor->lay_i]->function) {
         monitor->layout[monitor->lay_i]->function(monitor);
     }
@@ -104,7 +125,7 @@ monitor_focus(Monitor *monitor, bool set_focus) {
 
 void
 monitor_cleanup_monitor(Monitor *monitor) {
-    if (!monitor) {
+    if (monitor == NULL) {
         return;
     }
 
@@ -115,7 +136,7 @@ monitor_cleanup_monitor(Monitor *monitor) {
         while (monitor_aux && monitor_aux->next != monitor) {
             monitor_aux = monitor_aux->next;
         }
-        if (!monitor_aux) {
+        if (monitor_aux == NULL) {
             return;
         }
         monitor_aux->next = monitor->next;
@@ -174,7 +195,7 @@ monitor_draw_bars(Monitor *monitor) {
                 clients_with_icon[i] = client;
             }
 
-            if (!masters_names[i] && client->tags & (1 << i)) {
+            if ((masters_names[i] == NULL) && (client->tags & (1 << i))) {
                 XClassHint class_hint = {NULL, NULL};
                 // TODO: XGetClassHint allocates both strings; this leaks them.
                 XGetClassHint(display, client->window, &class_hint);
@@ -190,16 +211,14 @@ monitor_draw_bars(Monitor *monitor) {
 
         if (master_name) {
             if (client_with_icon) {
-                snprintf(tags_display, SIZEOF(tags_display), "%s", tags[i]);
+                SNPRINTF(tags_display, "%s", tags[i]);
             } else {
-                ulong n = strcspn(master_name, tag_label_delim);
+                int32 n = tag_label_name_length(master_name);
                 master_name[n] = '\0';
-                snprintf(tags_display, SIZEOF(tags_display), tag_label_format,
-                         tags[i], master_name);
+                SNPRINTF(tags_display, tag_label_format, tags[i], master_name);
             }
         } else {
-            snprintf(tags_display, SIZEOF(tags_display), tag_empty_format,
-                     tags[i]);
+            SNPRINTF(tags_display, tag_empty_format, tags[i]);
         }
         tags_widths[i] = w = get_text_pixels(tags_display);
 
@@ -239,22 +258,27 @@ monitor_draw_bars(Monitor *monitor) {
             Client *client = monitor->selected_client;
             char buffer[SIZEOF(*(&client->name)) + 20];
 
+            char *client_tag_names[6] = {"", "", "", "", "", ""};
+
+            for (uint32 i = 0; i < LENGTH(client_tag_names); i += 1) {
+                if (client->tags & (1 << i)) {
+                    client_tag_names[i] = tags_space[i];
+                }
+            }
+
             if (monitor == live_monitor) {
                 draw_setscheme(draw, scheme[SCHEME_SELECTED]);
             } else {
                 draw_setscheme(draw, scheme[SCHEME_NORMAL]);
             }
 
-            snprintf(buffer, SIZEOF(buffer), "{%s%s%s%s%s%s } %s",
-                     (client->tags & (1 << 0)) ? tags_space[0] : "",
-                     (client->tags & (1 << 1)) ? tags_space[1] : "",
-                     (client->tags & (1 << 2)) ? tags_space[2] : "",
-                     (client->tags & (1 << 3)) ? tags_space[3] : "",
-                     (client->tags & (1 << 4)) ? tags_space[4] : "",
-                     (client->tags & (1 << 5)) ? tags_space[5] : "",
-                     client->name);
+            SNPRINTF(buffer, "{%s%s%s%s%s%s } %s", client_tag_names[0],
+                     client_tag_names[1], client_tag_names[2],
+                     client_tag_names[3], client_tag_names[4],
+                     client_tag_names[5], client->name);
 
-            draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding, buffer, 0);
+            draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding,
+                      buffer, 0);
             if (monitor->selected_client->is_floating) {
                 draw_rect(draw, draw_x + boxs, boxs, (uint32)boxw, (uint32)boxw,
                           monitor->selected_client->is_fixed, 0);
@@ -287,8 +311,7 @@ monitor_layout_columns(Monitor *monitor) {
         return;
     }
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol), "|%d|",
-                 number_tiled);
+        SNPRINTF(monitor->layout_symbol, "|%d|", number_tiled);
     }
 
     number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
@@ -351,8 +374,7 @@ monitor_layout_grid(Monitor *monitor) {
     }
 
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol), "#%d#",
-                 number_tiled);
+        SNPRINTF(monitor->layout_symbol, "#%d#", number_tiled);
     }
 
     /* grid dimensions */
@@ -418,8 +440,7 @@ monitor_layout_monocle(Monitor *monitor) {
     }
 
     if (number_clients > 0) {
-        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol), "[%u]",
-                 number_clients);
+        SNPRINTF(monitor->layout_symbol, "[%u]", number_clients);
     }
 
     for (Client *client = client_next_tiled(monitor->clients); client;
@@ -450,8 +471,7 @@ monitor_layout_tile(Monitor *monitor) {
         return;
     }
     if (number_tiled > 0) {
-        snprintf(monitor->layout_symbol, SIZEOF(monitor->layout_symbol), "=%d|",
-                 number_tiled);
+        SNPRINTF(monitor->layout_symbol, "=%d|", number_tiled);
     }
 
     number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
@@ -504,7 +524,7 @@ monitor_restack(Monitor *m) {
     XEvent event;
 
     monitor_draw_bars(m);
-    if (!m->selected_client) {
+    if (m->selected_client == NULL) {
         return;
     }
 
@@ -526,8 +546,9 @@ monitor_restack(Monitor *m) {
         }
     }
     XSync(display, False);
-    while (XCheckMaskEvent(display, EnterWindowMask, &event))
-        ;
+    while (XCheckMaskEvent(display, EnterWindowMask, &event)) {
+        /* discard stale enter events */
+    }
     return;
 }
 
@@ -573,8 +594,9 @@ monitor_arrange(Monitor *monitor) {
             monitor_arrange_monitor(monitor_aux);
         }
         XSync(display, False);
-        while (XCheckMaskEvent(display, EnterWindowMask, &event))
-            ;
+        while (XCheckMaskEvent(display, EnterWindowMask, &event)) {
+            /* discard stale enter events */
+        }
     }
     return;
 }
@@ -592,8 +614,7 @@ monitor_create(void) {
 
     monitor->layout[0] = &layouts[0];
     monitor->layout[1] = &layouts[1 % LENGTH(layouts)];
-    strncpy(monitor->layout_symbol, layouts[0].symbol,
-            SIZEOF(monitor->layout_symbol));
+    SNPRINTF(monitor->layout_symbol, "%s", layouts[0].symbol);
 
     pertag->tag = pertag->old_tag = 1;
 
@@ -615,7 +636,10 @@ monitor_create(void) {
 
 int32
 get_text_pixels(char *text) {
-    int32 width = (int32)(draw_fontset_getwidth(draw, text) + (uint32)text_padding);
+    int32 width;
+
+    width = (int32)(draw_fontset_getwidth(draw, text)
+                    + (uint32)text_padding);
     return width;
 }
 
@@ -660,27 +684,34 @@ window_text_property(Window window, Atom atom, char *text, uint32 size) {
     int32 count_return;
     int32 success;
 
-    if (!text || size == 0) {
+    if ((text == NULL) || (size == 0)) {
         return 0;
     }
     text[0] = '\0';
 
     success = XGetTextProperty(display, window, &text_property, atom);
-    if (!success || !text_property.nitems) {
+    if ((success == 0) || (text_property.nitems <= 0)) {
         return 0;
     }
 
     if (text_property.encoding == XA_STRING) {
-        strncpy(text, (char *)text_property.value, size - 1);
-        text[size - 1] = '\0';
+        int64 copy_size;
+
+        copy_size = MIN((int64)text_property.nitems, (int64)size - 1);
+        memcpy64(text, (char *)text_property.value, copy_size);
+        text[copy_size] = '\0';
         XFree(text_property.value);
         return 1;
     }
 
     success = XmbTextPropertyToTextList(display, &text_property, &list_return,
                                         &count_return);
-    if (success >= Success && count_return > 0 && *list_return) {
-        strncpy(text, *list_return, size - 1);
+    if ((success >= Success) && (count_return > 0) && *list_return) {
+        int64 copy_size;
+
+        copy_size = MIN(strlen32(*list_return), (int64)size - 1);
+        memcpy64(text, *list_return, copy_size);
+        text[copy_size] = '\0';
         XFreeStringList(list_return);
     }
 
@@ -705,7 +736,7 @@ grab_keys(void) {
     key_sym = XGetKeyboardMapping(display, (uchar)first_keycode,
                                   (uchar)end - first_keycode + 1,
                                   &keysyms_per_keycode_return);
-    if (!key_sym) {
+    if (key_sym == NULL) {
         return;
     }
 
@@ -715,8 +746,8 @@ grab_keys(void) {
             int32 index = keysyms_per_keycode_return*(k - first_keycode);
             if (keys[i].keysym == key_sym[index]) {
                 for (int32 j = 0; j < LENGTH(modifiers); j += 1) {
-                    XGrabKey(display, k, (uint32)keys[i].mod | modifiers[j], root,
-                             True, GrabModeAsync, GrabModeAsync);
+                    XGrabKey(display, k, (uint32)keys[i].mod | modifiers[j],
+                             root, True, GrabModeAsync, GrabModeAsync);
                 }
             }
         }
@@ -792,7 +823,7 @@ handler_others(XEvent *event) {
 
 void
 handler_button_press(XEvent *event) {
-    Arg arg = {0};
+    union Arg arg = {0};
     Client *client;
     Monitor *monitor;
     XButtonPressedEvent *button_event = &event->xbutton;
@@ -946,7 +977,7 @@ status_get_signal_number(BlockSignal *blocks, int32 button_x) {
     return;
 }
 
-#ifdef XINERAMA
+#if defined(XINERAMA)
 static int32
 is_unique_geometry(XineramaScreenInfo *unique, int32 n,
                    XineramaScreenInfo *screen_info) {
@@ -989,16 +1020,18 @@ monitor_from_direction(int32 step) {
     Monitor *monitor = NULL;
 
     if (step > 0) {
-        if (!(monitor = live_monitor->next)) {
+        if ((monitor = live_monitor->next) == NULL) {
             monitor = monitors;
         }
     } else if (live_monitor == monitors) {
-        for (monitor = monitors; monitor->next; monitor = monitor->next)
-            ;
+        for (monitor = monitors; monitor->next; monitor = monitor->next) {
+            /* NOP */
+        }
     } else {
         for (monitor = monitors; monitor->next != live_monitor;
-             monitor = monitor->next)
-            ;
+             monitor = monitor->next) {
+            /* find previous monitor */
+        }
     }
     return monitor;
 }
@@ -1048,12 +1081,12 @@ focus_direction(enum Direction direction) {
     Client *next;
     uint32 best_score = UINT_MAX;
 
-    if (!selected) {
+    if (selected == NULL) {
         return;
     }
 
     next = selected->next;
-    if (!next) {
+    if (next == NULL) {
         next = selected->monitor->clients;
     }
     for (client_aux = next; client_aux != selected; client_aux = next) {
@@ -1061,7 +1094,7 @@ focus_direction(enum Direction direction) {
         int32 dist;
 
         next = client_aux->next;
-        if (!next) {
+        if (next == NULL) {
             next = selected->monitor->clients;
         }
 
@@ -1203,7 +1236,7 @@ set_layout(Layout *layout) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = monitor->pertag;
 
-    if (!layout || layout != monitor->layout[monitor->lay_i]) {
+    if ((layout == NULL) || (layout != monitor->layout[monitor->lay_i])) {
         pertag->selected_layouts[pertag->tag] ^= 1;
         monitor->lay_i = pertag->selected_layouts[monitor->pertag->tag];
     }
@@ -1213,8 +1246,8 @@ set_layout(Layout *layout) {
         pertag->layouts[pertag->tag][monitor->lay_i] = layout;
     }
 
-    strncpy(monitor->layout_symbol, monitor->layout[monitor->lay_i]->symbol,
-            SIZEOF(monitor->layout_symbol));
+    SNPRINTF(monitor->layout_symbol, "%s",
+             monitor->layout[monitor->lay_i]->symbol);
 
     if (monitor->selected_client) {
         monitor_arrange(monitor);
@@ -1278,7 +1311,7 @@ scan_windows_once(void) {
 
     success = XQueryTree(display, root, &root_return, &parent_return,
                          &children_return, &nchildren_return);
-    if (!success) {
+    if (success == 0) {
         return;
     }
 
@@ -1341,8 +1374,9 @@ setup_once(void) {
     sigaction(SIGCHLD, &signal_action, NULL);
 
     /* clean up any zombies (inherited from .xinitrc etc) immediately */
-    while (waitpid(-1, NULL, WNOHANG) > 0)
-        ;
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        /* NOP */
+    }
 
     /* init screen */
     screen = DefaultScreen(display);
@@ -1373,7 +1407,7 @@ setup_once(void) {
 
     XFree(visual_infos);
 
-    if (!visual) {
+    if (visual == NULL) {
         visual = DefaultVisual(display, screen);
         depth = DefaultDepth(display, screen);
         color_map = DefaultColormap(display, screen);
@@ -1381,7 +1415,7 @@ setup_once(void) {
 
     draw = draw_create(display, screen, root, (uint32)screen_width,
                        (uint32)screen_height, visual, (uint32)depth, color_map);
-    if (!draw_fontset_create(draw, fonts, LENGTH(fonts))) {
+    if (draw_fontset_create(draw, fonts, LENGTH(fonts)) == NULL) {
         error("Error loading fonts for dwm.\n");
         exit(EXIT_FAILURE);
     }
@@ -1470,7 +1504,7 @@ configure_bars_windows(void) {
     for (Monitor *monitor = monitors; monitor; monitor = monitor->next) {
         Window window;
 
-        if (!monitor->top_bar_window) {
+        if (monitor->top_bar_window == None) {
             window = XCreateWindow(display, root, monitor->win_x,
                                    monitor->top_bar_y, (uint32)monitor->win_w,
                                    bar_height, 0, depth, InputOutput, visual,
@@ -1482,10 +1516,11 @@ configure_bars_windows(void) {
             XMapRaised(display, monitor->top_bar_window);
             XSetClassHint(display, monitor->top_bar_window, &class_hint);
         }
-        if (!monitor->bottom_bar_window) {
+        if (monitor->bottom_bar_window == None) {
             window = XCreateWindow(display, root, monitor->win_x,
-                                   monitor->bottom_bar_y, (uint32)monitor->win_w,
-                                   bar_height, 0, depth, InputOutput, visual,
+                                   monitor->bottom_bar_y,
+                                   (uint32)monitor->win_w, bar_height, 0,
+                                   depth, InputOutput, visual,
                                    value_mask, &window_attributes);
             monitor->bottom_bar_window = window;
 
@@ -1502,7 +1537,7 @@ int32
 update_geometry(void) {
     bool dirty = false;
 
-#ifdef XINERAMA
+#if defined(XINERAMA)
     if (XineramaIsActive(display)) {
         XineramaScreenInfo *screen_info;
         XineramaScreenInfo *unique = NULL;
@@ -1536,8 +1571,9 @@ update_geometry(void) {
         /* new monitors if number_unique > number_monitors */
         for (int32 k = number_monitors; k < number_unique; k += 1) {
             for (monitor = monitors; monitor && monitor->next;
-                 monitor = monitor->next)
-                ;
+                 monitor = monitor->next) {
+                /* find final monitor */
+            }
             if (monitor) {
                 monitor->next = monitor_create();
             } else {
@@ -1563,7 +1599,7 @@ update_geometry(void) {
                 monitor_update_bar_position(monitor);
             }
 
-            if (!(monitor = monitor->next)) {
+            if ((monitor = monitor->next) == NULL) {
                 break;
             }
         }
@@ -1571,8 +1607,9 @@ update_geometry(void) {
         /* removed monitors if number_monitors > number_unique */
         for (int32 k = number_unique; k < number_monitors; k += 1) {
             for (monitor = monitors; monitor && monitor->next;
-                 monitor = monitor->next)
-                ;
+                 monitor = monitor->next) {
+                /* find final monitor */
+            }
 
             while ((client = monitor->clients)) {
                 dirty = true;
@@ -1594,7 +1631,7 @@ update_geometry(void) {
     } else
 #endif /* XINERAMA */
     {  /* default monitor setup */
-        if (!monitors) {
+        if (monitors == NULL) {
             monitors = monitor_create();
         }
         if (monitors->mon_w != screen_width
@@ -1638,8 +1675,8 @@ status_update(void) {
                               status_top.text, SIZEOF(status_top.text))) {
         error("Error getting XA_WM_NAME property.\n");
 
-        strcpy(status_top.text, "dwm-" QUOTE(VERSION));
-        strcpy(status_top.text, "dwm-" QUOTE(VERSION));
+        SNPRINTF(status_top.text, "%s", "dwm-" QUOTE(VERSION));
+        SNPRINTF(status_top.text, "%s", "dwm-" QUOTE(VERSION));
 
         status_top.pixels = get_text_pixels(status_top.text) - text_padding + 2;
         status_bottom.pixels = status_top.pixels;
@@ -1665,7 +1702,7 @@ status_update(void) {
 
 int32
 main(int32 argc, char *argv[]) {
-    if (argc == 2 && !strcmp("-v", argv[1])) {
+    if ((argc == 2) && strequal("-v", argv[1])) {
         printf("dwm-" QUOTE(VERSION) "\n");
         exit(EXIT_SUCCESS);
     } else if (argc != 1) {
@@ -1673,11 +1710,11 @@ main(int32 argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    if (!setlocale(LC_CTYPE, "") || !XSupportsLocale()) {
+    if ((setlocale(LC_CTYPE, "") == NULL) || !XSupportsLocale()) {
         error("Warning: no locale support.\n");
     }
 
-    if (!(display = XOpenDisplay(NULL))) {
+    if ((display = XOpenDisplay(NULL)) == NULL) {
         error("Error opening display.\n");
         exit(EXIT_FAILURE);
     }
@@ -1695,7 +1732,7 @@ main(int32 argc, char *argv[]) {
 
     setup_once();
 
-#ifdef __OpenBSD__
+#if defined(__OpenBSD__)
     char *pledge_args = "stdio rpath proc exec";
     if (pledge(pledge_args, NULL) == -1) {
         error("Error in pledge(%s)\n", pledge_args);

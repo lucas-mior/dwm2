@@ -23,7 +23,7 @@
 
 typedef struct DwmFont {
     Display *dpy;
-    unsigned int h;
+    uint32 h;
     XftFont *xfont;
     FcPattern *pattern;
     hb_font_t *hbfont;
@@ -33,12 +33,13 @@ typedef struct DwmFont {
 enum { ColFg, ColBg, ColBorder }; /* XftColor scheme index */
 
 typedef struct Draw {
-    unsigned int w, h;
+    uint32 w;
+    uint32 h;
     Display *dpy;
-    int screen;
+    int32 screen;
     Window root;
     Visual *visual;
-    unsigned int depth;
+    uint32 depth;
     Colormap cmap;
     Drawable drawable;
     Picture picture;
@@ -50,32 +51,32 @@ typedef struct Draw {
 /* Drawable abstraction */
 Draw *draw_create(
     Display *dpy,
-    int screen,
+    int32 screen,
     Window win,
-    unsigned int w,
-    unsigned int h,
+    uint32 w,
+    uint32 h,
     Visual *visual,
-    unsigned int depth,
+    uint32 depth,
     Colormap cmap
 );
-void draw_resize(Draw *draw, unsigned int w, unsigned int h);
+void draw_resize(Draw *draw, uint32 w, uint32 h);
 void draw_free(Draw *draw);
 
 /* DwmFont abstraction */
 DwmFont *draw_fontset_create(Draw *draw, char *fonts[], int64 fontcount);
 void draw_fontset_free(DwmFont *set);
-unsigned int draw_fontset_getwidth(Draw *draw, char *text);
-unsigned int draw_fontset_getwidth_clamp(
+uint32 draw_fontset_getwidth(Draw *draw, char *text);
+uint32 draw_fontset_getwidth_clamp(
     Draw *draw,
     char *text,
-    unsigned int n
+    uint32 n
 );
 void draw_font_getexts(
     DwmFont *font,
     char *text,
-    unsigned int len,
-    unsigned int *w,
-    unsigned int *h
+    uint32 len,
+    uint32 *w,
+    uint32 *h
 );
 
 /* Colorscheme abstraction */
@@ -83,17 +84,17 @@ void draw_clr_create(
     Draw *draw,
     XftColor *dest,
     char *clrname,
-    unsigned int alpha
+    uint32 alpha
 );
 XftColor *draw_scm_create(
     Draw *draw,
     char *clrnames[],
-    unsigned int alphas[],
+    uint32 alphas[],
     int64 clrcount
 );
 
 /* Cursor abstraction */
-Cursor draw_cur_create(Draw *draw, int shape);
+Cursor draw_cur_create(Draw *draw, int32 shape);
 
 /* Drawing context manipulation */
 void draw_setfontset(Draw *draw, DwmFont *set);
@@ -102,38 +103,38 @@ void draw_setscheme(Draw *draw, XftColor *scm);
 Picture draw_picture_create_resized(
     Draw *draw,
     char *src,
-    unsigned int src_w,
-    unsigned int src_h,
-    unsigned int dst_w,
-    unsigned int dst_h
+    uint32 src_w,
+    uint32 src_h,
+    uint32 dst_w,
+    uint32 dst_h
 );
 
 /* Drawing functions */
 void draw_rect(
     Draw *draw,
-    int x,
-    int y,
-    unsigned int w,
-    unsigned int h,
-    int filled,
-    int invert
+    int32 x,
+    int32 y,
+    uint32 w,
+    uint32 h,
+    int32 filled,
+    int32 invert
 );
-int draw_text(
+int32 draw_text(
     Draw *draw,
-    int x,
-    int y,
-    unsigned int w,
-    unsigned int h,
-    unsigned int lpad,
+    int32 x,
+    int32 y,
+    uint32 w,
+    uint32 h,
+    uint32 lpad,
     char *text,
-    int invert
+    int32 invert
 );
 void draw_pic(
     Draw *draw,
-    int x,
-    int y,
-    unsigned int w,
-    unsigned int h,
+    int32 x,
+    int32 y,
+    uint32 w,
+    uint32 h,
     Picture pic
 );
 
@@ -141,10 +142,10 @@ void draw_pic(
 void draw_map(
     Draw *draw,
     Window win,
-    int x,
-    int y,
-    unsigned int w,
-    unsigned int h
+    int32 x,
+    int32 y,
+    uint32 w,
+    uint32 h
 );
 
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
@@ -230,19 +231,19 @@ enum {
     CLICK_LAST
 };
 
-typedef union {
+union Arg {
     int32 i;
     uint32 ui;
     float f;
     void *v;
-} Arg;
+};
 
-typedef struct {
+typedef struct Button {
     uint32 click;
     uint32 mask;
     int64 button;
-    void (*function)(Arg *arg);
-    Arg arg;
+    void (*function)(union Arg *arg);
+    union Arg arg;
 } Button;
 
 typedef struct Monitor Monitor;
@@ -254,35 +255,55 @@ struct Client {
     Client *all_next;
     Monitor *monitor;
     Picture icon;
-    float min_aspect, max_aspect;
+    float min_aspect;
+    float max_aspect;
 
-    int32 x, y, w, h;
-    int32 stored_fx, stored_fy, stored_fw, stored_fh;
-    int32 old_x, old_y, old_w, old_h;
-    int32 base_w, base_h;
-    int32 increment_w, increment_h;
-    int32 max_w, max_h, min_w, min_h;
+    int32 x;
+    int32 y;
+    int32 w;
+    int32 h;
+    int32 stored_fx;
+    int32 stored_fy;
+    int32 stored_fw;
+    int32 stored_fh;
+    int32 old_x;
+    int32 old_y;
+    int32 old_w;
+    int32 old_h;
+    int32 base_w;
+    int32 base_h;
+    int32 increment_w;
+    int32 increment_h;
+    int32 max_w;
+    int32 max_h;
+    int32 min_w;
+    int32 min_h;
     int32 border_pixels;
     int32 old_border_pixels;
     uint32 tags;
 
-    uint32 icon_width, icon_height;
+    uint32 icon_width;
+    uint32 icon_height;
 
     bool hintsvalid;
-    bool is_fixed, is_floating, is_urgent;
+    bool is_fixed;
+    bool is_floating;
+    bool is_urgent;
     Window window;
-    bool never_focus, was_floating;
-    bool is_fullscreen, is_fake_fullscreen;
+    bool never_focus;
+    bool was_floating;
+    bool is_fullscreen;
+    bool is_fake_fullscreen;
 };
 
-typedef struct {
-    ulong mod;
+typedef struct Key {
+    uint32 mod;
     KeySym keysym;
-    void (*function)(Arg *);
-    Arg arg;
+    void (*function)(union Arg *);
+    union Arg arg;
 } Key;
 
-typedef struct {
+typedef struct Layout {
     char *symbol;
     void (*function)(Monitor *);
 } Layout;
@@ -305,8 +326,14 @@ struct Monitor {
     int32 num;
     int32 top_bar_y;
     int32 bottom_bar_y;
-    int32 mon_x, mon_y, mon_w, mon_h;
-    int32 win_x, win_y, win_w, win_h;
+    int32 mon_x;
+    int32 mon_y;
+    int32 mon_w;
+    int32 mon_h;
+    int32 win_x;
+    int32 win_y;
+    int32 win_w;
+    int32 win_h;
 
     uint32 selected_tags;
     uint32 lay_i;
@@ -317,7 +344,7 @@ struct Monitor {
     Window bottom_bar_window;
 };
 
-typedef struct {
+typedef struct Rule {
     char *class;
     char *instance;
     char *title;
@@ -347,30 +374,30 @@ static StatusBar status_top = {0};
 static StatusBar status_bottom = {0};
 static int32 status_signal;
 
-static void user_alt_tab(Arg *);
-static void user_aspect_resize(Arg *);
-static void user_focus_monitor(Arg *);
-static void user_focus_stack(Arg *);
-static void user_focus_urgent(Arg *);
-static void user_kill_client(Arg *);
-static void user_more_masters(Arg *);
-static void user_mouse_move(Arg *);
-static void user_mouse_resize(Arg *);
-static void user_promote_to_master(Arg *);
-static void user_quit_dwm(Arg *);
-static void user_set_layout(Arg *);
-static void user_set_master_fact(Arg *);
-static void user_signal_status_bar(Arg *);
-static void user_spawn(Arg *);
-static void user_tag(Arg *);
-static void user_tag_monitor(Arg *);
-static void user_toggle_bar(Arg *);
-static void user_toggle_floating(Arg *);
-static void user_toggle_fullscreen(Arg *);
-static void user_toggle_tag(Arg *);
-static void user_toggle_view(Arg *);
-static void user_view_tag(Arg *);
-static void user_window_view(Arg *);
+static void user_alt_tab(union Arg *);
+static void user_aspect_resize(union Arg *);
+static void user_focus_monitor(union Arg *);
+static void user_focus_stack(union Arg *);
+static void user_focus_urgent(union Arg *);
+static void user_kill_client(union Arg *);
+static void user_more_masters(union Arg *);
+static void user_mouse_move(union Arg *);
+static void user_mouse_resize(union Arg *);
+static void user_promote_to_master(union Arg *);
+static void user_quit_dwm(union Arg *);
+static void user_set_layout(union Arg *);
+static void user_set_master_fact(union Arg *);
+static void user_signal_status_bar(union Arg *);
+static void user_spawn(union Arg *);
+static void user_tag(union Arg *);
+static void user_tag_monitor(union Arg *);
+static void user_toggle_bar(union Arg *);
+static void user_toggle_floating(union Arg *);
+static void user_toggle_fullscreen(union Arg *);
+static void user_toggle_tag(union Arg *);
+static void user_toggle_view(union Arg *);
+static void user_view_tag(union Arg *);
+static void user_window_view(union Arg *);
 
 static int32 handler_xerror(Display *, XErrorEvent *);
 static int32 handler_xerror_dummy(Display *, XErrorEvent *);

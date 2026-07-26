@@ -5,7 +5,7 @@
 #include "config.h"
 
 static void
-user_alt_tab(Arg *arg) {
+user_alt_tab(union Arg *arg) {
     static bool alt_tab_direction = false;
     Monitor *old_monitor = live_monitor;
     Client *client;
@@ -58,7 +58,7 @@ user_alt_tab(Arg *arg) {
             handlers[event.type](&event);
             break;
         case KeyPress:
-            if (event.xkey.keycode == tabCycleKey) {
+            if (event.xkey.keycode == tab_cycle_key) {
                 focus_next(alt_tab_direction);
             } else if (event.xkey.keycode == key_j) {
                 focus_direction(DIRECTION_LEFT);
@@ -72,7 +72,7 @@ user_alt_tab(Arg *arg) {
             client = live_monitor->selected_client;
             break;
         case KeyRelease:
-            if (event.xkey.keycode == tabModKey) {
+            if (event.xkey.keycode == tab_mod_key) {
                 XUngrabKeyboard(display, CurrentTime);
                 XUngrabButton(display, AnyButton, AnyModifier, root);
                 grabbed = false;
@@ -115,14 +115,15 @@ user_alt_tab(Arg *arg) {
 }
 
 void
-user_aspect_resize(Arg *arg) {
+user_aspect_resize(union Arg *arg) {
     Monitor *monitor = live_monitor;
     Client *client = live_monitor->selected_client;
     float ratio;
-    int32 w, h;
+    int32 w;
+    int32 h;
     bool monitor_floating = !monitor->layout[monitor->lay_i]->function;
 
-    if (!arg) {
+    if (arg == NULL) {
         return;
     }
     if (client == NULL) {
@@ -144,10 +145,10 @@ user_aspect_resize(Arg *arg) {
 }
 
 void
-user_focus_monitor(Arg *arg) {
+user_focus_monitor(union Arg *arg) {
     Monitor *monitor;
 
-    if (!monitors->next) {
+    if (monitors->next == NULL) {
         return;
     }
     if ((monitor = monitor_from_direction(arg->i)) == live_monitor) {
@@ -159,10 +160,10 @@ user_focus_monitor(Arg *arg) {
 }
 
 void
-user_focus_stack(Arg *arg) {
+user_focus_stack(union Arg *arg) {
     Client *client = NULL;
 
-    if (!live_monitor->selected_client) {
+    if (live_monitor->selected_client == NULL) {
         return;
     }
     if (live_monitor->selected_client->is_fullscreen && lockfullscreen) {
@@ -171,12 +172,14 @@ user_focus_stack(Arg *arg) {
 
     if (arg->i > 0) {
         for (client = live_monitor->selected_client->next;
-             client && !client_is_visible(client); client = client->next)
-            ;
+             client && !client_is_visible(client); client = client->next) {
+            /* find next visible client */
+        }
         if (client == NULL) {
             for (client = live_monitor->clients;
-                 client && !client_is_visible(client); client = client->next)
-                ;
+                 client && !client_is_visible(client); client = client->next) {
+                /* find first visible client */
+            }
         }
     } else {
         Client *client_aux;
@@ -203,14 +206,15 @@ user_focus_stack(Arg *arg) {
 }
 
 void
-user_focus_urgent(Arg *arg) {
+user_focus_urgent(union Arg *arg) {
     (void)arg;
     for (Monitor *monitor = monitors; monitor; monitor = monitor->next) {
         Client *client;
 
         for (client = monitor->clients; client && !client->is_urgent;
-             client = client->next)
-            ;
+             client = client->next) {
+            /* find urgent client */
+        }
 
         if (client) {
             int32 i = 0;
@@ -230,7 +234,7 @@ user_focus_urgent(Arg *arg) {
 }
 
 void
-user_more_masters(Arg *arg) {
+user_more_masters(union Arg *arg) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = monitor->pertag;
     int32 number_slaves = -1;
@@ -254,10 +258,11 @@ user_more_masters(Arg *arg) {
 }
 
 void
-user_kill_client(Arg *arg) {
-    (void)arg;
+user_kill_client(union Arg *arg) {
     Client *selected = live_monitor->selected_client;
-    if (!selected) {
+
+    (void)arg;
+    if (selected == NULL) {
         return;
     }
 
@@ -276,17 +281,20 @@ user_kill_client(Arg *arg) {
 }
 
 void
-user_mouse_move(Arg *arg) {
-    (void)arg;
+user_mouse_move(union Arg *arg) {
     Client *client;
     Monitor *monitor_aux;
     XEvent event;
     Time last_time = 0;
     int32 success;
-    int32 x, y;
-    int32 ocx, ocy;
+    int32 x;
+    int32 y;
+    int32 ocx;
+    int32 ocy;
 
-    if (!(client = live_monitor->selected_client)) {
+    (void)arg;
+
+    if ((client = live_monitor->selected_client) == NULL) {
         return;
     }
 
@@ -340,21 +348,21 @@ user_mouse_move(Arg *arg) {
             }
             last_time = event.xmotion.time;
 
-            if (over_x[0] < SNAP_PIXELS) {
+            if (over_x[0] < snap_pixels) {
                 new_x = monitor->win_x;
-            } else if (over_x[1] < SNAP_PIXELS) {
+            } else if (over_x[1] < snap_pixels) {
                 new_x = monitor->win_x + monitor->win_w - client_width;
             }
 
-            if (over_y[0] < SNAP_PIXELS) {
+            if (over_y[0] < snap_pixels) {
                 new_y = monitor->win_y;
-            } else if (over_y[1] < SNAP_PIXELS) {
+            } else if (over_y[1] < snap_pixels) {
                 new_y = monitor->win_y + monitor->win_h - client_height;
             }
 
             if (!is_floating && monitor->layout[monitor->lay_i]->function) {
-                bool moving_x = abs(new_x - client->x) > SNAP_PIXELS;
-                bool moving_y = abs(new_y - client->y) > SNAP_PIXELS;
+                bool moving_x = abs(new_x - client->x) > snap_pixels;
+                bool moving_y = abs(new_y - client->y) > snap_pixels;
                 if (moving_x || moving_y) {
                     user_toggle_floating(NULL);
                 }
@@ -383,15 +391,16 @@ user_mouse_move(Arg *arg) {
 }
 
 void
-user_mouse_resize(Arg *arg) {
-    (void)arg;
+user_mouse_resize(union Arg *arg) {
     Client *client;
     Monitor *monitor;
     XEvent event;
     Time last_time = 0;
     int32 success;
 
-    if (!(client = live_monitor->selected_client)) {
+    (void)arg;
+
+    if ((client = live_monitor->selected_client) == NULL) {
         return;
     }
 
@@ -422,8 +431,14 @@ user_mouse_resize(Arg *arg) {
             break;
         case MotionNotify: {
             bool monitor_floating;
-            int32 new_w, new_h, new_x, new_y;
-            bool over_x, under_x, over_y, under_y;
+            int32 new_w;
+            int32 new_h;
+            int32 new_x;
+            int32 new_y;
+            bool over_x;
+            bool under_x;
+            bool over_y;
+            bool under_y;
 
             if ((event.xmotion.time - last_time) <= (1000 / 60)) {
                 continue;
@@ -439,8 +454,8 @@ user_mouse_resize(Arg *arg) {
             monitor_floating
                 = !(live_monitor->layout[live_monitor->lay_i]->function);
             if (!client->is_floating && !monitor_floating) {
-                bool over_snap_x = abs(new_w - client->w) > SNAP_PIXELS;
-                bool over_snap_y = abs(new_h - client->h) > SNAP_PIXELS;
+                bool over_snap_x = abs(new_w - client->w) > snap_pixels;
+                bool over_snap_y = abs(new_h - client->h) > snap_pixels;
 
                 new_x = client->monitor->win_x + new_w;
                 new_y = client->monitor->win_y + new_h;
@@ -468,8 +483,9 @@ user_mouse_resize(Arg *arg) {
                  client->w + client->border_pixels - 1,
                  client->h + client->border_pixels - 1);
     XUngrabPointer(display, CurrentTime);
-    while (XCheckMaskEvent(display, EnterWindowMask, &event))
-        ;
+    while (XCheckMaskEvent(display, EnterWindowMask, &event)) {
+        /* discard stale enter events */
+    }
 
     monitor
         = monitor_from_rectangle(client->x, client->y, client->w, client->h);
@@ -482,7 +498,7 @@ user_mouse_resize(Arg *arg) {
 }
 
 void
-user_quit_dwm(Arg *arg) {
+user_quit_dwm(union Arg *arg) {
     if (arg->i) {
         dwm_restart = true;
     }
@@ -491,20 +507,20 @@ user_quit_dwm(Arg *arg) {
 }
 
 void
-user_set_layout(Arg *arg) {
+user_set_layout(union Arg *arg) {
     set_layout(arg->v);
     return;
 }
 
 void
-user_set_master_fact(Arg *arg) {
+user_set_master_fact(union Arg *arg) {
     float factor;
     Pertag *pertag = live_monitor->pertag;
 
-    if (!arg) {
+    if (arg == NULL) {
         return;
     }
-    if (!live_monitor->layout[live_monitor->lay_i]->function) {
+    if (live_monitor->layout[live_monitor->lay_i]->function == NULL) {
         return;
     }
 
@@ -525,14 +541,14 @@ user_set_master_fact(Arg *arg) {
 }
 
 void
-user_signal_status_bar(Arg *arg) {
+user_signal_status_bar(union Arg *arg) {
     pid_t status_program_pid;
     union sigval signal_value;
     int32 pipefd[2];
     char buffer[32] = {0};
-    ssize_t bytes_read;
+    int64 bytes_read;
 
-    if (!status_signal) {
+    if (status_signal <= 0) {
         return;
     }
     signal_value.sival_int = arg->i | ((SIGRTMIN + status_signal) << 3);
@@ -560,7 +576,7 @@ user_signal_status_bar(Arg *arg) {
         break;
     }
 
-    bytes_read = read(pipefd[0], buffer, SIZEOF(buffer) - 1);
+    bytes_read = (int64)read(pipefd[0], buffer, SIZEOF(buffer) - 1);
     if (bytes_read <= 0) {
         close(pipefd[0]);
         return;
@@ -568,7 +584,7 @@ user_signal_status_bar(Arg *arg) {
     buffer[bytes_read] = '\0';
     close(pipefd[0]);
 
-    status_program_pid = atoi(buffer);
+    status_program_pid = (pid_t)atoi2(buffer);
     if (status_program_pid <= 0) {
         return;
     }
@@ -577,7 +593,7 @@ user_signal_status_bar(Arg *arg) {
 }
 
 void
-user_tag(Arg *arg) {
+user_tag(union Arg *arg) {
     Client *selected_client = live_monitor->selected_client;
     uint32 which_tag = arg->ui & TAGMASK;
 
@@ -591,11 +607,11 @@ user_tag(Arg *arg) {
 }
 
 void
-user_tag_monitor(Arg *arg) {
+user_tag_monitor(union Arg *arg) {
     Monitor *monitor = monitor_from_direction(arg->i);
     Client *selected = live_monitor->selected_client;
 
-    if (!selected || !monitors->next) {
+    if ((selected == NULL) || (monitors->next == NULL)) {
         return;
     }
 
@@ -612,15 +628,16 @@ user_tag_monitor(Arg *arg) {
 }
 
 void
-user_toggle_bar(Arg *arg) {
+user_toggle_bar(union Arg *arg) {
     toggle_bar(arg->i);
     return;
 }
 
 void
-user_toggle_floating(Arg *arg) {
-    (void)arg;
+user_toggle_floating(union Arg *arg) {
     Client *client = live_monitor->selected_client;
+
+    (void)arg;
 
     if (client == NULL) {
         return;
@@ -646,9 +663,10 @@ user_toggle_floating(Arg *arg) {
 }
 
 void
-user_toggle_fullscreen(Arg *arg) {
-    (void)arg;
+user_toggle_fullscreen(union Arg *arg) {
     Client *client = live_monitor->selected_client;
+
+    (void)arg;
     if (client) {
         client_set_fullscreen(client, !client->is_fullscreen);
     }
@@ -656,7 +674,7 @@ user_toggle_fullscreen(Arg *arg) {
 }
 
 void
-user_spawn(Arg *arg) {
+user_spawn(union Arg *arg) {
     struct sigaction signal_action;
 
     switch (fork()) {
@@ -684,10 +702,10 @@ user_spawn(Arg *arg) {
 }
 
 void
-user_toggle_tag(Arg *arg) {
+user_toggle_tag(union Arg *arg) {
     uint32 newtags;
 
-    if (!live_monitor->selected_client) {
+    if (live_monitor->selected_client == NULL) {
         return;
     }
 
@@ -702,7 +720,7 @@ user_toggle_tag(Arg *arg) {
 }
 
 void
-user_toggle_view(Arg *arg) {
+user_toggle_view(union Arg *arg) {
     Monitor *monitor = live_monitor;
     Pertag *pertag = live_monitor->pertag;
     uint32 new_tags;
@@ -713,7 +731,7 @@ user_toggle_view(Arg *arg) {
     }
 
     new_tags = monitor->tagset[monitor->selected_tags] ^ (arg->ui & TAGMASK);
-    if (!new_tags) {
+    if (new_tags == 0) {
         return;
     }
 
@@ -739,15 +757,16 @@ user_toggle_view(Arg *arg) {
 }
 
 void
-user_view_tag(Arg *arg) {
+user_view_tag(union Arg *arg) {
     view_tag(arg->ui);
     return;
 }
 
 void
-user_window_view(Arg *arg) {
-    (void)arg;
+user_window_view(union Arg *arg) {
     Client *client = live_monitor->selected_client;
+
+    (void)arg;
     if (client) {
         view_tag(client->tags);
     }
@@ -755,12 +774,13 @@ user_window_view(Arg *arg) {
 }
 
 void
-user_promote_to_master(Arg *arg) {
-    (void)arg;
+user_promote_to_master(union Arg *arg) {
     Client *client = live_monitor->selected_client;
     Monitor *monitor = live_monitor;
     bool monitor_floating = !monitor->layout[monitor->lay_i]->function;
     bool is_next_tiled = client == client_next_tiled(monitor->clients);
+
+    (void)arg;
 
     if (client == NULL) {
         return;
@@ -768,7 +788,8 @@ user_promote_to_master(Arg *arg) {
     if (monitor_floating || client->is_floating) {
         return;
     }
-    if (is_next_tiled && !(client = client_next_tiled(client->next))) {
+    if (is_next_tiled
+        && ((client = client_next_tiled(client->next)) == NULL)) {
         return;
     }
 

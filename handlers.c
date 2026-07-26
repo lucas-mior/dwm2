@@ -18,10 +18,10 @@ handler_client_message(XEvent *event) {
 
         if (data[1] == net_atoms[NET_WM_STATE_FULLSCREEN]
             || data[2] == net_atoms[NET_WM_STATE_FULLSCREEN]) {
-            bool NET_WM_STATE_ADD = data[0] == 1;
-            bool NET_WM_STATE_TOGGLE = data[0] == 2;
-            bool fullscreen = NET_WM_STATE_ADD
-                              || (NET_WM_STATE_TOGGLE
+            bool net_wm_state_add = data[0] == 1;
+            bool net_wm_state_toggle = data[0] == 2;
+            bool fullscreen = net_wm_state_add
+                              || (net_wm_state_toggle
                                   && (!client->is_fullscreen
                                       || client->is_fake_fullscreen));
             client_set_fullscreen(client, fullscreen);
@@ -29,10 +29,12 @@ handler_client_message(XEvent *event) {
     } else if (message_type == net_atoms[NET_ACTIVE_WINDOW]) {
         uint32 i;
 
-        for (i = 0; i < LENGTH(tags) && !((1 << i) & client->tags); i += 1);
+        for (i = 0; i < LENGTH(tags) && !((1 << i) & client->tags); i += 1) {
+            /* find first client tag */
+        }
 
         if (i < LENGTH(tags)) {
-            Arg a = {.ui = 1 << i};
+            union Arg a = {.ui = 1 << i};
             live_monitor = client->monitor;
             user_view_tag(&a);
             client_focus(client);
@@ -120,7 +122,8 @@ handler_configure_request(XEvent *event) {
         window_changes.stack_mode = conf_request_event->detail;
 
         XConfigureWindow(display, conf_request_event->window,
-                         (uint32)conf_request_event->value_mask, &window_changes);
+                         (uint32)conf_request_event->value_mask,
+                         &window_changes);
     }
     XSync(display, False);
     return;
@@ -154,7 +157,8 @@ handler_configure_notify(XEvent *event) {
             XMoveResizeWindow(display, mon->top_bar_window, mon->win_x,
                               mon->top_bar_y, (uint32)mon->win_w, bar_height);
             XMoveResizeWindow(display, mon->bottom_bar_window, mon->win_x,
-                              mon->bottom_bar_y, (uint32)mon->win_w, bar_height);
+                              mon->bottom_bar_y, (uint32)mon->win_w,
+                              bar_height);
         }
         client_focus(NULL);
         monitor_arrange(NULL);
@@ -209,7 +213,7 @@ void
 handler_focus_in(XEvent *event) {
     XFocusChangeEvent *focus_change_event = &event->xfocus;
 
-    if (!(live_monitor->selected_client)) {
+    if (live_monitor->selected_client == NULL) {
         return;
     }
 
@@ -268,7 +272,7 @@ handler_map_request(XEvent *event) {
 
     success = XGetWindowAttributes(display, map_request_event->window,
                                    &window_attributes);
-    if (!success) {
+    if (success == 0) {
         return;
     }
 
@@ -276,7 +280,7 @@ handler_map_request(XEvent *event) {
         return;
     }
 
-    if (!window_to_client(map_request_event->window)) {
+    if (window_to_client(map_request_event->window) == NULL) {
         client_new(map_request_event->window, &window_attributes);
     }
     return;
@@ -318,7 +322,7 @@ handler_property_notify(XEvent *event) {
         return;
     }
 
-    if (!(client = window_to_client(property_event->window))) {
+    if ((client = window_to_client(property_event->window)) == NULL) {
         return;
     }
 

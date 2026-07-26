@@ -5,75 +5,222 @@
 
 #include "dwm.h"
 
-static float master_fact  = 0.50;
-static bool resizehints    = true;
+static float master_fact = 0.50;
+static bool resizehints = true;
 static bool lockfullscreen = false;
 static int32 border_pixels = 3;
 
-static uint32 tabModKey = 0x40;
-static uint32 tabCycleKey = 0x17;
+static uint32 tab_mod_key = 0x40;
+static uint32 tab_cycle_key = 0x17;
 static uint32 key_j = 44;
 static uint32 key_semicolon = 47;
 static uint32 key_l = 46;
 static uint32 key_k = 45;
-static uint32 superKey = 133;
+static uint32 super_key = 133;
 
-static int32 SNAP_PIXELS       = 32;
+static int32 snap_pixels = 32;
 
 #define ICONSIZE 22   /* icon size */
 #define ICONSPACING 5 /* space between icon and title */
 
-static char *fonts[]          = {
+static char *fonts[] = {
     "LiberationSans:size=16",
     "Noto Color Emoji:size=12:antialias=true:autohint=true",
     "LiterationMono Nerd Font:size=12:style=Regular",
     "OpenMoji Color:size=16",
 };
-static char *colors[][3]      = {
+static char *colors[][3] = {
     /*                    fg          bg         border  */
-    [SCHEME_NORMAL]   = { "#ffffff", "#000000", "#000000" },
-    [SCHEME_INVERSE]  = { "#000000", "#004400", "#000000" },
-    [SCHEME_SELECTED] = { "#ffffff", "#004400", "green"   },
-    [SCHEME_URGENT]   = { "red",     "red",     "red"     },
+    [SCHEME_NORMAL] = { "#ffffff", "#000000", "#000000", },
+    [SCHEME_INVERSE] = { "#000000", "#004400", "#000000", },
+    [SCHEME_SELECTED] = { "#ffffff", "#004400", "green", },
+    [SCHEME_URGENT] = { "red", "red", "red", },
 };
 #define OPAQUE 0xffU
-static unsigned int alphas[][3] = {
+static uint32 alphas[][3] = {
     /*                   fg      bg    border */
-    [SCHEME_NORMAL]   = { OPAQUE, 0x80, 0x00   },
-    [SCHEME_SELECTED] = { OPAQUE, 0x80, OPAQUE },
-    [SCHEME_URGENT]   = { OPAQUE, 0x80, OPAQUE },
+    [SCHEME_NORMAL] = { OPAQUE, 0x80, 0x00, },
+    [SCHEME_SELECTED] = { OPAQUE, 0x80, OPAQUE, },
+    [SCHEME_URGENT] = { OPAQUE, 0x80, OPAQUE, },
 };
 
-static char *tags[] = { "F1", "F2", "F3", "1", "2", "3" };
-static char *tags_space[] = { "F1", " F2", " F3", " 1", " 2", " 3" };
+static char *tags[] = {
+    "F1",
+    "F2",
+    "F3",
+    "1",
+    "2",
+    "3",
+};
+static char *tags_space[] = {
+    "F1",
+    " F2",
+    " F3",
+    " 1",
+    " 2",
+    " 3",
+};
 
 static char tag_label_format[] = "%s: %s"; /* format of a tag label */
 static char tag_empty_format[] = "%s";     /* format of an empty tag */
 static char tag_label_delim[] = ":-_\n";   /* format of an empty tag */
 
 static Rule rules[] = {
-/* xprop(1):
- *    WM_CLASS(STRING) = instance, class
- *    WM_NAME(STRING) = title
- */
-/* class      instance title       tags mask     switchto floating fakefullscreen monitor */
-{ "firefox",  NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
-{ "Vmware",   NULL,    NULL,         1 << 5,     1,       -1,      false,         true,},
-{ "LibreWolf",NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
-{ "Brave",    NULL,    NULL,         1 << 0,     1,       -1,      false,         true,},
-{ "KiCad",    NULL,    NULL,         1 << 3,     1,       -1,      false,         false,},
-{ "OMEdit",   NULL,    NULL,         1 << 3,     1,       -1,      false,         false,},
-{ "hdos-Main",NULL,    NULL,         1 << 1,     1,       -1,      false,         false,},
-{ NULL,       NULL,    " - mpv",     1 << 4,     1,       -1,      false,         false,},
-{ NULL,       NULL,    "ncmpcpp",    1 << 5,     1,       -1,      false,         false,},
-{ NULL,       NULL,    "csv_plotter.py",(uint)~0,0,       -1,      true,          false,},
-{ NULL,       NULL,    "clip.sh",    0,          0,       -1,      true,          false,},
-{ NULL,       NULL,    "clip1.sh",   0,          0,       -1,      true,          false,},
-{ NULL,       NULL,    "arqs.zsh",   0,          0,       -1,      true,          false,},
-{ NULL, NULL, "spoke_pluck_tension", 0,          0,       -1,      true,          false,},
-{ NULL, NULL, "Plant Identification Progress",   0, 0,    -1,      true,          false,},
+    /* xprop(1):
+     *    WM_CLASS(STRING) = instance, class
+     *    WM_NAME(STRING) = title
+     */
+    {
+        .class = "firefox",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 0,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = true,
+    },
+    {
+        .class = "Vmware",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 5,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = true,
+    },
+    {
+        .class = "LibreWolf",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 0,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = true,
+    },
+    {
+        .class = "Brave",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 0,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = true,
+    },
+    {
+        .class = "KiCad",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 3,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = "OMEdit",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 3,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = "hdos-Main",
+        .instance = NULL,
+        .title = NULL,
+        .tags = 1 << 1,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = " - mpv",
+        .tags = 1 << 4,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "ncmpcpp",
+        .tags = 1 << 5,
+        .switchtotag = 1,
+        .monitor = -1,
+        .is_floating = false,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "csv_plotter.py",
+        .tags = ~0u,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "clip.sh",
+        .tags = 0,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "clip1.sh",
+        .tags = 0,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "arqs.zsh",
+        .tags = 0,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "spoke_pluck_tension",
+        .tags = 0,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
+    {
+        .class = NULL,
+        .instance = NULL,
+        .title = "Plant Identification Progress",
+        .tags = 0,
+        .switchtotag = 0,
+        .monitor = -1,
+        .is_floating = true,
+        .is_fake_fullscreen = false,
+    },
 };
-
 static Layout layouts[] = {
     /* symbol     arrange function */
     { "[]=",      monitor_layout_tile },
@@ -85,77 +232,81 @@ static Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod4Mask
-#define TAGKEYS(KEY,TAG) \
-{ MODKEY,                       KEY,     user_view_tag,          {.ui = 1 << TAG} }, \
-{ MODKEY|ControlMask,           KEY,     user_toggle_view,       {.ui = 1 << TAG} }, \
-{ MODKEY|ShiftMask,             KEY,     user_tag,               {.ui = 1 << TAG} }, \
-{ MODKEY|ControlMask|ShiftMask, KEY,     user_toggle_tag,        {.ui = 1 << TAG} },
+#define TAGKEYS(KEY, TAG) \
+    { MODKEY, KEY, user_view_tag, {.ui = 1 << TAG} }, \
+    { MODKEY|ControlMask, KEY, user_toggle_view, {.ui = 1 << TAG} }, \
+    { MODKEY|ShiftMask, KEY, user_tag, {.ui = 1 << TAG} }, \
+    { MODKEY|ControlMask|ShiftMask, KEY, user_toggle_tag, {.ui = 1 << TAG} },
 
 static Key keys[] = {
-/* modifier                     key      function                argument */
-{ MODKEY|ShiftMask,             XK_b,    user_toggle_bar,        {BAR_TOP} },
-{ MODKEY|ControlMask,           XK_b,    user_toggle_bar,        {BAR_BOTTOM} },
-{ MODKEY,                       XK_k,    user_focus_stack,       {.i = +1 } },
-{ MODKEY,                       XK_l,    user_focus_stack,       {.i = -1 } },
-{ MODKEY|ShiftMask,             XK_u,    user_focus_urgent,      {0} },
-{ MODKEY,                       XK_i,    user_more_masters,      {.i = +1 } },
-{ MODKEY,                       XK_u,    user_more_masters,      {.i = -1 } },
-{ MODKEY,                       XK_j,    user_set_master_fact,   {.f = -0.01f} },
-{ MODKEY,                  XK_semicolon, user_set_master_fact,   {.f = +0.01f} },
-{ MODKEY|ControlMask,           XK_j,    user_aspect_resize,     {.i = -25} },
-{ MODKEY|ControlMask,      XK_semicolon, user_aspect_resize,     {.i = +25} },
-{ MODKEY|ShiftMask,           XK_Return, user_promote_to_master, {0} },
-{ MODKEY,                       XK_Tab,  user_view_tag,          {0} },
-{ MODKEY,                       XK_q,    user_kill_client,       {0} },
-{ MODKEY,                       XK_t,    user_set_layout,        {.v = &layouts[0]} },
-{ MODKEY|ShiftMask,             XK_f,    user_set_layout,        {.v = &layouts[1]} },
-{ MODKEY,                       XK_m,    user_set_layout,        {.v = &layouts[2]} },
-{ MODKEY|ShiftMask,             XK_g,    user_set_layout,        {.v = &layouts[3]} },
-{ MODKEY|ShiftMask,             XK_c,    user_set_layout,        {.v = &layouts[4]} },
-{ MODKEY,                      XK_space, user_toggle_floating,   {0} },
-{ MODKEY,                 XK_apostrophe, user_view_tag,          {.ui = (uint) ~0 } },
-{ MODKEY|ShiftMask,       XK_apostrophe, user_tag,               {.ui = (uint) ~0 } },
-{ MODKEY|ControlMask,           XK_k,    user_focus_monitor,     {.i = -1 } },
-{ MODKEY|ControlMask,           XK_l,    user_focus_monitor,     {.i = +1 } },
-{ MODKEY|ShiftMask,             XK_k,    user_tag_monitor,       {.i = -1 } },
-{ MODKEY|ShiftMask,             XK_l,    user_tag_monitor,       {.i = +1 } },
-TAGKEYS(                        XK_F1,                           0)
-TAGKEYS(                        XK_F2,                           1)
-TAGKEYS(                        XK_F3,                           2)
-TAGKEYS(                        XK_1,                            3)
-TAGKEYS(                        XK_2,                            4)
-TAGKEYS(                        XK_3,                            5)
-{ MODKEY|ControlMask|ShiftMask, XK_q,    user_quit_dwm,          {.i = 0} },
-{ MODKEY|ControlMask|ShiftMask, XK_r,    user_quit_dwm,          {.i = 1} },
-{ MODKEY,                       XK_g,    user_window_view,       {0}},
-{ Mod1Mask,                     XK_Tab,  user_alt_tab,           {0} },
-{ 0,                            XK_F11,  user_toggle_fullscreen, {0}},
+    /* modifier key function argument */
+    { MODKEY|ShiftMask, XK_b, user_toggle_bar, {BAR_TOP} },
+    { MODKEY|ControlMask, XK_b, user_toggle_bar, {BAR_BOTTOM} },
+    { MODKEY, XK_k, user_focus_stack, {.i = +1} },
+    { MODKEY, XK_l, user_focus_stack, {.i = -1} },
+    { MODKEY|ShiftMask, XK_u, user_focus_urgent, {0} },
+    { MODKEY, XK_i, user_more_masters, {.i = +1} },
+    { MODKEY, XK_u, user_more_masters, {.i = -1} },
+    { MODKEY, XK_j, user_set_master_fact, {.f = -0.01f} },
+    { MODKEY, XK_semicolon, user_set_master_fact, {.f = +0.01f} },
+    { MODKEY|ControlMask, XK_j, user_aspect_resize, {.i = -25} },
+    { MODKEY|ControlMask, XK_semicolon, user_aspect_resize, {.i = +25} },
+    { MODKEY|ShiftMask, XK_Return, user_promote_to_master, {0} },
+    { MODKEY, XK_Tab, user_view_tag, {0} },
+    { MODKEY, XK_q, user_kill_client, {0} },
+    { MODKEY, XK_t, user_set_layout, {.v = &layouts[0]} },
+    { MODKEY|ShiftMask, XK_f, user_set_layout, {.v = &layouts[1]} },
+    { MODKEY, XK_m, user_set_layout, {.v = &layouts[2]} },
+    { MODKEY|ShiftMask, XK_g, user_set_layout, {.v = &layouts[3]} },
+    { MODKEY|ShiftMask, XK_c, user_set_layout, {.v = &layouts[4]} },
+    { MODKEY, XK_space, user_toggle_floating, {0} },
+    { MODKEY, XK_apostrophe, user_view_tag, {.ui = ~0u} },
+    { MODKEY|ShiftMask, XK_apostrophe, user_tag, {.ui = ~0u} },
+    { MODKEY|ControlMask, XK_k, user_focus_monitor, {.i = -1} },
+    { MODKEY|ControlMask, XK_l, user_focus_monitor, {.i = +1} },
+    { MODKEY|ShiftMask, XK_k, user_tag_monitor, {.i = -1} },
+    { MODKEY|ShiftMask, XK_l, user_tag_monitor, {.i = +1} },
+    TAGKEYS(XK_F1, 0)
+    TAGKEYS(XK_F2, 1)
+    TAGKEYS(XK_F3, 2)
+    TAGKEYS(XK_1, 3)
+    TAGKEYS(XK_2, 4)
+    TAGKEYS(XK_3, 5)
+    { MODKEY|ControlMask|ShiftMask, XK_q, user_quit_dwm, {.i = 0} },
+    { MODKEY|ControlMask|ShiftMask, XK_r, user_quit_dwm, {.i = 1} },
+    { MODKEY, XK_g, user_window_view, {0} },
+    { Mod1Mask, XK_Tab, user_alt_tab, {0} },
+    { 0, XK_F11, user_toggle_fullscreen, {0} },
 };
 
 static Button buttons[] = {
-/* click          event mask   button   function                argument */
-{ CLICK_BAR_TAGS,   0,           Button1, user_view_tag,          {0} },
-{ CLICK_BAR_TAGS,   0,           Button3, user_toggle_view,       {0} },
-{ CLICK_BAR_TAGS,   MODKEY,      Button1, user_tag,               {0} },
-{ CLICK_BAR_TAGS,   MODKEY,      Button3, user_toggle_tag,        {0} },
-{ CLICK_BAR_TITLE,  0,           Button2, user_promote_to_master, {0} },
-{ CLICK_CLIENT_WIN, MODKEY,      Button1, user_mouse_move,        {0} },
-{ CLICK_CLIENT_WIN, MODKEY,      Button2, user_toggle_floating,   {0} },
-{ CLICK_CLIENT_WIN, MODKEY,      Button3, user_mouse_resize,      {0} },
-{ CLICK_BAR_STATUS, 0,           Button1, user_signal_status_bar, {.i = 1} },
-{ CLICK_BAR_STATUS, 0,           Button2, user_signal_status_bar, {.i = 2} },
-{ CLICK_BAR_STATUS, 0,           Button3, user_signal_status_bar, {.i = 3} },
-{ CLICK_BAR_STATUS, 0,           Button4, user_signal_status_bar, {.i = 4} },
-{ CLICK_BAR_STATUS, 0,           Button5, user_signal_status_bar, {.i = 5} },
-{ CLICK_BAR_STATUS, ShiftMask,   Button1, user_signal_status_bar, {.i = 6} },
-{ CLICK_BAR_STATUS, ControlMask, Button1, user_signal_status_bar, {.i = 7} },
-{ CLICK_BOTTOM_BAR, 0,           Button1, user_signal_status_bar, {.i = 1} },
-{ CLICK_BOTTOM_BAR, 0,           Button2, user_signal_status_bar, {.i = 2} },
-{ CLICK_BOTTOM_BAR, 0,           Button3, user_signal_status_bar, {.i = 3} },
-{ CLICK_BOTTOM_BAR, 0,           Button4, user_signal_status_bar, {.i = 4} },
-{ CLICK_BOTTOM_BAR, 0,           Button5, user_signal_status_bar, {.i = 5} },
-{ CLICK_BOTTOM_BAR, ShiftMask,   Button1, user_signal_status_bar, {.i = 6} },
-{ CLICK_BOTTOM_BAR, ControlMask, Button1, user_signal_status_bar, {.i = 7} },
+    /* click mask button function argument */
+    { CLICK_BAR_TAGS, 0, Button1, user_view_tag, {0} },
+    { CLICK_BAR_TAGS, 0, Button3, user_toggle_view, {0} },
+    { CLICK_BAR_TAGS, MODKEY, Button1, user_tag, {0} },
+    { CLICK_BAR_TAGS, MODKEY, Button3, user_toggle_tag, {0} },
+    { CLICK_BAR_TITLE, 0, Button2, user_promote_to_master, {0} },
+    { CLICK_CLIENT_WIN, MODKEY, Button1, user_mouse_move, {0} },
+    { CLICK_CLIENT_WIN, MODKEY, Button2, user_toggle_floating, {0} },
+    { CLICK_CLIENT_WIN, MODKEY, Button3, user_mouse_resize, {0} },
+    { CLICK_BAR_STATUS, 0, Button1, user_signal_status_bar, {.i = 1} },
+    { CLICK_BAR_STATUS, 0, Button2, user_signal_status_bar, {.i = 2} },
+    { CLICK_BAR_STATUS, 0, Button3, user_signal_status_bar, {.i = 3} },
+    { CLICK_BAR_STATUS, 0, Button4, user_signal_status_bar, {.i = 4} },
+    { CLICK_BAR_STATUS, 0, Button5, user_signal_status_bar, {.i = 5} },
+    { CLICK_BAR_STATUS, ShiftMask, Button1, user_signal_status_bar,
+      {.i = 6} },
+    { CLICK_BAR_STATUS, ControlMask, Button1, user_signal_status_bar,
+      {.i = 7} },
+    { CLICK_BOTTOM_BAR, 0, Button1, user_signal_status_bar, {.i = 1} },
+    { CLICK_BOTTOM_BAR, 0, Button2, user_signal_status_bar, {.i = 2} },
+    { CLICK_BOTTOM_BAR, 0, Button3, user_signal_status_bar, {.i = 3} },
+    { CLICK_BOTTOM_BAR, 0, Button4, user_signal_status_bar, {.i = 4} },
+    { CLICK_BOTTOM_BAR, 0, Button5, user_signal_status_bar, {.i = 5} },
+    { CLICK_BOTTOM_BAR, ShiftMask, Button1, user_signal_status_bar,
+      {.i = 6} },
+    { CLICK_BOTTOM_BAR, ControlMask, Button1, user_signal_status_bar,
+      {.i = 7} },
 };
 
 #endif
