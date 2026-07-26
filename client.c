@@ -370,7 +370,7 @@ client_new(Window window, XWindowAttributes *window_attributes) {
     client->y = client->old_y = window_attributes->y;
     client->w = client->old_w = window_attributes->width;
     client->h = client->old_h = window_attributes->height;
-    client->old_border_pixels = window_attributes->border_width;
+    client->original_border_pixels = window_attributes->border_width;
 
     client_update_icon(client);
     client_update_title(client);
@@ -491,7 +491,7 @@ client_unmanage(Client *client, int32 destroyed) {
     client_free_icon(client);
 
     if (!destroyed) {
-        window_changes.border_width = client->old_border_pixels;
+        window_changes.border_width = client->original_border_pixels;
         XGrabServer(display); /* avoid race conditions */
         XSetErrorHandler(handler_xerror_dummy);
 
@@ -687,8 +687,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
             return;
         }
         client->was_floating = client->is_floating;
-        // TODO: This overwrites the original X border saved for unmanage.
-        client->old_border_pixels = client->border_pixels;
+        client->fullscreen_border_pixels = client->border_pixels;
         client->border_pixels = 0;
         client->is_floating = true;
 
@@ -707,7 +706,7 @@ client_set_fullscreen(Client *client, bool fullscreen) {
             return;
         }
         client->is_floating = client->was_floating;
-        client->border_pixels = client->old_border_pixels;
+        client->border_pixels = client->fullscreen_border_pixels;
 
         client->x = client->old_x;
         client->y = client->old_y;

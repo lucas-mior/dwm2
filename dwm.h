@@ -279,7 +279,8 @@ struct Client {
     int32 min_w;
     int32 min_h;
     int32 border_pixels;
-    int32 old_border_pixels;
+    int32 original_border_pixels;
+    int32 fullscreen_border_pixels;
     uint32 tags;
 
     uint32 icon_width;
