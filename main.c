@@ -923,11 +923,12 @@ status_parse_text(StatusBar *status_bar) {
     char *text = status_bar->text;
     char *status = status_bar->text;
     int32 total_pixels = 0;
-    int32 text_pixels;
     char byte = *status;
 
     while (*status) {
         if ((uchar)(*status) < ' ') {
+            int32 text_pixels;
+
             // TODO: Check i against STATUS_MAX_BLOCKS before writing blocks[i].
             blocks[i].signal = byte;
             byte = *status;
@@ -947,6 +948,8 @@ status_parse_text(StatusBar *status_bar) {
         status += 1;
     }
     {
+        int32 text_pixels;
+
         // TODO: This final block also overflows if i reached the cap.
         blocks[i].signal = byte;
 
