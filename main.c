@@ -162,19 +162,22 @@ monitor_draw_bars(Monitor *monitor) {
     char *masters_names[LENGTH(tags)] = {0};
     Client *clients_with_icon[LENGTH(tags)] = {0};
 
-    // TODO: This skips drawing the bottom bar when only the top bar is hidden.
+    if (monitor->show_bottom_bar) {
+        draw_setscheme(draw, scheme[SCHEME_NORMAL]);
+        draw_rect(draw, 0, 0, (uint32)monitor->win_w, bar_height, true, true);
+        if (monitor == live_monitor) {
+            draw_status_text(&status_bottom, monitor->win_w);
+        }
+        draw_map(draw, monitor->bottom_bar_window,
+                 0, 0, (uint32)monitor->win_w, bar_height);
+    }
+
     if (!monitor->show_top_bar) {
         return;
     }
 
-    /* bottom bar */
     draw_setscheme(draw, scheme[SCHEME_NORMAL]);
     draw_rect(draw, 0, 0, (uint32)monitor->win_w, bar_height, true, true);
-    if (monitor == live_monitor) {
-        draw_status_text(&status_bottom, monitor->win_w);
-    }
-    draw_map(draw, monitor->bottom_bar_window, 0, 0, (uint32)monitor->win_w,
-             bar_height);
 
     /* top bar: draw status first so it can be overdrawn by tags later */
     /* only drawn status on selected monitor */
@@ -288,8 +291,8 @@ monitor_draw_bars(Monitor *monitor) {
             draw_rect(draw, draw_x, 0, (uint32)w, bar_height, true, true);
         }
     }
-    draw_map(draw, monitor->top_bar_window, 0, 0, (uint32)monitor->win_w,
-             bar_height);
+    draw_map(draw, monitor->top_bar_window,
+             0, 0, (uint32)monitor->win_w, bar_height);
 
     return;
 }
