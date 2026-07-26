@@ -1620,9 +1620,7 @@ update_geometry(void) {
 
             while ((client = monitor->clients)) {
                 dirty = true;
-                monitor->clients = client->next;
-                // TODO: This corrupts all_clients unless client is its head.
-                all_clients = client->all_next;
+                client_detach(client);
                 client_detach_stack(client);
                 client->monitor = monitors;
                 client_attach(client);
