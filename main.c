@@ -892,6 +892,7 @@ void
 draw_status_text(StatusBar *status_bar, int32 monitor_width) {
     int32 pixels = 0;
     int32 x0;
+
     if (status_bar == &status_top) {
         x0 = monitor_width - status_bar->pixels;
     } else {
