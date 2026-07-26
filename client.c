@@ -149,13 +149,11 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
         }
 
         /* adjust for aspect limits */
-        if (client->min_aspect > 0 && client->max_aspect > 0) {
-            // TODO: Do not round aspect limits before scaling.
-            // Fractional ratios otherwise produce wrong sizes.
+        if ((client->min_aspect > 0) && (client->max_aspect > 0)) {
             if (client->max_aspect < (float)*w / (float)*h) {
-                *w = *h*((int32)(client->max_aspect + 0.5f));
+                *w = (int32)((float)*h*client->max_aspect + 0.5f);
             } else if (client->min_aspect < (float)*h / (float)*w) {
-                *h = *w*((int32)(client->min_aspect + 0.5f));
+                *h = (int32)((float)*w*client->min_aspect + 0.5f);
             }
         }
 
@@ -567,6 +565,7 @@ client_resize(
 void
 client_resize_apply(Client *client, int32 x, int32 y, int32 w, int32 h) {
     XWindowChanges window_changes;
+    Monitor *monitor = client->monitor;
     uint32 n = 0;
 
     client->old_x = client->x;
@@ -581,15 +580,14 @@ client_resize_apply(Client *client, int32 x, int32 y, int32 w, int32 h) {
 
     window_changes.border_width = client->border_pixels;
 
-    // TODO: Use client->monitor here; live_monitor may be different.
-    for (Client *client_aux = client_next_tiled(live_monitor->clients);
+    for (Client *client_aux = client_next_tiled(monitor->clients);
          client_aux; client_aux = client_next_tiled(client_aux->next)) {
         n += 1;
     }
 
     if (!client->is_floating) {
-        Layout *layout = live_monitor->layout[live_monitor->lay_i];
-        if (layout->function == monitor_layout_monocle || n == 1) {
+        Layout *layout = monitor->layout[monitor->lay_i];
+        if ((layout->function == monitor_layout_monocle) || (n == 1)) {
             window_changes.border_width = 0;
             client->w = window_changes.width += client->border_pixels*2;
             client->h = window_changes.height += client->border_pixels*2;
