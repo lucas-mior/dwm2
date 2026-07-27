@@ -674,34 +674,6 @@ user_toggle_fullscreen(union Arg *arg) {
 }
 
 void
-user_spawn(union Arg *arg) {
-    struct sigaction signal_action;
-
-    switch (fork()) {
-    case 0:
-        if (display) {
-            close(ConnectionNumber(display));
-        }
-        setsid();
-
-        sigemptyset(&signal_action.sa_mask);
-        signal_action.sa_flags = 0;
-        signal_action.sa_handler = SIG_DFL;
-        sigaction(SIGCHLD, &signal_action, NULL);
-
-        execvp(((char **)arg->v)[0], (char **)arg->v);
-        error("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
-        exit(EXIT_FAILURE);
-    case -1:
-        error("Error forking: %s\n", strerror(errno));
-        break;
-    default:
-        break;
-    }
-    return;
-}
-
-void
 user_toggle_tag(union Arg *arg) {
     uint32 newtags;
 
