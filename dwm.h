@@ -389,7 +389,6 @@ static void user_quit_dwm(union Arg *);
 static void user_set_layout(union Arg *);
 static void user_set_master_fact(union Arg *);
 static void user_signal_status_bar(union Arg *);
-static void user_spawn(union Arg *);
 static void user_tag(union Arg *);
 static void user_tag_monitor(union Arg *);
 static void user_toggle_bar(union Arg *);
