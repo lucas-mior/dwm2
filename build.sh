@@ -18,7 +18,7 @@ alias trace_on='set -x'
 alias trace_off='{ set +x; } 2>/dev/null'
 
 VERSION="6.5"
-program="dwm"
+program=$(basename "$(readlink -f "$(dirname "$0")")")
 SRC="main.c"
 
 PREFIX="${PREFIX:-/usr/local}"
@@ -121,7 +121,7 @@ case "$target" in
     ;;
 "clean")
     echo "Cleaning..."
-    rm -rf bin/ tags .tags.vim dwm
+    rm -rf bin/ tags .tags.vim
     exit
     ;;
 esac
@@ -188,7 +188,7 @@ case "$target" in
         DISPLAY=:0 Xephyr -br -ac -noreset -screen 1280x720 :1 &
         xephyr=$!
         sleep 1
-        DISPLAY=:1 gdb bin/dwm_debug -ex run
+        DISPLAY=:1 gdb bin/dwm2_debug -ex run
 
         kill -s KILL $xephyr
 
