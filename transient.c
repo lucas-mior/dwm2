@@ -1,9 +1,7 @@
 /* cc transient.c -o transient -lX11 */
 
+#include "cbase.h"
 #include "dwm.h"
-
-#include <stdlib.h>
-#include <unistd.h>
 
 int32
 main(void) {

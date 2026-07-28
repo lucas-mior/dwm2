@@ -3,9 +3,8 @@
 #if !defined(DRAW_C)
 #define DRAW_C
 
+#include "cbase.h"
 #include "dwm.h"
-
-#include <stdlib.h>
 
 // adhoc solution for draw shadowing global static draw from dwm.h
 #define draw draw2
