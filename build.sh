@@ -49,12 +49,11 @@ FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
-# CFLAGS="$CFLAGS -Werror"
+CFLAGS="$CFLAGS -Werror"
 CFLAGS="$CFLAGS -Wextra -Wall"
 CFLAGS="$CFLAGS -Wno-padded"
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 CFLAGS="$CFLAGS -Wno-constant-logical-operand"
-CFLAGS="$CFLAGS -Wno-unused-variable"
 
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
