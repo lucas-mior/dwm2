@@ -51,10 +51,6 @@ if ! printf '%s\n' "$targets" | grep -qx "$target"; then
     exit 1
 fi
 
-if [ "$target" = "test" ]; then
-    exit
-fi
-
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
