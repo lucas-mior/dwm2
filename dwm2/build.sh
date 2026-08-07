@@ -73,7 +73,17 @@ CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
-CC="${CC:-tcc}"
+case "$target" in
+debug|test)
+    CC="${CC:-tcc}"
+    ;;
+fast_feedback)
+    CC="${CC:-clang}"
+    ;;
+*)
+    CC="${CC:-cc}"
+    ;;
+esac
 
 option_remove() {
     echo "$1" | sed -E "s| *$2 +| |g"
