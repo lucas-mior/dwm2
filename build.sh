@@ -121,16 +121,16 @@ with_other () {
 }
 
 case "$target" in
-"test")
+test)
     exit
     ;;
-"fast_feedback")
+fast_feedback)
     trace_on
     $CC $CPPFLAGS $CFLAGS -Werror main.c -o "$exe" $LDFLAGS
     trace_off
     exit
     ;;
-"check")
+check)
     CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" "$0" build
     CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
@@ -140,15 +140,15 @@ case "$target" in
     CC=clang CFLAGS="$CFLAGS" "$0" build
     exit
     ;;
-"debug")
+debug)
     CFLAGS="$CFLAGS -g3 -O0 -fsanitize=undefined"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
-"release"|"build")
+release|build)
     CFLAGS="$CFLAGS -O2 -flto -march=native"
     ;;
-"clean")
+clean)
     echo "Cleaning..."
     rm -rf bin/ tags .tags.vim
     exit
@@ -180,14 +180,14 @@ if [ "$CC" = "clang" ]; then
 fi
 
 case "$target" in
-"uninstall")
+uninstall)
     trace_on
     rm -f "${DESTDIR}${PREFIX}/bin/${program}"
     rm -f "${DESTDIR}${PREFIX}/man/man1/${program}.1"
     trace_off
     exit
     ;;
-"install")
+install)
     if [ ! -f "$exe" ]; then
         $0 build
     fi
