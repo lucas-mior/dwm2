@@ -44,7 +44,7 @@ clean
 EOF_TARGETS
 )
 
-target="${1:-build}"
+target="${1:-debug}"
 if ! printf '%s\n' "$targets" | grep -qx "$target"; then
     echo "usage: $script <targets>"
     printf '%s\n' "$targets"
