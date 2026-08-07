@@ -1,9 +1,9 @@
+bin/
+*.cmd
+compile_commands.json
 dwm
+*.o
 tags
 .tags.vim
-compile_commands.json
-*temp_delete_me*
-*.cmd
-*.o
-bin/
 *.tar.gz
+*temp_delete_me*
