@@ -181,10 +181,9 @@ case "$target" in
     ;;
 *)
     trace_on
-    ctags --kinds-C=+l+d *.c *.h cbase/*.c cbase/*.h 2> /dev/null || true
-    if [ -f tags ]; then
-        vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
-    fi
+    find . -iname "*.[ch]" -print0 \
+        | xargs --verbose -0 ctags --kinds-C=+l+d || true
+    vtags.sed tags | sort | uniq > .tags.vim      || true
     
     if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
         with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
