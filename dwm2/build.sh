@@ -18,7 +18,7 @@ alias trace_on='set -x'
 alias trace_off='{ set +x; } 2>/dev/null'
 
 VERSION="6.5"
-program=$(basename "$(readlink -f "$(dirname "$0")")")
+program=$(get_program "$0")
 SRC="main.c"
 
 PREFIX="${PREFIX:-/usr/local}"

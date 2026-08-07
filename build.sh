@@ -7,7 +7,7 @@ dir=$(dirname "$(readlink -f "$0")")
 . "$dir/cbase/common.sh"
 
 VERSION="6.5"
-program=$(basename "$(readlink -f "$(dirname "$0")")")
+program=$(get_program "$0")
 SRC="main.c"
 
 PREFIX="${PREFIX:-/usr/local}"
