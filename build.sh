@@ -32,11 +32,11 @@ cd "$dir" || exit
 script=$(basename "$0")
 
 if [ ! -f ./targets ]; then
-    printf "build\nrelease\ndebug\ncheck\ninstall\nuninstall\nclean\n" > ./targets
+    printf "build\nrelease\ndebug\ncheck\ntest\ninstall\nuninstall\nclean\n" > ./targets
 fi
 
 target="${1:-build}"
-if ! grep -q "$target" ./targets; then
+if [ "$target" != "test" ] && ! grep -q "$target" ./targets; then
     echo "usage: $script <targets>"
     cat ./targets
     exit 1
@@ -94,6 +94,9 @@ with_other () {
 }
 
 case "$target" in
+"test")
+    exit
+    ;;
 "fast_feedback")
     trace_on
     clang $CPPFLAGS $CFLAGS -Werror main.c -o "$exe" $LDFLAGS
