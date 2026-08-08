@@ -319,7 +319,7 @@ monitor_layout_columns(Monitor *monitor) {
         SNPRINTF(monitor->layout_symbol, "|%d|", number_tiled);
     }
 
-    number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
+    number_masters = (int32)CLAMP(monitor->number_masters, 0, number_tiled);
     if (number_tiled > number_masters) {
         if (number_masters != 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
@@ -479,7 +479,7 @@ monitor_layout_tile(Monitor *monitor) {
         SNPRINTF(monitor->layout_symbol, "=%d|", number_tiled);
     }
 
-    number_masters = (int32)MIN(number_tiled, MAX(monitor->number_masters, 0));
+    number_masters = (int32)CLAMP(monitor->number_masters, 0, number_tiled);
     if (number_tiled > number_masters) {
         if (number_masters != 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
