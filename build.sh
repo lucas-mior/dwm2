@@ -89,7 +89,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-float-equal"
     CFLAGS="$CFLAGS -Wno-covered-switch-default"
-    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
     CFLAGS="$CFLAGS -Wno-cast-align"
     CFLAGS="$CFLAGS -Wno-declaration-after-statement"
     CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
