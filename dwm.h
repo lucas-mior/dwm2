@@ -14,10 +14,22 @@
 
 #include <X11/Xft/Xft.h>
 #include <Imlib2.h>
+
+#include "platform_detection.h"
+
+#if CC_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
+
 #include <hb.h>
 #include <hb-ft.h>
-
 #undef SIZEOF
+
+#if CC_CLANG
+#pragma clang diagnostic pop
+#endif
 
 #include "cbase.h"
 
