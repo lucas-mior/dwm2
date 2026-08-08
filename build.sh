@@ -8,7 +8,7 @@ dir=$(dirname "$(readlink -f "$0")")
 
 VERSION="6.5"
 program=$(get_program "$0")
-SRC="main.c"
+SRC=main.c
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"

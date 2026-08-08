@@ -19,7 +19,7 @@ alias trace_off='{ set +x; } 2>/dev/null'
 
 VERSION="6.5"
 program=$(get_program "$0")
-SRC="main.c"
+SRC=main.c
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
