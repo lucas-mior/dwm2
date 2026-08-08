@@ -45,21 +45,7 @@ XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-case "$target" in
-debug|test)
-    CC="${CC:-tcc}"
-    ;;
-fast_feedback)
-    CC="${CC:-clang}"
-    ;;
-*)
-    CC="${CC:-cc}"
-    ;;
-esac
-
-if ! command -v "$CC" > /dev/null 2>&1; then
-    CC=cc
-fi
+CC=$(get_compiler "$target")
 
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
@@ -70,8 +56,8 @@ CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
-CFLAGS="$CFLAGS -Werror=all -Werror=extra"
-CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
+# CFLAGS="$CFLAGS -Werror=all -Werror=extra"
+# CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-constant-logical-operand"
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 CFLAGS="$CFLAGS -Wno-padded"
