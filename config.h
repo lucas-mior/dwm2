@@ -16,7 +16,6 @@ static uint32 key_j = 44;
 static uint32 key_semicolon = 47;
 static uint32 key_l = 46;
 static uint32 key_k = 45;
-static uint32 super_key = 133;
 
 static int32 snap_pixels = 32;
 
