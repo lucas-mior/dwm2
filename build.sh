@@ -91,7 +91,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-covered-switch-default"
     CFLAGS="$CFLAGS -Wno-cast-align"
     CFLAGS="$CFLAGS -Wno-declaration-after-statement"
-    CFLAGS="$CFLAGS -Wno-reserved-identifier"
     CFLAGS="$CFLAGS -Wno-assign-enum"
     CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
 fi
