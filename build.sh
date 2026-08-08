@@ -39,9 +39,7 @@ if ! printf '%s\n' "$targets" | grep -qx "$target"; then
     exit 1
 fi
 
-if [ "$target" = "test" ]; then
-    exit
-fi
+printf "\n${script} ${RED}${1:-} ${2:-}$RES\n"
 
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
@@ -80,40 +78,13 @@ if ! command -v "$CC" > /dev/null 2>&1; then
     CC=cc
 fi
 
-option_remove() {
-    echo "$1" | sed -E "s| *$2 +| |g"
-}
-
-with_other () {
-    compiler="$1"
-    compiler_macro=$(echo "$compiler" | tr '[:lower:]' '[:upper:]' | tr ' ' '_')
-    compiler_macro="__${compiler_macro}__"
-    shift
-    args="$*"
-    trace_on
-    while ! problem=$($compiler "-D${compiler_macro}" $args 2>&1); do
-        trace_off
-        problem=$(echo "$problem" | head -n 1 | tr -d "'")
-        sleep 0.4
-        if echo "$problem" | grep -Eq "unknown (argument|option)"; then
-            arg=$(echo "$problem" | awk '{print $NF}')
-            args=$(option_remove "$args" "$arg")
-        else
-            printf "\nError compiling with $compiler:\n%s\n" "$problem"
-            return 1
-        fi
-        trace_on
-    done
-    return 0
-}
-
 case "$target" in
 test)
     exit
     ;;
 fast_feedback)
     trace_on
-    $CC $CPPFLAGS $CFLAGS -Werror main.c -o "$exe" $LDFLAGS
+    $CC $CPPFLAGS $CFLAGS main.c -o "$exe" $LDFLAGS
     trace_off
     exit
     ;;
@@ -158,7 +129,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
     CFLAGS="$CFLAGS -Wno-cast-align"
     CFLAGS="$CFLAGS -Wno-declaration-after-statement"
-    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
     CFLAGS="$CFLAGS -Wno-documentation-unknown-command"
     CFLAGS="$CFLAGS -Wno-documentation"
     CFLAGS="$CFLAGS -Wno-reserved-identifier"
@@ -186,12 +156,10 @@ install)
     ;;
 *)
     trace_on
-    find . -iname "*.[ch]" -print0 \
-        | xargs --verbose -0 ctags --kinds-C=+l+d || true
-    vtags.sed tags | sort | uniq > .tags.vim      || true
+    build_tags
     
     if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
-        with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
+        compile_with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
     else
         $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
     fi
