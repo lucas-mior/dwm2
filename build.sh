@@ -50,9 +50,9 @@ CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Werror=all -Werror=extra"
 # CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wextra -Wall"
-CFLAGS="$CFLAGS -Wno-padded"
-CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 CFLAGS="$CFLAGS -Wno-constant-logical-operand"
+CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+CFLAGS="$CFLAGS -Wno-padded"
 
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
