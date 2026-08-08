@@ -156,7 +156,6 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
     CFLAGS="$CFLAGS -Wno-incompatible-pointer-types-discards-qualifiers"
     CFLAGS="$CFLAGS -Wno-cast-qual"
-    CFLAGS="$CFLAGS -Wno-gnu-union-cast"
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-float-equal"
     CFLAGS="$CFLAGS -Wno-covered-switch-default"
