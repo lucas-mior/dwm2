@@ -58,7 +58,7 @@ FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
-# CFLAGS="$CFLAGS -Werror"
+CFLAGS="$CFLAGS -Werror"
 CFLAGS="$CFLAGS -Wno-constant-logical-operand"
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 CFLAGS="$CFLAGS -Wno-padded"
@@ -118,7 +118,7 @@ case "$target" in
     ;;
 "fast_feedback")
     trace_on
-    clang $CPPFLAGS $# CFLAGS -Werror main.c -o "$exe" $LDFLAGS
+    clang $CPPFLAGS $CFLAGS -Werror main.c -o "$exe" $LDFLAGS
     trace_off
     exit
     ;;
