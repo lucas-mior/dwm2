@@ -79,6 +79,7 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-padded"
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
+    CFLAGS="$CFLAGS -Wno-unused-macros"
 fi
 
 exe="bin/$program"
