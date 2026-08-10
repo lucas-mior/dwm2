@@ -142,11 +142,7 @@ install)
     trace_on
     build_tags
 
-    if [ "$CC" = "chibicc" ] || [ "$CC" = "cproc" ]; then
-        compile_with_other "$CC" $CPPFLAGS $CFLAGS $LDFLAGS -o "${exe}" $SRC
-    else
-        $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
-    fi
+    $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
 
     trace_off
     ;;
