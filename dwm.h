@@ -26,6 +26,7 @@
 
 #include <hb.h>
 #include <hb-ft.h>
+
 #undef SIZEOF
 #define SIZEOF(...) (int64)(sizeof(__VA_ARGS__))
 
