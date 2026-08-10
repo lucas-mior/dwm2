@@ -27,6 +27,7 @@
 #include <hb.h>
 #include <hb-ft.h>
 #undef SIZEOF
+#define SIZEOF(...) (int64)(sizeof(__VA_ARGS__))
 
 #if CC_CLANG
 #pragma clang diagnostic pop
