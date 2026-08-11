@@ -105,7 +105,7 @@ check)
     exit
     ;;
 debug)
-    CFLAGS="$CFLAGS -g3 -O0 -fsanitize=undefined"
+    CFLAGS="$CFLAGS -g3 -Og -fsanitize=undefined"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/${program}_debug"
     ;;
