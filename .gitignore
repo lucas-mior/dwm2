@@ -7,3 +7,4 @@ tags
 .tags.vim
 *.tar.gz
 *temp_delete_me*
+*.obj
