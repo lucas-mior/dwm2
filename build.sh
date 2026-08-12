@@ -7,7 +7,7 @@ dir=$(dirname "$(readlink -f "$0")")
 . "$dir/cbase/common.sh"
 
 VERSION="6.5"
-program=$(get_program "$0")
+program=$(common_get_program "$0")
 SRC=main.c
 
 PREFIX="${PREFIX:-/usr/local}"
@@ -32,16 +32,16 @@ clean
 EOF_TARGETS
 )
 
-build_parse_args "$@"
-build_validate_mode "$script" "$targets"
+common_build_parse_args "$@"
+common_build_validate_mode "$script" "$targets"
 
-build_print_invocation "$script"
+common_build_print_invocation "$script"
 
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-CC=$(get_compiler "$mode")
+CC=$(common_get_compiler "$mode")
 
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
@@ -81,7 +81,7 @@ mkdir -p "$(dirname "$exe")"
 
 case "$mode" in
 test)
-    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$target"
+    TEST_EXCLUDE_PATTERN='(^|/)cbase/' common_test "$target"
     exit
     ;;
 fast_feedback)
@@ -138,7 +138,7 @@ install)
     ;;
 *)
     trace_on
-    build_tags
+    common_build_tags
 
     $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
 
