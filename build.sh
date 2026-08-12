@@ -32,20 +32,16 @@ clean
 EOF_TARGETS
 )
 
-target="${1:-debug}"
-if ! printf '%s\n' "$targets" | grep -qx "$target"; then
-    echo "usage: $script <targets>"
-    printf '%s\n' "$targets"
-    exit 1
-fi
+build_parse_args "$@"
+build_validate_mode "$script" "$targets"
 
-printf "\n${script} ${RED}${1:-} ${2:-}$RES\n"
+build_print_invocation "$script"
 
 XINERAMALIBS="-lXinerama"
 XINERAMAFLAGS="-DXINERAMA"
 FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
 
-CC=$(get_compiler "$target")
+CC=$(get_compiler "$mode")
 
 LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
 
@@ -83,9 +79,9 @@ fi
 exe="bin/$program"
 mkdir -p "$(dirname "$exe")"
 
-case "$target" in
+case "$mode" in
 test)
-    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$2"
+    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$target"
     exit
     ;;
 fast_feedback)
@@ -122,7 +118,7 @@ clean)
     ;;
 esac
 
-case "$target" in
+case "$mode" in
 uninstall)
     trace_on
     rm -f "${DESTDIR}${PREFIX}/bin/${program}"
