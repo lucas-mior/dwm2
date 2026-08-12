@@ -1679,6 +1679,7 @@ update_numlock_mask(void) {
 void
 status_update(void) {
     char *separator;
+    int32 text_len;
 
     if (!window_text_property(root, XA_WM_NAME,
                               status_top.text, SIZEOF(status_top.text))) {
@@ -1692,7 +1693,8 @@ status_update(void) {
         return;
     }
 
-    separator = strchr(status_top.text, DWM_BAR_SEPARATOR);
+    text_len = strlen32(status_top.text);
+    separator = memchr64(status_top.text, DWM_BAR_SEPARATOR, text_len);
     if (separator) {
         int64 top_length = separator - status_top.text;
         int64 bottom_length = SIZEOF(status_top.text) - top_length - 1;
