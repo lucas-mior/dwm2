@@ -74,6 +74,7 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"
     CFLAGS="$CFLAGS -Wno-unused-macros"
+    CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
 fi
 
 exe="bin/$program"
