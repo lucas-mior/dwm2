@@ -3,6 +3,7 @@
 
 #include "cbase.h"
 
+#undef SIZEOF
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
