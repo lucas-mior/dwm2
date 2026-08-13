@@ -17,8 +17,6 @@
 #include <X11/Xft/Xft.h>
 #include <Imlib2.h>
 
-#include "platform_detection.h"
-
 #if CC_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
