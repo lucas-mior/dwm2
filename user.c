@@ -1,6 +1,7 @@
 #if !defined(USER_C)
 #define USER_C
 
+#include "cbase.h"
 #include "dwm.h"
 #include "config.h"
 

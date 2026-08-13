@@ -1,6 +1,8 @@
 #if !defined(DWM_H)
 #define DWM_H
 
+#include "cbase.h"
+
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>

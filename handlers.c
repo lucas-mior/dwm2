@@ -1,6 +1,7 @@
 #if !defined(HANDLERS_C)
 #define HANDLERS_C
 
+#include "cbase.h"
 #include "dwm.h"
 #include "config.h"
 

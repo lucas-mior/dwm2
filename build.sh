@@ -24,6 +24,14 @@ script=$(basename "$0")
 
 common_build_parse_args "$@"
 
+case "$mode" in
+build|check|clean|debug|fast_feedback|install|release|test|uninstall)
+    ;;
+*)
+    common_build_unknown_mode
+    ;;
+esac
+
 common_build_print_invocation "$script"
 
 XINERAMALIBS="-lXinerama"
@@ -81,17 +89,7 @@ fast_feedback)
     exit
     ;;
 check)
-    set +e
-    CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" "$0" build
-
-    CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
-    CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
-    CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
-    CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
-    CFLAGS="$CFLAGS -fno-color-diagnostics"
-    CC=clang CFLAGS="$CFLAGS" "$0" build
-
-    exit
+    common_build_run_analyzers build
     ;;
 debug)
     CFLAGS="$CFLAGS -g3 -Og"
@@ -105,6 +103,11 @@ clean)
     echo "Cleaning..."
     rm -rf bin/ tags .tags.vim
     exit
+    ;;
+build|check|clean|debug|fast_feedback|install|release|test|uninstall)
+    ;;
+*)
+    common_build_unknown_mode
     ;;
 esac
 
@@ -133,15 +136,5 @@ build|debug|release)
     $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
     trace_off
 
-    ;;
-esac
-
-
-case "$mode" in
-build|check|clean|debug|fast_feedback|install|release|test|uninstall)
-    ;;
-*)
-    echo "Unknown mode $mode"
-    exit 1
     ;;
 esac
