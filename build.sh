@@ -140,11 +140,11 @@ install)
     exit
     ;;
 *)
-    trace_on
     common_build_tags
 
+    trace_on
     $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
-
     trace_off
+
     ;;
 esac
