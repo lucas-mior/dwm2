@@ -52,7 +52,7 @@ CFLAGS="$CFLAGS -Werror=all -Werror=extra"
 CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 
-if [ "$CC" = "clang" ]; then
+if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-assign-enum"
     CFLAGS="$CFLAGS -Wno-c++-keyword"
