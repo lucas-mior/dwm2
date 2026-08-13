@@ -21,21 +21,8 @@ cbase="cbase"
 cd "$dir" || exit
 script=$(basename "$0")
 
-targets=$(cat <<'EOF_TARGETS'
-build
-debug
-fast_feedback
-install
-uninstall
-test
-check
-release
-clean
-EOF_TARGETS
-)
 
 common_build_parse_args "$@"
-common_build_validate_mode "$script" "$targets"
 
 common_build_print_invocation "$script"
 
@@ -139,12 +126,22 @@ install)
     trace_off
     exit
     ;;
-*)
+build|debug|release)
     common_build_tags
 
     trace_on
     $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
     trace_off
 
+    ;;
+esac
+
+
+case "$mode" in
+build|check|clean|debug|fast_feedback|install|release|test|uninstall)
+    ;;
+*)
+    echo "Unknown mode $mode"
+    exit 1
     ;;
 esac
