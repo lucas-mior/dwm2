@@ -594,7 +594,7 @@ user_signal_status_bar(union Arg *arg) {
         return;
     }
 #if OS_MAC || OS_OPENBSD
-    kill(status_program_pid, signal_value);
+    kill(status_program_pid, SIGUSR1);
 #else
     sigqueue(status_program_pid, SIGUSR1, signal_value);
 #endif
