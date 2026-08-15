@@ -575,7 +575,7 @@ user_signal_status_bar(union Arg *arg) {
         close(pipefd[1]);
         execlp("pidof", "pidof", "-s", STATUS_PROGRAM, NULL);
         error("Error executing pidof.\n");
-        exit(EXIT_FAILURE);
+        _exit(EXIT_FAILURE);
     default:
         close(pipefd[1]);
         break;
