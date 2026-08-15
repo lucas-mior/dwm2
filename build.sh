@@ -2,26 +2,18 @@
 
 # shellcheck disable=SC2086
 
+set -x
+
 dir=$(dirname "$(readlink -f "$0")")
 cd "$dir" || exit
 
 # shellcheck source=./cbase/common.sh
-. "./cbase/common.sh"
+. ./cbase/common.sh
 
 VERSION="6.5"
 program=$(common_get_program "$0")
 SRC=main.c
-
-PREFIX="${PREFIX:-/usr/local}"
-DESTDIR="${DESTDIR:-/}"
-FREETYPEINC="/usr/include/freetype2"
-HBINC="/usr/include/harfbuzz"
-
-cbase="cbase"
-cd "$dir" || exit
 script=$(basename "$0")
-
-
 common_build_parse_args "$@"
 
 case "$mode" in
@@ -33,17 +25,38 @@ build|check|clean|debug|fast_feedback|install|release|test|uninstall)
 esac
 
 common_build_print_invocation "$script"
-
-XINERAMALIBS="-lXinerama"
-XINERAMAFLAGS="-DXINERAMA"
-FREETYPELIBS="-lfontconfig -lXft -lharfbuzz"
-
+PREFIX="${PREFIX:-/usr/local}"
+DESTDIR="${DESTDIR:-/}"
+exe="bin/$program"
+mkdir -p "$(dirname "$exe")"
 CC=$(common_get_compiler "$mode")
 
-LDFLAGS="$LDFLAGS -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lXrender -lImlib2 -lm"
+case "$mode" in
+clean)
+    echo "Cleaning..."
+    rm -rf bin/ tags .tags.vim
+    exit
+    ;;
+uninstall)
+    trace_on
+    rm -f "${DESTDIR}${PREFIX}/bin/${program}"
+    rm -f "${DESTDIR}${PREFIX}/man/man1/${program}.1"
+    trace_off
+    exit
+    ;;
+esac
 
-CPPFLAGS="$CPPFLAGS -DVERSION=$VERSION ${XINERAMAFLAGS}"
-CPPFLAGS="$CPPFLAGS -I$dir/$cbase -I${FREETYPEINC} -I${HBINC}"
+CPPFLAGS="$CPPFLAGS -DVERSION=$VERSION -DXINERAMA"
+CPPFLAGS="$CPPFLAGS -I."
+CPPFLAGS="$CPPFLAGS -Icbase"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags x11)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xinerama)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xft)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags fontconfig)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags freetype2)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags harfbuzz)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags xrender)"
+CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
@@ -73,9 +86,18 @@ if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
 fi
-
-exe="bin/$program"
-mkdir -p "$(dirname "$exe")"
+if [ -z "$NOCOLORS" ]; then
+    CFLAGS="$CFLAGS -fdiagnostics-color=always"
+fi
+LDFLAGS="$LDFLAGS -lm"
+LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs xinerama)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs xft)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs fontconfig)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs freetype2)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs harfbuzz)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs xrender)"
+LDFLAGS="$LDFLAGS $(pkg-config --libs imlib2)"
 
 case "$mode" in
 test)
@@ -97,12 +119,7 @@ debug)
     exe="bin/$program"
     ;;
 build)
-    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native"
-    ;;
-clean)
-    echo "Cleaning..."
-    rm -rf bin/ tags .tags.vim
-    exit
+    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native -ftree-vectorize"
     ;;
 check|clean|debug|fast_feedback|install|release|test|uninstall)
     ;;
@@ -112,13 +129,6 @@ check|clean|debug|fast_feedback|install|release|test|uninstall)
 esac
 
 case "$mode" in
-uninstall)
-    trace_on
-    rm -f "${DESTDIR}${PREFIX}/bin/${program}"
-    rm -f "${DESTDIR}${PREFIX}/man/man1/${program}.1"
-    trace_off
-    exit
-    ;;
 install)
     if [ ! -f "$exe" ]; then
         $0 build
@@ -130,7 +140,7 @@ install)
     exit
     ;;
 build|debug|release)
-    common_build_tags
+    common_build_tags cbase .
 
     trace_on
     $CC $CPPFLAGS $CFLAGS $SRC -o "${exe}" $LDFLAGS
