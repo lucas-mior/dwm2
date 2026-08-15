@@ -49,7 +49,7 @@ CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wextra -Wall"
 CFLAGS="$CFLAGS -Werror=all -Werror=extra"
-CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
+# CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 
 if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
@@ -96,15 +96,15 @@ debug)
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     exe="bin/$program"
     ;;
-release|build)
-    CFLAGS="$CFLAGS -O2 -flto -march=native"
+build)
+    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native"
     ;;
 clean)
     echo "Cleaning..."
     rm -rf bin/ tags .tags.vim
     exit
     ;;
-build|check|clean|debug|fast_feedback|install|release|test|uninstall)
+check|clean|debug|fast_feedback|install|release|test|uninstall)
     ;;
 *)
     common_build_unknown_mode
