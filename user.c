@@ -552,7 +552,11 @@ user_signal_status_bar(union Arg *arg) {
     if (status_signal <= 0) {
         return;
     }
+#if defined(SIGRTMIN)
     signal_value.sival_int = arg->i | ((SIGRTMIN + status_signal) << 3);
+#else
+    signal_value.sival_int = arg->i | ((status_signal) << 3);
+#endif
 
     if (pipe(pipefd) < 0) {
         error("Error creating pipe: %s\n", strerror(errno));
