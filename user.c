@@ -593,10 +593,10 @@ user_signal_status_bar(union Arg *arg) {
     if (status_program_pid <= 0) {
         return;
     }
-#if !OS_MAC
-    sigqueue(status_program_pid, SIGUSR1, signal_value);
-#else
+#if OS_MAC || OS_OPENBSD
     kill(status_program_pid, signal_value);
+#else
+    sigqueue(status_program_pid, SIGUSR1, signal_value);
 #endif
     return;
 }
