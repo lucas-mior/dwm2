@@ -28,10 +28,6 @@ user_alt_tab(union Arg *arg) {
     focus_next(alt_tab_direction);
 
     for (int32 i = 0; i < ALT_TAB_GRAB_TRIES; i += 1) {
-        struct timespec pause;
-        pause.tv_sec = 0;
-        pause.tv_nsec = PAUSE_MILIS_AS_NANOS(5);
-
         if (grab_status != GrabSuccess) {
             grab_status = XGrabKeyboard(display, root, True, GrabModeAsync,
                                         GrabModeAsync, CurrentTime);
@@ -42,7 +38,7 @@ user_alt_tab(union Arg *arg) {
                                   None, None);
             break;
         }
-        nanosleep(&pause, NULL);
+        sleep_ns(PAUSE_MILIS_AS_NANOS(5));
     }
 
     client = live_monitor->selected_client;
