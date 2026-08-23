@@ -86,9 +86,7 @@ if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
     CFLAGS="$CFLAGS -Wno-unused-macros"
     CFLAGS="$CFLAGS -Wno-used-but-marked-unused"
 fi
-if [ -z "$NOCOLORS" ]; then
-    CFLAGS="$CFLAGS -fdiagnostics-color=always"
-fi
+
 LDFLAGS="$LDFLAGS -lm"
 LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
 LDFLAGS="$LDFLAGS $(pkg-config --libs xinerama)"
