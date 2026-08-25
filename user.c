@@ -585,7 +585,7 @@ user_signal_status_bar(union Arg *arg) {
     buffer[bytes_read] = '\0';
     close(pipefd[0]);
 
-    status_program_pid = (pid_t)atoi2(buffer);
+    status_program_pid = (pid_t)atoi2(buffer, bytes_read);
     if (status_program_pid <= 0) {
         return;
     }
