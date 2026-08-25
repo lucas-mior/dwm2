@@ -577,7 +577,7 @@ user_signal_status_bar(union Arg *arg) {
         break;
     }
 
-    bytes_read = (int64)read(pipefd[0], buffer, SIZEOF(buffer) - 1);
+    bytes_read = read64(pipefd[0], buffer, SIZEOF(buffer) - 1);
     if (bytes_read <= 0) {
         close(pipefd[0]);
         return;
