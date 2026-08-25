@@ -542,7 +542,7 @@ user_signal_status_bar(union Arg *arg) {
     pid_t status_program_pid;
     union sigval signal_value;
     int32 pipefd[2];
-    char buffer[64] = {0};
+    char buffer[32] = {0};
     int32 bytes_read;
 
     if (status_signal <= 0) {
