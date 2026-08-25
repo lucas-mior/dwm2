@@ -573,17 +573,17 @@ user_signal_status_bar(union Arg *arg) {
         error("Error executing pidof.\n");
         _exit(EXIT_FAILURE);
     default:
-        close(pipefd[1]);
+        XCLOSE(pipefd[1]);
         break;
     }
 
     if ((bytes_read
             = (int32)read64(pipefd[0], buffer, SIZEOF(buffer) - 1)) <= 0) {
-        close(pipefd[0]);
+        XCLOSE(pipefd[0]);
         return;
     }
     buffer[bytes_read] = '\0';
-    close(pipefd[0]);
+    XCLOSE(pipefd[0]);
 
     status_program_pid = (pid_t)atoi2(buffer, bytes_read);
     if (status_program_pid <= 0) {
