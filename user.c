@@ -562,13 +562,13 @@ user_signal_status_bar(union Arg *arg) {
     switch (fork()) {
     case -1:
         error("Error forking: %s\n", strerror(errno));
-        close(pipefd[0]);
-        close(pipefd[1]);
+        XCLOSE(pipefd[0]);
+        XCLOSE(pipefd[1]);
         return;
     case 0:
-        close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
+        XCLOSE(pipefd[0]);
+        xdup2(pipefd[1], STDOUT_FILENO);
+        XCLOSE(pipefd[1]);
         execlp("pidof", "pidof", "-s", STATUS_PROGRAM, NULL);
         error("Error executing pidof.\n");
         _exit(EXIT_FAILURE);
