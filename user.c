@@ -543,7 +543,7 @@ user_signal_status_bar(union Arg *arg) {
     union sigval signal_value;
     int32 pipefd[2];
     char buffer[32] = {0};
-    int64 bytes_read;
+    int32 bytes_read;
 
     if (status_signal <= 0) {
         return;
@@ -577,8 +577,8 @@ user_signal_status_bar(union Arg *arg) {
         break;
     }
 
-    bytes_read = read64(pipefd[0], buffer, SIZEOF(buffer) - 1);
-    if (bytes_read <= 0) {
+    if ((bytes_read
+            = (int32)read64(pipefd[0], buffer, SIZEOF(buffer) - 1)) <= 0) {
         close(pipefd[0]);
         return;
     }
