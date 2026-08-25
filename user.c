@@ -562,28 +562,28 @@ user_signal_status_bar(union Arg *arg) {
     switch (fork()) {
     case -1:
         error("Error forking: %s\n", strerror(errno));
-        XCLOSE(pipefd[0]);
-        XCLOSE(pipefd[1]);
+        XCLOSE(&pipefd[0]);
+        XCLOSE(&pipefd[1]);
         return;
     case 0:
-        XCLOSE(pipefd[0]);
+        XCLOSE(&pipefd[0]);
         xdup2(pipefd[1], STDOUT_FILENO);
-        XCLOSE(pipefd[1]);
+        XCLOSE(&pipefd[1]);
         execlp("pidof", "pidof", "-s", STATUS_PROGRAM, NULL);
         error("Error executing pidof.\n");
         _exit(EXIT_FAILURE);
     default:
-        XCLOSE(pipefd[1]);
+        XCLOSE(&pipefd[1]);
         break;
     }
 
     if ((bytes_read
             = (int32)read64(pipefd[0], buffer, SIZEOF(buffer) - 1)) <= 0) {
-        XCLOSE(pipefd[0]);
+        XCLOSE(&pipefd[0]);
         return;
     }
     buffer[bytes_read] = '\0';
-    XCLOSE(pipefd[0]);
+    XCLOSE(&pipefd[0]);
 
     status_program_pid = (pid_t)atoi2(buffer, bytes_read);
     if (status_program_pid <= 0) {
