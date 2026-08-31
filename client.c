@@ -171,8 +171,8 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
         }
 
         /* restore base dimensions */
-        *w = (int32)MAX(*w + client->base_w, client->min_w);
-        *h = (int32)MAX(*h + client->base_h, client->min_h);
+        *w = MAX(*w + client->base_w, client->min_w);
+        *h = MAX(*h + client->base_h, client->min_h);
         if (client->max_w) {
             *w = (int32)MIN(*w, client->max_w);
         }
@@ -396,8 +396,8 @@ client_new(Window window, XWindowAttributes *window_attributes) {
             client->y = monitor->win_y + monitor->win_h - client_height;
         }
     }
-    client->x = (int32)MAX(client->x, client->monitor->win_x);
-    client->y = (int32)MAX(client->y, client->monitor->win_y);
+    client->x = MAX(client->x, client->monitor->win_x);
+    client->y = MAX(client->y, client->monitor->win_y);
     client->border_pixels = border_pixels;
 
     window_changes.border_width = client->border_pixels;

@@ -243,9 +243,9 @@ user_more_masters(union Arg *arg) {
         number_slaves += 1;
     }
 
-    number_masters = (int32)MIN(monitor->number_masters + arg->i,
-                                number_slaves + 1);
-    number_masters = (int32)MAX(number_masters, 0);
+    number_masters = MIN(monitor->number_masters + arg->i,
+                         number_slaves + 1);
+    number_masters = MAX(number_masters, 0);
 
     tag = monitor->pertag->tag;
     monitor->number_masters = pertag->number_masters[tag] = number_masters;
@@ -445,8 +445,8 @@ user_mouse_resize(union Arg *arg) {
             event.xmotion.x += (-client->x - 2*client->border_pixels + 1);
             event.xmotion.y += (-client->y - 2*client->border_pixels + 1);
 
-            new_w = (int32)MAX(event.xmotion.x, 1);
-            new_h = (int32)MAX(event.xmotion.y, 1);
+            new_w = MAX(event.xmotion.x, 1);
+            new_h = MAX(event.xmotion.y, 1);
 
             monitor_floating
                 = !(live_monitor->layout[live_monitor->lay_i]->function);
