@@ -174,10 +174,10 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
         *w = MAX(*w + client->base_w, client->min_w);
         *h = MAX(*h + client->base_h, client->min_h);
         if (client->max_w) {
-            *w = (int32)MIN(*w, client->max_w);
+            *w = MIN(*w, client->max_w);
         }
         if (client->max_h) {
-            *h = (int32)MIN(*h, client->max_h);
+            *h = MIN(*h, client->max_h);
         }
     }
     success = *x != client->x || *y != client->y || *w != client->w
