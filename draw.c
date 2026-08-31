@@ -365,16 +365,10 @@ draw_rect(
 }
 
 int32
-draw_text(
-    Draw *draw,
-    int32 x,
-    int32 y,
-    uint32 w,
-    uint32 h,
-    uint32 lpad,
-    char *text,
-    int32 invert
-) {
+draw_text(Draw *draw,
+          int32 x, int32 y, uint32 w, uint32 h,
+          uint32 lpad,
+          char *text, int32 invert) {
     int32 render = 0;
     XftDraw *d = NULL;
     DwmFont *usedfont = NULL;
