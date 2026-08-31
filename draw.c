@@ -70,6 +70,10 @@ draw_resize(Draw *draw, uint32 w, uint32 h) {
 
 void
 draw_free(Draw *draw) {
+    if (draw == NULL) {
+        return;
+    }
+
     XRenderFreePicture(draw->dpy, draw->picture);
     XFreePixmap(draw->dpy, draw->drawable);
     XFreeGC(draw->dpy, draw->gc);
@@ -201,9 +205,7 @@ draw_scm_create(Draw *draw, char *clrnames[], uint32 alphas[], int64 clrcount) {
         return NULL;
     }
 
-    if ((ret = malloc2_zero(clrcount*SIZEOF(*ret))) == NULL) {
-        return NULL;
-    }
+    ret = malloc2_zero(clrcount*SIZEOF(*ret));
 
     for (int64 i = 0; i < clrcount; i += 1) {
         draw_clr_create(draw, &ret[i], clrnames[i], alphas[i]);
@@ -287,18 +289,17 @@ draw_picture_create_resized(Draw *draw,
     } else {
         Imlib_Image origin;
         Imlib_Image scaled;
-        origin = imlib_create_image_using_data((int32)srcw, (int32)srch,
-                                               (DATA32 *)src);
-        if (origin == NULL) {
+
+        if ((origin = imlib_create_image_using_data((int32)srcw, (int32)srch,
+                                                    (DATA32 *)src)) == NULL) {
             return None;
         }
 
         imlib_context_set_image(origin);
         imlib_image_set_has_alpha(1);
-        scaled = imlib_create_cropped_scaled_image(
-            0, 0, (int32)srcw, (int32)srch,
-            (int32)dstw, (int32)dsth
-        );
+        scaled = imlib_create_cropped_scaled_image(0, 0,
+                                                   (int32)srcw, (int32)srch,
+                                                   (int32)dstw, (int32)dsth);
         imlib_free_image_and_decache();
         if (scaled == NULL) {
             return None;
@@ -425,7 +426,10 @@ draw_text(Draw *draw,
             XSetForeground(draw->dpy, draw->gc, draw->scheme[ColBg].pixel);
         }
         XFillRectangle(draw->dpy, draw->drawable, draw->gc, x, y, w, h);
-        d = XftDrawCreate(draw->dpy, draw->drawable, draw->visual, draw->cmap);
+        if ((d = XftDrawCreate(draw->dpy, draw->drawable, draw->visual,
+                                draw->cmap)) == NULL) {
+            return 0;
+        }
         x += lpad;
         w -= lpad;
     }
@@ -436,8 +440,7 @@ draw_text(Draw *draw,
         }
     }
 
-    buffer = hb_buffer_create();
-    if (buffer == NULL) {
+    if ((buffer = hb_buffer_create()) == NULL) {
         if (d) {
             XftDrawDestroy(d);
         }
@@ -487,7 +490,16 @@ draw_text(Draw *draw,
                 XftResult result;
                 FcPattern *match = NULL;
 
-                FcCharSetAddChar(fccharset, (uint32)utf8codepoint);
+                if (fccharset == NULL) {
+                    error("Error: cannot create font character set.\n");
+                    fatal(EXIT_FAILURE);
+                }
+
+                if (!FcCharSetAddChar(fccharset, (uint32)utf8codepoint)) {
+                    FcCharSetDestroy(fccharset);
+                    error("Error: cannot add character to font set.\n");
+                    fatal(EXIT_FAILURE);
+                }
 
                 if (draw->fonts->pattern == NULL) {
                     error("Error: the first font in the cache must be loaded "
@@ -496,10 +508,31 @@ draw_text(Draw *draw,
                 }
 
                 fcpattern = FcPatternDuplicate(draw->fonts->pattern);
-                FcPatternAddCharSet(fcpattern, FC_CHARSET, fccharset);
-                FcPatternAddBool(fcpattern, FC_SCALABLE, FcTrue);
+                if (fcpattern == NULL) {
+                    FcCharSetDestroy(fccharset);
+                    error("Error: cannot duplicate font pattern.\n");
+                    fatal(EXIT_FAILURE);
+                }
 
-                FcConfigSubstitute(NULL, fcpattern, FcMatchPattern);
+                if (!FcPatternAddCharSet(fcpattern, FC_CHARSET, fccharset)) {
+                    FcCharSetDestroy(fccharset);
+                    FcPatternDestroy(fcpattern);
+                    error("Error: cannot add character set to font pattern.\n");
+                    fatal(EXIT_FAILURE);
+                }
+                if (!FcPatternAddBool(fcpattern, FC_SCALABLE, FcTrue)) {
+                    FcCharSetDestroy(fccharset);
+                    FcPatternDestroy(fcpattern);
+                    error("Error: cannot mark font pattern as scalable.\n");
+                    fatal(EXIT_FAILURE);
+                }
+
+                if (!FcConfigSubstitute(NULL, fcpattern, FcMatchPattern)) {
+                    FcCharSetDestroy(fccharset);
+                    FcPatternDestroy(fcpattern);
+                    error("Error: cannot substitute font pattern.\n");
+                    fatal(EXIT_FAILURE);
+                }
                 FcDefaultSubstitute(fcpattern);
                 match = XftFontMatch(draw->dpy, draw->screen, fcpattern,
                                       &result);
