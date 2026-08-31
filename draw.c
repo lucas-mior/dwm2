@@ -3,6 +3,12 @@
 #if !defined(DRAW_C)
 #define DRAW_C
 
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_draw 1
+#elif !defined(TESTING_draw)
+#define TESTING_draw 0
+#endif
+
 #include "cbase.h"
 #include "dwm.h"
 
@@ -839,5 +845,31 @@ draw_cur_create(Draw *draw, int32 shape) {
 
     return cur;
 }
+
+#if TESTING_draw
+
+#define CBASE_IMPLEMENT
+#include "cbase.h"
+
+int
+main(void) {
+    hb_glyph_position_t pos = {
+        .x_advance = 64,
+        .y_advance = -32,
+        .x_offset = 16,
+        .y_offset = -8,
+    };
+
+    hb_position_scale(&pos, 0.5);
+
+    ASSERT_EQUAL(pos.x_advance, 32);
+    ASSERT_EQUAL(pos.y_advance, -16);
+    ASSERT_EQUAL(pos.x_offset, 8);
+    ASSERT_EQUAL(pos.y_offset, -4);
+
+    exit(EXIT_SUCCESS);
+}
+
+#endif /* TESTING_draw */
 
 #endif /* DRAW_C */
