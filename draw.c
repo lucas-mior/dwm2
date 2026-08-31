@@ -10,15 +10,13 @@
 #define draw draw2
 
 Draw *
-draw_create(
-    Display *dpy,
-    int32 screen_here,
-    Window root_here,
-    uint32 w,
-    uint32 h,
-    Visual *visual_here,
-    uint32 depth_here,
-    Colormap cmap
+draw_create(Display *dpy,
+            int32 screen_here,
+            Window root_here,
+            uint32 w, uint32 h,
+            Visual *visual_here,
+            uint32 depth_here,
+            Colormap cmap
 ) {
     Draw *draw = malloc2_zero(SIZEOF(*draw));
 
@@ -230,13 +228,10 @@ draw_setscheme(Draw *draw, XftColor *scm) {
 }
 
 Picture
-draw_picture_create_resized(
-    Draw *draw,
-    char *src,
-    uint32 srcw,
-    uint32 srch,
-    uint32 dstw,
-    uint32 dsth
+draw_picture_create_resized(Draw *draw,
+                            char *src,
+                            uint32 srcw, uint32 srch,
+                            uint32 dstw, uint32 dsth
 ) {
     Pixmap pm;
     Picture pic;
@@ -245,11 +240,21 @@ draw_picture_create_resized(
     if (srcw <= (dstw << 1u) && srch <= (dsth << 1u)) {
         XTransform xf;
         XImage img = {
-            (int32)srcw, (int32)srch, 0, ZPixmap, src,
-            ImageByteOrder(draw->dpy), BitmapUnit(draw->dpy),
-            BitmapBitOrder(draw->dpy), 32,
-            32, 0, 32,
-            0, 0, 0,
+            (int32)srcw,
+            (int32)srch,
+            0,
+            ZPixmap,
+            src,
+            ImageByteOrder(draw->dpy),
+            BitmapUnit(draw->dpy),
+            BitmapBitOrder(draw->dpy),
+            32,
+            32,
+            0,
+            32,
+            0,
+            0,
+            0,
             .obdata = 0,
         };
         XInitImage(&img);
@@ -291,7 +296,8 @@ draw_picture_create_resized(
         imlib_context_set_image(origin);
         imlib_image_set_has_alpha(1);
         scaled = imlib_create_cropped_scaled_image(
-            0, 0, (int32)srcw, (int32)srch, (int32)dstw, (int32)dsth
+            0, 0, (int32)srcw, (int32)srch,
+            (int32)dstw, (int32)dsth
         );
         imlib_free_image_and_decache();
         if (scaled == NULL) {
@@ -302,12 +308,21 @@ draw_picture_create_resized(
 
         {
             XImage img = {
-                (int32)dstw, (int32)dsth, 0, ZPixmap,
+                (int32)dstw,
+                (int32)dsth,
+                0,
+                ZPixmap,
                 (char *)imlib_image_get_data_for_reading_only(),
-                ImageByteOrder(draw->dpy), BitmapUnit(draw->dpy),
-                BitmapBitOrder(draw->dpy), 32,
-                32, 0, 32,
-                0, 0, 0,
+                ImageByteOrder(draw->dpy),
+                BitmapUnit(draw->dpy),
+                BitmapBitOrder(draw->dpy),
+                32,
+                32,
+                0,
+                32,
+                0,
+                0,
+                0,
                 .obdata = 0,
             };
             XInitImage(&img);
@@ -333,14 +348,11 @@ draw_picture_create_resized(
 }
 
 void
-draw_rect(
-    Draw *draw,
-    int32 x,
-    int32 y,
-    uint32 w,
-    uint32 h,
-    int32 filled,
-    int32 invert
+draw_rect(Draw *draw,
+          int32 x, int32 y,
+          uint32 w, uint32 h,
+          int32 filled,
+          int32 invert
 ) {
     ulong pixel;
 
@@ -366,9 +378,11 @@ draw_rect(
 
 int32
 draw_text(Draw *draw,
-          int32 x, int32 y, uint32 w, uint32 h,
+          int32 x, int32 y,
+          uint32 w, uint32 h,
           uint32 lpad,
-          char *text, int32 invert) {
+          char *text,
+          int32 invert) {
     int32 render = 0;
     XftDraw *d = NULL;
     DwmFont *usedfont = NULL;
@@ -440,6 +454,12 @@ draw_text(Draw *draw,
         char *scan = NULL;
         int32 chunk_len = 0;
         uint32 glyph_count = 0;
+        hb_glyph_info_t *info;
+        hb_glyph_position_t *pos;
+        uint32 i = 0;
+        int32 overflow = 0;
+        uint32 ew = 0;
+        double last_scale = 1.0;
 
         utf8charlen = utf8_decode_raw((char *)text, &utf8codepoint, 4);
 
@@ -553,7 +573,7 @@ draw_text(Draw *draw,
             }
 
             if (f != usedfont) {
-                if (f != NULL) {
+                if (f) {
                     break;
                 }
                 if (chunk_len > 0) {
@@ -574,14 +594,8 @@ draw_text(Draw *draw,
         hb_buffer_guess_segment_properties(buffer);
         hb_shape(usedfont->hbfont, buffer, NULL, 0);
 
-        hb_glyph_info_t *info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
-        hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(buffer,
-                                                                 &glyph_count);
-
-        uint32 i = 0;
-        int32 overflow = 0;
-        uint32 ew = 0;
-        double last_scale = 1.0;
+        info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
+        pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
 
         for (i = 0; i < glyph_count; i += 1) {
             uint32 tmpw = 0;
@@ -591,7 +605,8 @@ draw_text(Draw *draw,
             int32 xft_adv = 0;
             int32 scaled = 0;
 
-            XftGlyphExtents(draw->dpy, usedfont->xfont, &glyph_index, 1, &ext);
+            XftGlyphExtents(draw->dpy, usedfont->xfont, &glyph_index, 1,
+                            &ext);
             xft_adv = ext.xOff;
 
             if (hb_adv > 0) {
@@ -713,13 +728,10 @@ draw_text(Draw *draw,
 }
 
 void
-draw_pic(
-    Draw *draw,
-    int32 x,
-    int32 y,
-    uint32 w,
-    uint32 h,
-    Picture pic
+draw_pic(Draw *draw,
+         int32 x, int32 y,
+         uint32 w, uint32 h,
+         Picture pic
 ) {
     if (draw == NULL) {
         return;
@@ -753,19 +765,18 @@ uint32
 draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n) {
     uint32 tmp = 0;
 
-    if (draw && draw->fonts && text && n) {
+    if (draw && draw->fonts && text && (n > 0)) {
         tmp = (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, (int32)n);
     }
     return (uint32)MIN(n, tmp);
 }
 
 void
-draw_font_getexts(
-    DwmFont *font,
-    char *text,
-    uint32 len,
-    uint32 *w,
-    uint32 *h
+draw_font_getexts(DwmFont *font,
+                  char *text,
+                  uint32 len,
+                  uint32 *w,
+                  uint32 *h
 ) {
     XGlyphInfo ext;
 
