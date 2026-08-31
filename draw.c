@@ -9,6 +9,20 @@
 // adhoc solution for draw shadowing global static draw from dwm.h
 #define draw draw2
 
+static void
+draw_create_pixmap(Draw *draw) {
+    draw->drawable = XCreatePixmap(draw->dpy, draw->root, draw->w, draw->h,
+                                   draw->depth);
+    draw->picture = XRenderCreatePicture(
+        draw->dpy,
+        draw->drawable,
+        XRenderFindVisualFormat(draw->dpy, draw->visual),
+        0,
+        NULL
+    );
+    return;
+}
+
 Draw *
 draw_create(Display *dpy,
             int32 screen_here,
@@ -23,20 +37,14 @@ draw_create(Display *dpy,
     draw->dpy = dpy;
     draw->screen = screen_here;
     draw->root = root_here;
-    draw->w = w;
-    draw->h = h;
     draw->visual = visual_here;
     draw->depth = depth_here;
     draw->cmap = cmap;
-    draw->drawable = XCreatePixmap(dpy, root_here, w, h, depth_here);
-    draw->picture = XRenderCreatePicture(
-        dpy,
-        draw->drawable,
-        XRenderFindVisualFormat(dpy, visual),
-        0,
-        NULL
-    );
 
+    draw->w = w;
+    draw->h = h;
+
+    draw_create_pixmap(draw);
     draw->gc = XCreateGC(dpy, draw->drawable, 0, NULL);
     XSetLineAttributes(dpy, draw->gc, 1, LineSolid, CapButt, JoinMiter);
 
@@ -57,14 +65,7 @@ draw_resize(Draw *draw, uint32 w, uint32 h) {
     if (draw->drawable) {
         XFreePixmap(draw->dpy, draw->drawable);
     }
-    draw->drawable = XCreatePixmap(draw->dpy, draw->root, w, h, draw->depth);
-    draw->picture = XRenderCreatePicture(
-        draw->dpy,
-        draw->drawable,
-        XRenderFindVisualFormat(draw->dpy, draw->visual),
-        0,
-        NULL
-    );
+    draw_create_pixmap(draw);
     return;
 }
 
