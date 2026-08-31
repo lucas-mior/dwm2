@@ -435,8 +435,8 @@ client_new(Window window, XWindowAttributes *window_attributes) {
     }
     client_set_client_tag_prop(client);
 
-    client->w = (int32)MIN(client->w, (screen_width*2) / 3);
-    client->h = (int32)MIN(client->h, (screen_height*2) / 3);
+    client->w = MIN(client->w, (screen_width*2) / 3);
+    client->h = MIN(client->h, (screen_height*2) / 3);
 
     client->stored_fx = client->x;
     client->stored_fy = client->y;
