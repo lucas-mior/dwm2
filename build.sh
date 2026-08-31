@@ -59,13 +59,6 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
 # CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
-CFLAGS="$CFLAGS -Wno-deprecated-declarations"
-
-if [ "$CC" = "clang" ] || [ "$CC" = "zig cc" ]; then
-    CFLAGS="$CFLAGS -Wno-cast-align"
-    CFLAGS="$CFLAGS -Wno-declaration-after-statement"
-    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
-fi
 
 LDFLAGS="$LDFLAGS -lm"
 LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
