@@ -22,13 +22,12 @@ draw_create_pixmap(Draw *ctx) {
     ctx->drawable = XCreatePixmap(ctx->dpy, ctx->root,
                                   (uint32)ctx->w, (uint32)ctx->h,
                                   (uint32)ctx->depth);
-    ctx->picture = XRenderCreatePicture(
-        ctx->dpy,
-        ctx->drawable,
-        XRenderFindVisualFormat(ctx->dpy, ctx->visual),
-        0,
-        NULL
-    );
+    ctx->picture = XRenderCreatePicture(ctx->dpy,
+                                        ctx->drawable,
+                                        XRenderFindVisualFormat(ctx->dpy,
+                                                                ctx->visual),
+                                        0,
+                                        NULL);
     return;
 }
 
