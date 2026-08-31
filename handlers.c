@@ -238,7 +238,8 @@ void
 handler_key_press(XEvent *event) {
     KeySym keysym;
     XKeyEvent *key_event = &event->xkey;
-    keysym = XKeycodeToKeysym(display, (KeyCode)key_event->keycode, 0);
+
+    keysym = XkbKeycodeToKeysym(display, (KeyCode)key_event->keycode, 0, 0);
 
     for (uint32 i = 0; i < LENGTH(keys); i += 1) {
         if (keysym == keys[i].keysym

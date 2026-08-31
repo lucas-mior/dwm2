@@ -7,6 +7,7 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
+#include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
@@ -67,24 +68,24 @@ typedef struct Draw {
 /* Drawable abstraction */
 static Draw *draw_create(
     Display *dpy,
-    int32 screen,
-    Window root,
+    int32 screen_number,
+    Window root_window,
     uint32 w,
     uint32 h,
-    Visual *visual,
-    uint32 depth,
+    Visual *draw_visual,
+    uint32 draw_depth,
     Colormap cmap
 );
-static void draw_resize(Draw *draw, uint32 w, uint32 h);
-static void draw_free(Draw *draw);
+static void draw_resize(Draw *ctx, uint32 w, uint32 h);
+static void draw_free(Draw *ctx);
 
 /* DwmFont abstraction */
-static DwmFont *draw_fontset_create(Draw *draw, char *fonts[],
+static DwmFont *draw_fontset_create(Draw *ctx, char *fonts[],
                                     int64 fontcount);
 static void draw_fontset_free(DwmFont *font);
-static uint32 draw_fontset_getwidth(Draw *draw, char *text);
+static uint32 draw_fontset_getwidth(Draw *ctx, char *text);
 static uint32 draw_fontset_getwidth_clamp(
-    Draw *draw,
+    Draw *ctx,
     char *text,
     uint32 n
 );
@@ -98,28 +99,28 @@ static void draw_font_getexts(
 
 /* Colorscheme abstraction */
 static void draw_clr_create(
-    Draw *draw,
+    Draw *ctx,
     XftColor *dest,
     char *clrname,
     uint32 alpha
 );
 static XftColor *draw_scm_create(
-    Draw *draw,
+    Draw *ctx,
     char *clrnames[],
     uint32 alphas[],
     int64 clrcount
 );
 
 /* Cursor abstraction */
-static Cursor draw_cur_create(Draw *draw, int32 shape);
+static Cursor draw_cur_create(Draw *ctx, int32 shape);
 
 /* Drawing context manipulation */
-static void draw_setfontset(Draw *draw, DwmFont *set);
-static void draw_setscheme(Draw *draw, XftColor *scm);
+static void draw_setfontset(Draw *ctx, DwmFont *set);
+static void draw_setscheme(Draw *ctx, XftColor *scm);
 
 static Picture draw_picture_create_resized(
-    Draw *draw,
-    char *src,
+    Draw *ctx,
+    uint32 *src,
     uint32 src_w,
     uint32 src_h,
     uint32 dst_w,
@@ -128,7 +129,7 @@ static Picture draw_picture_create_resized(
 
 /* Drawing functions */
 static void draw_rect(
-    Draw *draw,
+    Draw *ctx,
     int32 x,
     int32 y,
     uint32 w,
@@ -137,7 +138,7 @@ static void draw_rect(
     int32 invert
 );
 static int32 draw_text(
-    Draw *draw,
+    Draw *ctx,
     int32 x,
     int32 y,
     uint32 w,
@@ -147,7 +148,7 @@ static int32 draw_text(
     int32 invert
 );
 static void draw_pic(
-    Draw *draw,
+    Draw *ctx,
     int32 x,
     int32 y,
     uint32 w,
@@ -157,7 +158,7 @@ static void draw_pic(
 
 /* Map functions */
 static void draw_map(
-    Draw *draw,
+    Draw *ctx,
     Window win,
     int32 x,
     int32 y,

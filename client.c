@@ -1093,7 +1093,7 @@ client_update_icon(Client *client) {
     }
 
     client->icon
-        = draw_picture_create_resized(draw, (char *)pixel_find, width_find,
+        = draw_picture_create_resized(draw, pixel_find32, width_find,
                                       height_find, icon_width, icon_height);
     XFree(prop_return);
     return;
