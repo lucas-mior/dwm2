@@ -437,7 +437,7 @@ monitor_layout_grid(Monitor *monitor) {
 
 void
 monitor_layout_monocle(Monitor *monitor) {
-    uint32 number_clients = 0;
+    int32 number_clients = 0;
 
     for (Client *client = monitor->clients; client; client = client->next) {
         if (client_is_visible(client)) {
@@ -446,7 +446,7 @@ monitor_layout_monocle(Monitor *monitor) {
     }
 
     if (number_clients > 0) {
-        SNPRINTF(monitor->layout_symbol, "[%u]", number_clients);
+        SNPRINTF(monitor->layout_symbol, "[%d]", number_clients);
     }
 
     for (Client *client = client_next_tiled(monitor->clients); client;
