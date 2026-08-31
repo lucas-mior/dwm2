@@ -233,38 +233,41 @@ draw_setscheme(Draw *draw, XftColor *scm) {
 Picture
 draw_picture_create_resized(Draw *draw,
                             char *src,
-                            uint32 srcw, uint32 srch,
-                            uint32 dstw, uint32 dsth
+                            uint32 src_w, uint32 src_h,
+                            uint32 dst_w, uint32 dst_h
 ) {
-    Pixmap pm;
-    Picture pic;
-    GC gc;
+    enum {
+        argb_depth = 32,
+        argb_bits_per_pixel = 32,
+        xrender_fixed_shift = 16,
+        xrender_fixed_one = 1 << xrender_fixed_shift,
+        xrender_scale_limit = 2,
+    };
 
-    if (srcw <= (dstw << 1u) && srch <= (dsth << 1u)) {
+    if ((src_w <= dst_w*xrender_scale_limit)
+        && (src_h <= dst_h*xrender_scale_limit)) {
+        Pixmap pm;
+        Picture pic;
+        GC gc;
         XTransform xf;
         XImage img = {
-            (int32)srcw,
-            (int32)srch,
-            0,
-            ZPixmap,
-            src,
-            ImageByteOrder(draw->dpy),
-            BitmapUnit(draw->dpy),
-            BitmapBitOrder(draw->dpy),
-            32,
-            32,
-            0,
-            32,
-            0,
-            0,
-            0,
+            .width = (int32)src_w,
+            .height = (int32)src_h,
+            .format = ZPixmap,
+            .data = src,
+            .byte_order = ImageByteOrder(draw->dpy),
+            .bitmap_unit = BitmapUnit(draw->dpy),
+            .bitmap_bit_order = BitmapBitOrder(draw->dpy),
+            .bitmap_pad = argb_bits_per_pixel,
+            .depth = argb_depth,
+            .bits_per_pixel = argb_bits_per_pixel,
             .obdata = 0,
         };
         XInitImage(&img);
 
-        pm = XCreatePixmap(draw->dpy, draw->root, srcw, srch, 32);
+        pm = XCreatePixmap(draw->dpy, draw->root, src_w, src_h, argb_depth);
         gc = XCreateGC(draw->dpy, pm, 0, NULL);
-        XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, srcw, srch);
+        XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, src_w, src_h);
         XFreeGC(draw->dpy, gc);
 
         pic = XRenderCreatePicture(
@@ -277,21 +280,29 @@ draw_picture_create_resized(Draw *draw,
         XFreePixmap(draw->dpy, pm);
 
         XRenderSetPictureFilter(draw->dpy, pic, FilterBilinear, NULL, 0);
-        xf.matrix[0][0] = (int32)((srcw << 16u) / dstw);
+        xf.matrix[0][0] = (int32)((src_w << xrender_fixed_shift) / dst_w);
         xf.matrix[0][1] = 0;
         xf.matrix[0][2] = 0;
         xf.matrix[1][0] = 0;
-        xf.matrix[1][1] = (int32)((srch << 16u) / dsth);
+        xf.matrix[1][1] = (int32)((src_h << xrender_fixed_shift) / dst_h);
         xf.matrix[1][2] = 0;
         xf.matrix[2][0] = 0;
         xf.matrix[2][1] = 0;
-        xf.matrix[2][2] = 65536;
+        xf.matrix[2][2] = xrender_fixed_one;
         XRenderSetPictureTransform(draw->dpy, pic, &xf);
-    } else {
+
+        return pic;
+    }
+
+    {
+        Pixmap pm;
+        Picture pic;
+        GC gc;
         Imlib_Image origin;
         Imlib_Image scaled;
 
-        if ((origin = imlib_create_image_using_data((int32)srcw, (int32)srch,
+        if ((origin = imlib_create_image_using_data((int32)src_w,
+                                                    (int32)src_h,
                                                     (DATA32 *)src)) == NULL) {
             return None;
         }
@@ -299,8 +310,8 @@ draw_picture_create_resized(Draw *draw,
         imlib_context_set_image(origin);
         imlib_image_set_has_alpha(1);
         scaled = imlib_create_cropped_scaled_image(0, 0,
-                                                   (int32)srcw, (int32)srch,
-                                                   (int32)dstw, (int32)dsth);
+                                                   (int32)src_w, (int32)src_h,
+                                                   (int32)dst_w, (int32)dst_h);
         imlib_free_image_and_decache();
         if (scaled == NULL) {
             return None;
@@ -310,28 +321,24 @@ draw_picture_create_resized(Draw *draw,
 
         {
             XImage img = {
-                (int32)dstw,
-                (int32)dsth,
-                0,
-                ZPixmap,
-                (char *)imlib_image_get_data_for_reading_only(),
-                ImageByteOrder(draw->dpy),
-                BitmapUnit(draw->dpy),
-                BitmapBitOrder(draw->dpy),
-                32,
-                32,
-                0,
-                32,
-                0,
-                0,
-                0,
+                .width = (int32)dst_w,
+                .height = (int32)dst_h,
+                .format = ZPixmap,
+                .data = (char *)imlib_image_get_data_for_reading_only(),
+                .byte_order = ImageByteOrder(draw->dpy),
+                .bitmap_unit = BitmapUnit(draw->dpy),
+                .bitmap_bit_order = BitmapBitOrder(draw->dpy),
+                .bitmap_pad = argb_bits_per_pixel,
+                .depth = argb_depth,
+                .bits_per_pixel = argb_bits_per_pixel,
                 .obdata = 0,
             };
             XInitImage(&img);
 
-            pm = XCreatePixmap(draw->dpy, draw->root, dstw, dsth, 32);
+            pm = XCreatePixmap(draw->dpy, draw->root, dst_w, dst_h,
+                               argb_depth);
             gc = XCreateGC(draw->dpy, pm, 0, NULL);
-            XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, dstw, dsth);
+            XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, dst_w, dst_h);
             imlib_free_image_and_decache();
             XFreeGC(draw->dpy, gc);
 
@@ -344,9 +351,9 @@ draw_picture_create_resized(Draw *draw,
             );
             XFreePixmap(draw->dpy, pm);
         }
-    }
 
-    return pic;
+        return pic;
+    }
 }
 
 void
