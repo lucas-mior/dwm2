@@ -1006,14 +1006,14 @@ monitor_from_rectangle(int32 x, int32 y, int32 w, int32 h) {
     int32 max_area = 0;
 
     for (Monitor *mon = monitors; mon; mon = mon->next) {
-        int32 min_x = (int32)MIN(x + w, mon->win_x + mon->win_w);
-        int32 min_y = (int32)MIN(y + h, mon->win_y + mon->win_h);
+        int32 min_x = MIN(x + w, mon->win_x + mon->win_w);
+        int32 min_y = MIN(y + h, mon->win_y + mon->win_h);
 
-        int32 max_x = (int32)MAX(x, mon->win_x);
-        int32 ax = (int32)MAX(0, min_x - max_x);
+        int32 max_x = MAX(x, mon->win_x);
+        int32 ax = MAX(0, min_x - max_x);
 
-        int32 max_y = (int32)MAX(y, mon->win_y);
-        int32 ay = (int32)MAX(0, min_y - max_y);
+        int32 max_y = MAX(y, mon->win_y);
+        int32 ay = MAX(0, min_y - max_y);
 
         if ((a = ax*ay) > max_area) {
             max_area = a;
