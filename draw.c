@@ -385,6 +385,15 @@ draw_rect(Draw *draw,
     return;
 }
 
+static void
+hb_position_scale(hb_glyph_position_t *pos, double scale) {
+    pos->x_advance = (hb_position_t)(pos->x_advance*scale);
+    pos->y_advance = (hb_position_t)(pos->y_advance*scale);
+    pos->x_offset = (hb_position_t)(pos->x_offset*scale);
+    pos->y_offset = (hb_position_t)(pos->y_offset*scale);
+    return;
+}
+
 int32
 draw_text(Draw *draw,
           int32 x, int32 y,
@@ -669,14 +678,7 @@ draw_text(Draw *draw,
                 && (abs(hb_adv - xft_adv) > glyph_width_tolerance)) {
                 double scale = (double)xft_adv / (double)hb_adv;
 
-                pos[i].x_advance = (hb_position_t)(
-                    pos[i].x_advance*scale
-                );
-                pos[i].y_advance = (hb_position_t)(
-                    pos[i].y_advance*scale
-                );
-                pos[i].x_offset = (hb_position_t)(pos[i].x_offset*scale);
-                pos[i].y_offset = (hb_position_t)(pos[i].y_offset*scale);
+                hb_position_scale(&pos[i], scale);
                 tmpw = (uint32)xft_adv;
                 last_scale = scale;
                 scaled = true;
@@ -686,18 +688,7 @@ draw_text(Draw *draw,
                 && (hb_adv == 0)
                 && (ext.xOff == 0)
                 && (last_scale != 1.0)) {
-                pos[i].x_advance = (hb_position_t)(
-                    pos[i].x_advance*last_scale
-                );
-                pos[i].y_advance = (hb_position_t)(
-                    pos[i].y_advance*last_scale
-                );
-                pos[i].x_offset = (hb_position_t)(
-                    pos[i].x_offset*last_scale
-                );
-                pos[i].y_offset = (hb_position_t)(
-                    pos[i].y_offset*last_scale
-                );
+                hb_position_scale(&pos[i], last_scale);
                 tmpw = 0;
                 scaled = true;
             }
