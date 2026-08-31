@@ -263,7 +263,6 @@ draw_picture_create_resized(Draw *ctx,
     uint32 src_xh;
     uint32 dst_xw;
     uint32 dst_xh;
-    uint32 x_depth;
 
     if ((ctx == NULL) || (src == NULL)) {
         return None;
@@ -276,7 +275,6 @@ draw_picture_create_resized(Draw *ctx,
     src_xh = (uint32)src_h;
     dst_xw = (uint32)dst_w;
     dst_xh = (uint32)dst_h;
-    x_depth = (uint32)argb_depth;
 
     if ((src_w <= dst_w*xrender_scale_limit)
         && (src_h <= dst_h*xrender_scale_limit)) {
@@ -299,7 +297,8 @@ draw_picture_create_resized(Draw *ctx,
         };
         XInitImage(&img);
 
-        pm = XCreatePixmap(ctx->dpy, ctx->root, src_xw, src_xh, x_depth);
+        pm = XCreatePixmap(ctx->dpy, ctx->root, src_xw, src_xh,
+                           (uint32)argb_depth);
         gc = XCreateGC(ctx->dpy, pm, 0, NULL);
         XPutImage(ctx->dpy, pm, gc, &img, 0, 0, 0, 0, src_xw, src_xh);
         XFreeGC(ctx->dpy, gc);
@@ -369,7 +368,7 @@ draw_picture_create_resized(Draw *ctx,
             XInitImage(&img);
 
             pm = XCreatePixmap(ctx->dpy, ctx->root, dst_xw, dst_xh,
-                               x_depth);
+                               (uint32)argb_depth);
             gc = XCreateGC(ctx->dpy, pm, 0, NULL);
             XPutImage(ctx->dpy, pm, gc, &img, 0, 0, 0, 0, dst_xw, dst_xh);
             imlib_free_image_and_decache();
@@ -397,8 +396,6 @@ draw_rect(Draw *ctx,
           int32 invert
 ) {
     ulong pixel;
-    uint32 xw;
-    uint32 xh;
 
     if ((ctx == NULL) || (ctx->scheme == NULL)) {
         return;
@@ -406,8 +403,6 @@ draw_rect(Draw *ctx,
     if ((w <= 0) || (h <= 0)) {
         return;
     }
-    xw = (uint32)w;
-    xh = (uint32)h;
 
     if (invert) {
         pixel = ctx->scheme[ColBg].pixel;
@@ -417,9 +412,11 @@ draw_rect(Draw *ctx,
     XSetForeground(ctx->dpy, ctx->gc, pixel);
 
     if (filled) {
-        XFillRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y, xw, xh);
+        XFillRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y,
+                       (uint32)w, (uint32)h);
     } else {
-        XDrawRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y, xw - 1, xh - 1);
+        XDrawRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y,
+                       (uint32)(w - 1), (uint32)(h - 1));
     }
     return;
 }
@@ -482,16 +479,14 @@ draw_text(Draw *ctx,
     }
 
     if (render) {
-        uint32 xw = (uint32)w;
-        uint32 xh = (uint32)h;
-
         if (invert) {
             XSetForeground(ctx->dpy, ctx->gc, ctx->scheme[ColFg].pixel);
         } else {
             XSetForeground(ctx->dpy, ctx->gc, ctx->scheme[ColBg].pixel);
         }
 
-        XFillRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y, xw, xh);
+        XFillRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y,
+                       (uint32)w, (uint32)h);
         if ((d = XftDrawCreate(ctx->dpy, ctx->drawable, ctx->visual,
                                 ctx->cmap)) == NULL) {
             return 0;
@@ -815,9 +810,6 @@ draw_pic(Draw *ctx,
          int32 w, int32 h,
          Picture pic
 ) {
-    uint32 xw;
-    uint32 xh;
-
     if (ctx == NULL) {
         return;
     }
@@ -825,19 +817,13 @@ draw_pic(Draw *ctx,
         return;
     }
 
-    xw = (uint32)w;
-    xh = (uint32)h;
-
     XRenderComposite(ctx->dpy, PictOpOver, pic, None, ctx->picture, 0, 0,
-                     0, 0, x, y, xw, xh);
+                     0, 0, x, y, (uint32)w, (uint32)h);
     return;
 }
 
 static void
 draw_map(Draw *ctx, Window win, int32 x, int32 y, int32 w, int32 h) {
-    uint32 xw;
-    uint32 xh;
-
     if (ctx == NULL) {
         return;
     }
@@ -845,10 +831,8 @@ draw_map(Draw *ctx, Window win, int32 x, int32 y, int32 w, int32 h) {
         return;
     }
 
-    xw = (uint32)w;
-    xh = (uint32)h;
-
-    XCopyArea(ctx->dpy, ctx->drawable, win, ctx->gc, x, y, xw, xh, x, y);
+    XCopyArea(ctx->dpy, ctx->drawable, win, ctx->gc, x, y,
+              (uint32)w, (uint32)h, x, y);
     XSync(ctx->dpy, False);
     return;
 }
