@@ -23,22 +23,22 @@ draw_create_pixmap(Draw *draw) {
     return;
 }
 
-Draw *
+static Draw *
 draw_create(Display *dpy,
-            int32 screen_here,
-            Window root_here,
+            int32 screen,
+            Window root,
             uint32 w, uint32 h,
-            Visual *visual_here,
-            uint32 depth_here,
+            Visual *visual,
+            uint32 depth,
             Colormap cmap
 ) {
     Draw *draw = malloc2_zero(SIZEOF(*draw));
 
     draw->dpy = dpy;
-    draw->screen = screen_here;
-    draw->root = root_here;
-    draw->visual = visual_here;
-    draw->depth = depth_here;
+    draw->screen = screen;
+    draw->root = root;
+    draw->visual = visual;
+    draw->depth = depth;
     draw->cmap = cmap;
 
     draw->w = w;
@@ -51,7 +51,7 @@ draw_create(Display *dpy,
     return draw;
 }
 
-void
+static void
 draw_resize(Draw *draw, uint32 w, uint32 h) {
     if (draw == NULL) {
         return;
@@ -69,7 +69,7 @@ draw_resize(Draw *draw, uint32 w, uint32 h) {
     return;
 }
 
-void
+static void
 draw_free(Draw *draw) {
     if (draw == NULL) {
         return;
@@ -154,7 +154,7 @@ xfont_free(DwmFont *font) {
     return;
 }
 
-DwmFont *
+static DwmFont *
 draw_fontset_create(Draw *draw, char *fonts[], int64 fontcount) {
     DwmFont *cur;
     DwmFont *ret = NULL;
@@ -172,7 +172,7 @@ draw_fontset_create(Draw *draw, char *fonts[], int64 fontcount) {
     return (draw->fonts = ret);
 }
 
-void
+static void
 draw_fontset_free(DwmFont *font) {
     if (font) {
         draw_fontset_free(font->next);
@@ -181,7 +181,7 @@ draw_fontset_free(DwmFont *font) {
     return;
 }
 
-void
+static void
 draw_clr_create(Draw *draw, XftColor *dest, char *clrname, uint32 alpha) {
     if ((draw == NULL) || (dest == NULL) || (clrname == NULL)) {
         return;
@@ -197,7 +197,7 @@ draw_clr_create(Draw *draw, XftColor *dest, char *clrname, uint32 alpha) {
     return;
 }
 
-XftColor *
+static XftColor *
 draw_scm_create(Draw *draw, char *clrnames[], uint32 alphas[], int64 clrcount) {
     XftColor *ret;
 
@@ -214,7 +214,7 @@ draw_scm_create(Draw *draw, char *clrnames[], uint32 alphas[], int64 clrcount) {
     return ret;
 }
 
-void
+static void
 draw_setfontset(Draw *draw, DwmFont *set) {
     if (draw) {
         draw->fonts = set;
@@ -222,7 +222,7 @@ draw_setfontset(Draw *draw, DwmFont *set) {
     return;
 }
 
-void
+static void
 draw_setscheme(Draw *draw, XftColor *scm) {
     if (draw) {
         draw->scheme = scm;
@@ -230,7 +230,7 @@ draw_setscheme(Draw *draw, XftColor *scm) {
     return;
 }
 
-Picture
+static Picture
 draw_picture_create_resized(Draw *draw,
                             char *src,
                             uint32 src_w, uint32 src_h,
@@ -356,7 +356,7 @@ draw_picture_create_resized(Draw *draw,
     }
 }
 
-void
+static void
 draw_rect(Draw *draw,
           int32 x, int32 y,
           uint32 w, uint32 h,
@@ -394,7 +394,7 @@ hb_position_scale(hb_glyph_position_t *pos, double scale) {
     return;
 }
 
-int32
+static int32
 draw_text(Draw *draw,
           int32 x, int32 y,
           uint32 w, uint32 h,
@@ -766,7 +766,7 @@ draw_text(Draw *draw,
     return x;
 }
 
-void
+static void
 draw_pic(Draw *draw,
          int32 x, int32 y,
          uint32 w, uint32 h,
@@ -781,7 +781,7 @@ draw_pic(Draw *draw,
     return;
 }
 
-void
+static void
 draw_map(Draw *draw, Window win, int32 x, int32 y, uint32 w, uint32 h) {
     if (draw == NULL) {
         return;
@@ -792,7 +792,7 @@ draw_map(Draw *draw, Window win, int32 x, int32 y, uint32 w, uint32 h) {
     return;
 }
 
-uint32
+static uint32
 draw_fontset_getwidth(Draw *draw, char *text) {
     if ((draw == NULL) || (draw->fonts == NULL) || (text == NULL)) {
         return 0;
@@ -800,7 +800,7 @@ draw_fontset_getwidth(Draw *draw, char *text) {
     return (uint32)draw_text(draw, 0, 0, 0, 0, 0, text, 0);
 }
 
-uint32
+static uint32
 draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n) {
     uint32 tmp = 0;
 
@@ -810,7 +810,7 @@ draw_fontset_getwidth_clamp(Draw *draw, char *text, uint32 n) {
     return (uint32)MIN(n, tmp);
 }
 
-void
+static void
 draw_font_getexts(DwmFont *font,
                   char *text,
                   uint32 len,
@@ -834,7 +834,7 @@ draw_font_getexts(DwmFont *font,
     return;
 }
 
-Cursor
+static Cursor
 draw_cur_create(Draw *draw, int32 shape) {
     Cursor cur;
 
