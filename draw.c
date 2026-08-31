@@ -14,20 +14,14 @@
 
 static void
 draw_create_pixmap(Draw *ctx) {
-    uint32 w;
-    uint32 h;
-    uint32 x_depth;
-
     ASSERT(ctx != NULL);
     ASSERT_POSITIVE(ctx->w);
     ASSERT_POSITIVE(ctx->h);
     ASSERT_POSITIVE(ctx->depth);
 
-    w = (uint32)ctx->w;
-    h = (uint32)ctx->h;
-    x_depth = (uint32)ctx->depth;
-
-    ctx->drawable = XCreatePixmap(ctx->dpy, ctx->root, w, h, x_depth);
+    ctx->drawable = XCreatePixmap(ctx->dpy, ctx->root,
+                                  (uint32)ctx->w, (uint32)ctx->h,
+                                  (uint32)ctx->depth);
     ctx->picture = XRenderCreatePicture(
         ctx->dpy,
         ctx->drawable,
