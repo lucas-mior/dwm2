@@ -282,9 +282,8 @@ draw_picture_create_resized(
     } else {
         Imlib_Image origin;
         Imlib_Image scaled;
-        origin = imlib_create_image_using_data(
-            (int32)srcw, (int32)srch, (DATA32 *)src
-        );
+        origin = imlib_create_image_using_data((int32)srcw, (int32)srch,
+                                               (DATA32 *)src);
         if (origin == NULL) {
             return None;
         }
@@ -301,31 +300,33 @@ draw_picture_create_resized(
         imlib_context_set_image(scaled);
         imlib_image_set_has_alpha(1);
 
-        XImage img = {
-            (int32)dstw, (int32)dsth, 0, ZPixmap,
-            (char *)imlib_image_get_data_for_reading_only(),
-            ImageByteOrder(draw->dpy), BitmapUnit(draw->dpy),
-            BitmapBitOrder(draw->dpy), 32,
-            32, 0, 32,
-            0, 0, 0,
-            .obdata = 0,
-        };
-        XInitImage(&img);
+        {
+            XImage img = {
+                (int32)dstw, (int32)dsth, 0, ZPixmap,
+                (char *)imlib_image_get_data_for_reading_only(),
+                ImageByteOrder(draw->dpy), BitmapUnit(draw->dpy),
+                BitmapBitOrder(draw->dpy), 32,
+                32, 0, 32,
+                0, 0, 0,
+                .obdata = 0,
+            };
+            XInitImage(&img);
 
-        pm = XCreatePixmap(draw->dpy, draw->root, dstw, dsth, 32);
-        gc = XCreateGC(draw->dpy, pm, 0, NULL);
-        XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, dstw, dsth);
-        imlib_free_image_and_decache();
-        XFreeGC(draw->dpy, gc);
+            pm = XCreatePixmap(draw->dpy, draw->root, dstw, dsth, 32);
+            gc = XCreateGC(draw->dpy, pm, 0, NULL);
+            XPutImage(draw->dpy, pm, gc, &img, 0, 0, 0, 0, dstw, dsth);
+            imlib_free_image_and_decache();
+            XFreeGC(draw->dpy, gc);
 
-        pic = XRenderCreatePicture(
-            draw->dpy,
-            pm,
-            XRenderFindStandardFormat(draw->dpy, PictStandardARGB32),
-            0,
-            NULL
-        );
-        XFreePixmap(draw->dpy, pm);
+            pic = XRenderCreatePicture(
+                draw->dpy,
+                pm,
+                XRenderFindStandardFormat(draw->dpy, PictStandardARGB32),
+                0,
+                NULL
+            );
+            XFreePixmap(draw->dpy, pm);
+        }
     }
 
     return pic;
