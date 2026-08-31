@@ -94,8 +94,8 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
     Monitor *monitor = client->monitor;
     int32 success;
 
-    *w = (int32)MAX(1, *w);
-    *h = (int32)MAX(1, *h);
+    *w = MAX(1, *w);
+    *h = MAX(1, *h);
 
     if (interact) {
         if (*x > screen_width) {
