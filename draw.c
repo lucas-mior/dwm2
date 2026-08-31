@@ -6,9 +6,6 @@
 #include "cbase.h"
 #include "dwm.h"
 
-// adhoc solution for draw shadowing global static draw from dwm.h
-#define draw draw2
-
 static void
 draw_create_pixmap(Draw *draw) {
     draw->drawable = XCreatePixmap(draw->dpy, draw->root, draw->w, draw->h,
@@ -842,7 +839,5 @@ draw_cur_create(Draw *draw, int32 shape) {
 
     return cur;
 }
-
-#undef draw
 
 #endif /* DRAW_C */
