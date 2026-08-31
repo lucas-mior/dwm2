@@ -383,9 +383,8 @@ draw_text(Draw *draw,
           uint32 lpad,
           char *text,
           int32 invert) {
-    int32 render = 0;
+    bool render = false;
     XftDraw *d = NULL;
-    DwmFont *usedfont = NULL;
     hb_buffer_t *buffer = NULL;
     int32 ellipsis_x = 0;
     uint32 ellipsis_w = 0;
@@ -398,7 +397,7 @@ draw_text(Draw *draw,
     static uint32 ellipsis_width = 0;
 
     if (x || y || w || h) {
-        render = 1;
+        render = true;
     }
 
     if (draw == NULL) {
@@ -446,18 +445,18 @@ draw_text(Draw *draw,
     }
 
     while (*text) {
-        uint32 utf8codepoint = 0;
-        int32 utf8charlen = 0;
-        DwmFont *curfont = NULL;
+        uint32 utf8codepoint;
+        int32 utf8charlen;
+        DwmFont *curfont;
         DwmFont *nextfont = NULL;
-        int32 charexists = 0;
-        char *scan = NULL;
+        DwmFont *usedfont;
+        bool charexists = false;
         int32 chunk_len = 0;
         uint32 glyph_count = 0;
         hb_glyph_info_t *info;
         hb_glyph_position_t *pos;
         uint32 i = 0;
-        int32 overflow = 0;
+        bool overflow = false;
         uint32 ew = 0;
         double last_scale = 1.0;
 
@@ -467,22 +466,22 @@ draw_text(Draw *draw,
             if (XftCharExists(draw->dpy, curfont->xfont,
                               (uint32)utf8codepoint)) {
                 nextfont = curfont;
-                charexists = 1;
+                charexists = true;
                 break;
             }
         }
 
-        if (charexists == 0) {
-            int32 is_missing = 0;
-            int32 k = 0;
-            for (k = 0; k < nomatches_len; k += 1) {
+        if (!charexists) {
+            bool is_missing = false;
+
+            for (int32 k = 0; k < nomatches_len; k += 1) {
                 if (utf8codepoint == nomatches.codepoint[k]) {
-                    is_missing = 1;
+                    is_missing = true;
                     break;
                 }
             }
 
-            if (is_missing == 0) {
+            if (!is_missing) {
                 FcCharSet *fccharset = FcCharSetCreate();
                 FcPattern *fcpattern = NULL;
                 XftResult result;
@@ -538,51 +537,54 @@ draw_text(Draw *draw,
         if ((usedfont == NULL) || (usedfont->hbfont == NULL)) {
             break;
         }
-        scan = (char *)text;
 
-        while (*scan) {
-            uint32 cp = 0;
-            int32 clen = 0;
-            DwmFont *f = NULL;
-            int32 is_combo = 0;
+        {
+            char *scan = (char *)text;
 
-            clen = utf8_decode_raw(scan, &cp, 4);
+            while (*scan) {
+                uint32 cp;
+                int32 clen;
+                DwmFont *f;
+                bool is_combo = false;
 
-            /* Preserve complex emoji joiners and variation selectors in the
-             * current chunk. */
-            if (cp == 0x200D) {
-                is_combo = 1;
-            } else if (cp == 0x200C) {
-                is_combo = 1;
-            } else if (cp >= 0xFE00 && cp <= 0xFE0F) {
-                is_combo = 1;
-            } else if (cp >= 0x1F3FB && cp <= 0x1F3FF) {
-                is_combo = 1;
-            } else if (cp >= 0xE0020 && cp <= 0xE007F) {
-                is_combo = 1;
-            }
+                clen = utf8_decode_raw(scan, &cp, 4);
 
-            if (is_combo) {
-                f = usedfont;
-            } else {
-                for (f = draw->fonts; f; f = f->next) {
-                    if (XftCharExists(draw->dpy, f->xfont, (uint32)cp)) {
+                /* Preserve complex emoji joiners and variation selectors in
+                 * the current chunk. */
+                if (cp == 0x200D) {
+                    is_combo = true;
+                } else if (cp == 0x200C) {
+                    is_combo = true;
+                } else if (cp >= 0xFE00 && cp <= 0xFE0F) {
+                    is_combo = true;
+                } else if (cp >= 0x1F3FB && cp <= 0x1F3FF) {
+                    is_combo = true;
+                } else if (cp >= 0xE0020 && cp <= 0xE007F) {
+                    is_combo = true;
+                }
+
+                if (is_combo) {
+                    f = usedfont;
+                } else {
+                    for (f = draw->fonts; f; f = f->next) {
+                        if (XftCharExists(draw->dpy, f->xfont, (uint32)cp)) {
+                            break;
+                        }
+                    }
+                }
+
+                if (f != usedfont) {
+                    if (f) {
+                        break;
+                    }
+                    if (chunk_len > 0) {
                         break;
                     }
                 }
-            }
 
-            if (f != usedfont) {
-                if (f) {
-                    break;
-                }
-                if (chunk_len > 0) {
-                    break;
-                }
+                scan += clen;
+                chunk_len += clen;
             }
-
-            scan += clen;
-            chunk_len += clen;
         }
 
         if (chunk_len == 0) {
@@ -598,12 +600,12 @@ draw_text(Draw *draw,
         pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
 
         for (i = 0; i < glyph_count; i += 1) {
-            uint32 tmpw = 0;
             FT_UInt glyph_index = info[i].codepoint;
             XGlyphInfo ext;
             int32 hb_adv = pos[i].x_advance >> 6;
-            int32 xft_adv = 0;
-            int32 scaled = 0;
+            int32 xft_adv;
+            uint32 tmpw;
+            bool scaled = false;
 
             XftGlyphExtents(draw->dpy, usedfont->xfont, &glyph_index, 1,
                             &ext);
@@ -626,12 +628,12 @@ draw_text(Draw *draw,
                             pos[i].y_offset*last_scale
                         );
                         tmpw = (uint32)xft_adv;
-                        scaled = 1;
+                        scaled = true;
                     }
                 }
             }
 
-            if (scaled == 0) {
+            if (!scaled) {
                 if (hb_adv == 0) {
                     if (ext.xOff == 0) {
                         if (last_scale != 1.0) {
@@ -648,13 +650,13 @@ draw_text(Draw *draw,
                                 pos[i].y_offset*last_scale
                             );
                             tmpw = 0;
-                            scaled = 1;
+                            scaled = true;
                         }
                     }
                 }
             }
 
-            if (scaled == 0) {
+            if (!scaled) {
                 tmpw = (uint32)hb_adv;
                 last_scale = 1.0;
             }
@@ -664,7 +666,7 @@ draw_text(Draw *draw,
                 ellipsis_w = w - ew;
             }
             if (ew + tmpw > w) {
-                overflow = 1;
+                overflow = true;
                 break;
             }
             ew += tmpw;
@@ -676,7 +678,7 @@ draw_text(Draw *draw,
                 int32 cx = x;
                 int32 ty;
 
-                XftColor *fg_color = NULL;
+                XftColor *fg_color;
                 uint32 j = 0;
 
                 specs = malloc2_zero(i*SIZEOF(*specs));
