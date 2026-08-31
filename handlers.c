@@ -142,7 +142,7 @@ handler_configure_notify(XEvent *event) {
     screen_height = configure_event->height;
 
     if (update_geometry() || dirty) {
-        draw_resize(draw, (uint32)screen_width, bar_height);
+        draw_resize(draw, screen_width, bar_height);
         configure_bars_windows();
         for (Monitor *mon = monitors; mon; mon = mon->next) {
             for (Client *client = mon->clients; client; client = client->next) {
@@ -152,10 +152,11 @@ handler_configure_notify(XEvent *event) {
                 }
             }
             XMoveResizeWindow(display, mon->top_bar_window, mon->win_x,
-                              mon->top_bar_y, (uint32)mon->win_w, bar_height);
+                              mon->top_bar_y, (uint32)mon->win_w,
+                              (uint32)bar_height);
             XMoveResizeWindow(display, mon->bottom_bar_window, mon->win_x,
                               mon->bottom_bar_y, (uint32)mon->win_w,
-                              bar_height);
+                              (uint32)bar_height);
         }
         client_focus(NULL);
         monitor_arrange(NULL);

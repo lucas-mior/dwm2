@@ -158,18 +158,18 @@ monitor_draw_bars(Monitor *monitor) {
     int32 w;
     int32 text_pixels = 0;
     int32 urgent = 0;
-    uint32 padding = (uint32)text_padding / 2;
+    int32 padding = text_padding / 2;
     char tags_display[TAG_DISPLAY_SIZE] = {0};
     char *masters_names[LENGTH(tags)] = {0};
     Client *clients_with_icon[LENGTH(tags)] = {0};
 
     if (monitor->show_bottom_bar) {
         draw_setscheme(draw, scheme[SCHEME_NORMAL]);
-        draw_rect(draw, 0, 0, (uint32)monitor->win_w, bar_height, true, true);
+        draw_rect(draw, 0, 0, monitor->win_w, bar_height, true, true);
         if (monitor == live_monitor) {
             draw_status_text(&status_bottom, monitor->win_w);
         }
-        draw_map(draw, monitor->bottom_bar_window, 0, 0, (uint32)monitor->win_w,
+        draw_map(draw, monitor->bottom_bar_window, 0, 0, monitor->win_w,
                  bar_height);
     }
 
@@ -178,7 +178,7 @@ monitor_draw_bars(Monitor *monitor) {
     }
 
     draw_setscheme(draw, scheme[SCHEME_NORMAL]);
-    draw_rect(draw, 0, 0, (uint32)monitor->win_w, bar_height, true, true);
+    draw_rect(draw, 0, 0, monitor->win_w, bar_height, true, true);
 
     /* top bar: draw status first so it can be overdrawn by tags later */
     /* only drawn status on selected monitor */
@@ -233,17 +233,17 @@ monitor_draw_bars(Monitor *monitor) {
             draw_setscheme(draw, scheme[SCHEME_NORMAL]);
         }
 
-        draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding, tags_display,
+        draw_text(draw, draw_x, 0, w, bar_height, padding, tags_display,
                   urgent & 1 << i);
         draw_x += w;
 
         if (client_with_icon) {
             Picture icon = client_with_icon->icon;
-            uint32 icon_width = client_with_icon->icon_width;
-            uint32 icon_height = client_with_icon->icon_height;
+            int32 icon_width = client_with_icon->icon_width;
+            int32 icon_height = client_with_icon->icon_height;
 
-            draw_text(draw, draw_x, 0, icon_width + padding, bar_height, 0, " ",
-                      urgent & 1 << i);
+            draw_text(draw, draw_x, 0, icon_width + padding,
+                      bar_height, 0, " ", urgent & 1 << i);
             draw_pic(draw, draw_x, (bar_height - icon_height) / 2, icon_width,
                      icon_height, icon);
             draw_x += icon_width + padding;
@@ -253,10 +253,10 @@ monitor_draw_bars(Monitor *monitor) {
     }
     w = get_text_pixels(monitor->layout_symbol);
     draw_setscheme(draw, scheme[SCHEME_NORMAL]);
-    draw_x = draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding,
+    draw_x = draw_text(draw, draw_x, 0, w, bar_height, padding,
                        monitor->layout_symbol, false);
 
-    if ((w = monitor->win_w - text_pixels - draw_x) > (int32)bar_height) {
+    if ((w = monitor->win_w - text_pixels - draw_x) > bar_height) {
         int32 boxs = draw->fonts->h / 9;
         int32 boxw = draw->fonts->h / 6 + 2;
 
@@ -283,18 +283,18 @@ monitor_draw_bars(Monitor *monitor) {
                      client_tag_names[3], client_tag_names[4],
                      client_tag_names[5], client->name);
 
-            draw_text(draw, draw_x, 0, (uint32)w, bar_height, padding,
+            draw_text(draw, draw_x, 0, w, bar_height, padding,
                       buffer, 0);
             if (monitor->selected_client->is_floating) {
-                draw_rect(draw, draw_x + boxs, boxs, (uint32)boxw, (uint32)boxw,
+                draw_rect(draw, draw_x + boxs, boxs, boxw, boxw,
                           monitor->selected_client->is_fixed, 0);
             }
         } else {
             draw_setscheme(draw, scheme[SCHEME_NORMAL]);
-            draw_rect(draw, draw_x, 0, (uint32)w, bar_height, true, true);
+            draw_rect(draw, draw_x, 0, w, bar_height, true, true);
         }
     }
-    draw_map(draw, monitor->top_bar_window, 0, 0, (uint32)monitor->win_w,
+    draw_map(draw, monitor->top_bar_window, 0, 0, monitor->win_w,
              bar_height);
 
     return;
@@ -566,9 +566,9 @@ monitor_update_bar_position(Monitor *monitor) {
     if (monitor->show_top_bar) {
         monitor->win_h -= bar_height;
         monitor->top_bar_y = monitor->win_y;
-        monitor->win_y = monitor->win_y + (int32)bar_height;
+        monitor->win_y = monitor->win_y + bar_height;
     } else {
-        monitor->top_bar_y = -(int32)bar_height;
+        monitor->top_bar_y = -bar_height;
     }
 
     if (monitor->show_bottom_bar) {
@@ -576,7 +576,7 @@ monitor_update_bar_position(Monitor *monitor) {
         monitor->bottom_bar_y = monitor->win_y + monitor->win_h;
         monitor->win_y = monitor->win_y;
     } else {
-        monitor->bottom_bar_y = -(int32)bar_height;
+        monitor->bottom_bar_y = -bar_height;
     }
     return;
 }
@@ -644,8 +644,7 @@ int32
 get_text_pixels(char *text) {
     int32 width;
 
-    width = (int32)(draw_fontset_getwidth(draw, text)
-                    + (uint32)text_padding);
+    width = draw_fontset_getwidth(draw, text) + text_padding;
     return width;
 }
 
@@ -913,8 +912,9 @@ draw_status_text(StatusBar *status_bar, int32 monitor_width) {
         int32 text_pixels = block->max_x - block->min_x;
 
         if (text_pixels) {
-            draw_text(draw, x0 + block->min_x, 0, (uint32)text_pixels,
-                      bar_height, 0, &(status_bar->text[block->text_i]), 0);
+            draw_text(draw, x0 + block->min_x, 0, text_pixels,
+                      bar_height, 0,
+                      &(status_bar->text[block->text_i]), 0);
         }
     }
     return;
@@ -1236,7 +1236,7 @@ toggle_bar(int32 which) {
     }
 
     XMoveResizeWindow(display, bar_window, monitor->win_x, bar_y,
-                      (uint32)monitor->win_w, bar_height);
+                      (uint32)monitor->win_w, (uint32)bar_height);
 
     monitor_arrange(monitor);
     return;
@@ -1424,8 +1424,8 @@ setup_once(void) {
         color_map = DefaultColormap(display, screen);
     }
 
-    draw = draw_create(display, screen, root, (uint32)screen_width,
-                       (uint32)screen_height, visual, (uint32)depth, color_map);
+    draw = draw_create(display, screen, root, screen_width, screen_height,
+                       visual, depth, color_map);
     if (draw_fontset_create(draw, fonts, LENGTH(fonts)) == NULL) {
         error("Error loading fonts for dwm.\n");
         exit(EXIT_FAILURE);
@@ -1518,8 +1518,8 @@ configure_bars_windows(void) {
         if (monitor->top_bar_window == None) {
             window = XCreateWindow(display, root, monitor->win_x,
                                    monitor->top_bar_y, (uint32)monitor->win_w,
-                                   bar_height, 0, depth, InputOutput, visual,
-                                   value_mask, &window_attributes);
+                                   (uint32)bar_height, 0, depth, InputOutput,
+                                   visual, value_mask, &window_attributes);
             monitor->top_bar_window = window;
 
             XDefineCursor(display, monitor->top_bar_window,
@@ -1530,8 +1530,9 @@ configure_bars_windows(void) {
         if (monitor->bottom_bar_window == None) {
             window = XCreateWindow(display, root, monitor->win_x,
                                    monitor->bottom_bar_y,
-                                   (uint32)monitor->win_w, bar_height, 0,
-                                   depth, InputOutput, visual,
+                                   (uint32)monitor->win_w,
+                                   (uint32)bar_height, 0, depth, InputOutput,
+                                   visual,
                                    value_mask, &window_attributes);
             monitor->bottom_bar_window = window;
 

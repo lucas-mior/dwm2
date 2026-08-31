@@ -125,11 +125,11 @@ client_apply_size_hints(Client *client, int32 *x, int32 *y, int32 *w, int32 *h,
         }
     }
 
-    if (*h < (int32)bar_height) {
-        *h = (int32)bar_height;
+    if (*h < bar_height) {
+        *h = bar_height;
     }
-    if (*w < (int32)bar_height) {
-        *w = (int32)bar_height;
+    if (*w < bar_height) {
+        *w = bar_height;
     }
 
     if (resizehints || client->is_floating
@@ -974,8 +974,6 @@ client_update_icon(Client *client) {
     uint32 icon_width;
     uint32 icon_height;
     uint32 area_find = 0;
-    uint32 *picture_width = &client->icon_width;
-    uint32 *picture_height = &client->icon_height;
     int32 success;
 
     client_free_icon(client);
@@ -1079,8 +1077,8 @@ client_update_icon(Client *client) {
             icon_height = 1;
         }
     }
-    *picture_width = icon_width;
-    *picture_height = icon_height;
+    client->icon_width = (int32)icon_width;
+    client->icon_height = (int32)icon_height;
 
     pixel_find32 = (uint32 *)pixel_find;
     for (uint32 i = 0; i < width_find*height_find; i += 1) {
@@ -1093,8 +1091,10 @@ client_update_icon(Client *client) {
     }
 
     client->icon
-        = draw_picture_create_resized(draw, pixel_find32, width_find,
-                                      height_find, icon_width, icon_height);
+        = draw_picture_create_resized(draw, pixel_find32, (int32)width_find,
+                                      (int32)height_find,
+                                      client->icon_width,
+                                      client->icon_height);
     XFree(prop_return);
     return;
 }

@@ -40,7 +40,7 @@
 
 typedef struct DwmFont {
     Display *dpy;
-    uint32 h;
+    int32 h;
     XftFont *xfont;
     FcPattern *pattern;
     hb_font_t *hbfont;
@@ -50,13 +50,13 @@ typedef struct DwmFont {
 enum { ColFg, ColBg, ColBorder }; /* XftColor scheme index */
 
 typedef struct Draw {
-    uint32 w;
-    uint32 h;
+    int32 w;
+    int32 h;
     Display *dpy;
     int32 screen;
     Window root;
     Visual *visual;
-    uint32 depth;
+    int32 depth;
     Colormap cmap;
     Drawable drawable;
     Picture picture;
@@ -70,31 +70,31 @@ static Draw *draw_create(
     Display *dpy,
     int32 screen_number,
     Window root_window,
-    uint32 w,
-    uint32 h,
+    int32 w,
+    int32 h,
     Visual *draw_visual,
-    uint32 draw_depth,
+    int32 draw_depth,
     Colormap cmap
 );
-static void draw_resize(Draw *ctx, uint32 w, uint32 h);
+static void draw_resize(Draw *ctx, int32 w, int32 h);
 static void draw_free(Draw *ctx);
 
 /* DwmFont abstraction */
 static DwmFont *draw_fontset_create(Draw *ctx, char *fonts[],
                                     int64 fontcount);
 static void draw_fontset_free(DwmFont *font);
-static uint32 draw_fontset_getwidth(Draw *ctx, char *text);
-static uint32 draw_fontset_getwidth_clamp(
+static int32 draw_fontset_getwidth(Draw *ctx, char *text);
+static int32 draw_fontset_getwidth_clamp(
     Draw *ctx,
     char *text,
-    uint32 n
+    int32 n
 );
 static void draw_font_getexts(
     DwmFont *font,
     char *text,
-    uint32 len,
-    uint32 *w,
-    uint32 *h
+    int32 len,
+    int32 *w,
+    int32 *h
 );
 
 /* Colorscheme abstraction */
@@ -121,10 +121,10 @@ static void draw_setscheme(Draw *ctx, XftColor *scm);
 static Picture draw_picture_create_resized(
     Draw *ctx,
     uint32 *src,
-    uint32 src_w,
-    uint32 src_h,
-    uint32 dst_w,
-    uint32 dst_h
+    int32 src_w,
+    int32 src_h,
+    int32 dst_w,
+    int32 dst_h
 );
 
 /* Drawing functions */
@@ -132,8 +132,8 @@ static void draw_rect(
     Draw *ctx,
     int32 x,
     int32 y,
-    uint32 w,
-    uint32 h,
+    int32 w,
+    int32 h,
     int32 filled,
     int32 invert
 );
@@ -141,9 +141,9 @@ static int32 draw_text(
     Draw *ctx,
     int32 x,
     int32 y,
-    uint32 w,
-    uint32 h,
-    uint32 lpad,
+    int32 w,
+    int32 h,
+    int32 lpad,
     char *text,
     int32 invert
 );
@@ -151,8 +151,8 @@ static void draw_pic(
     Draw *ctx,
     int32 x,
     int32 y,
-    uint32 w,
-    uint32 h,
+    int32 w,
+    int32 h,
     Picture pic
 );
 
@@ -162,8 +162,8 @@ static void draw_map(
     Window win,
     int32 x,
     int32 y,
-    uint32 w,
-    uint32 h
+    int32 w,
+    int32 h
 );
 
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
@@ -301,8 +301,8 @@ struct Client {
     int32 fullscreen_border_pixels;
     uint32 tags;
 
-    uint32 icon_width;
-    uint32 icon_height;
+    int32 icon_width;
+    int32 icon_height;
 
     bool hintsvalid;
     bool is_fixed;
@@ -526,7 +526,7 @@ static int32 screen;
 static int32 screen_width;
 static int32 screen_height;
 
-static uint32 bar_height;
+static int32 bar_height;
 static int32 text_padding;
 static int32 (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32 numlock_mask = 0;
