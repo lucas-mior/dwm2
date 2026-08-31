@@ -439,6 +439,7 @@ draw_text(Draw *draw,
         int32 charexists = 0;
         char *scan = NULL;
         int32 chunk_len = 0;
+        uint32 glyph_count = 0;
 
         utf8charlen = utf8_decode_raw((char *)text, &utf8codepoint, 4);
 
@@ -573,12 +574,9 @@ draw_text(Draw *draw,
         hb_buffer_guess_segment_properties(buffer);
         hb_shape(usedfont->hbfont, buffer, NULL, 0);
 
-        uint32 glyph_count = 0;
-        hb_glyph_info_t *info = NULL;
-        hb_glyph_position_t *pos = NULL;
-
-        info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
-        pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
+        hb_glyph_info_t *info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
+        hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(buffer,
+                                                                 &glyph_count);
 
         uint32 i = 0;
         int32 overflow = 0;
