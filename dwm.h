@@ -498,7 +498,7 @@ static Monitor *monitor_from_rectangle(int32, int32, int32, int32);
 
 static Monitor *window_to_monitor(Window);
 static Client *window_to_client(Window);
-static int32 window_text_property(Window, Atom, char *, uint32);
+static int32 window_text_property(Window, Atom, char *, int32);
 static int64 window_state(Window);
 
 static void set_layout(Layout *);

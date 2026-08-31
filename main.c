@@ -683,13 +683,13 @@ window_state(Window window) {
 }
 
 int32
-window_text_property(Window window, Atom atom, char *text, uint32 size) {
+window_text_property(Window window, Atom atom, char *text, int32 size) {
     XTextProperty text_property;
     char **list_return = NULL;
     int32 count_return;
     int32 success;
 
-    if ((text == NULL) || (size == 0)) {
+    if ((text == NULL) || (size <= 0)) {
         return 0;
     }
     text[0] = '\0';
@@ -700,9 +700,8 @@ window_text_property(Window window, Atom atom, char *text, uint32 size) {
     }
 
     if (text_property.encoding == XA_STRING) {
-        int64 copy_size;
+        int64 copy_size = MIN(text_property.nitems, size - 1);
 
-        copy_size = MIN((int64)text_property.nitems, (int64)size - 1);
         memcpy64(text, (char *)text_property.value, copy_size);
         text[copy_size] = '\0';
         XFree(text_property.value);
@@ -712,9 +711,8 @@ window_text_property(Window window, Atom atom, char *text, uint32 size) {
     success = XmbTextPropertyToTextList(display, &text_property, &list_return,
                                         &count_return);
     if ((success >= Success) && (count_return > 0) && *list_return) {
-        int64 copy_size;
+        int64 copy_size = MIN(strlen32(*list_return), size - 1);
 
-        copy_size = MIN(strlen32(*list_return), (int64)size - 1);
         memcpy64(text, *list_return, copy_size);
         text[copy_size] = '\0';
         XFreeStringList(list_return);
