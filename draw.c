@@ -306,7 +306,7 @@ draw_picture_create_resized(Draw *draw,
 
         if ((origin = imlib_create_image_using_data((int32)src_w,
                                                     (int32)src_h,
-                                                    (DATA32 *)src)) == NULL) {
+                                                    (uint32 *)src)) == NULL) {
             return None;
         }
 
