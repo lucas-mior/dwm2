@@ -58,7 +58,7 @@ CPPFLAGS="$CPPFLAGS $(pkg-config --cflags imlib2)"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
-# CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
+CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 
 LDFLAGS="$LDFLAGS -lm"
 LDFLAGS="$LDFLAGS $(pkg-config --libs x11)"
