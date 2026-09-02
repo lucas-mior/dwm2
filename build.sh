@@ -89,11 +89,11 @@ debug)
     exe="bin/$program"
     ;;
 debug-fast)
-    CFLAGS="$CFLAGS -Wno-error -g2 -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -g2 -O2 -flto -march=native -ftree-vectorize"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 build)
-    CFLAGS="$CFLAGS -Wno-error -O2 -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -O2 -flto -march=native -ftree-vectorize"
     ;;
 check|clean|debug|debug-fast|fast_feedback|install|release|test|uninstall)
     ;;
