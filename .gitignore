@@ -9,3 +9,4 @@ tags
 *temp_delete_me*
 *.obj
 steps
+static-analyzers-warnings.txt
