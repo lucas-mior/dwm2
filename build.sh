@@ -81,7 +81,11 @@ fast_feedback)
     exit
     ;;
 check)
-    common_build_run_analyzers build
+    (
+        common_build_run_analyzers build
+    )
+    echo "static analysis finished."
+    exit
     ;;
 debug)
     CFLAGS="$CFLAGS -g3 -Og"
