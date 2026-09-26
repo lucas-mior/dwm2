@@ -911,10 +911,10 @@ main(void) {
 
     hb_position_scale(&pos, 0.5);
 
-    ASSERT_EQUAL(pos.x_advance, 32);
-    ASSERT_EQUAL(pos.y_advance, -16);
-    ASSERT_EQUAL(pos.x_offset, 8);
-    ASSERT_EQUAL(pos.y_offset, -4);
+    ASSERT_EQ(pos.x_advance, 32);
+    ASSERT_EQ(pos.y_advance, -16);
+    ASSERT_EQ(pos.x_offset, 8);
+    ASSERT_EQ(pos.y_offset, -4);
 
     exit(EXIT_SUCCESS);
 }
