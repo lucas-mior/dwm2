@@ -15,9 +15,9 @@
 static void
 draw_create_pixmap(Draw *ctx) {
     ASSERT(ctx != NULL);
-    ASSERT_POSITIVE(ctx->w);
-    ASSERT_POSITIVE(ctx->h);
-    ASSERT_POSITIVE(ctx->depth);
+    ASSERT_GT(ctx->w, 0);
+    ASSERT_GT(ctx->h, 0);
+    ASSERT_GT(ctx->depth, 0);
 
     ctx->drawable = XCreatePixmap(ctx->dpy, ctx->root,
                                   (uint32)ctx->w, (uint32)ctx->h,
