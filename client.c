@@ -310,10 +310,11 @@ client_get_atom_property(Client *client, Atom property) {
     Atom *prop_return = NULL;
     int32 success;
 
-    success = XGetWindowProperty(
-        display, client->window, property, 0L, SIZEOF(atom), False, XA_ATOM,
-        &actual_type_return, &actual_format_return, &nitems_return,
-        &nitems_return, (uchar **)&prop_return);
+    success = XGetWindowProperty(display, client->window, property, 0L,
+                                 SIZEOF(atom), False, XA_ATOM,
+                                 &actual_type_return, &actual_format_return,
+                                 &nitems_return, &nitems_return,
+                                 (uchar **)&prop_return);
     if (success == Success && prop_return) {
         atom = *prop_return;
         XFree(prop_return);
@@ -416,10 +417,12 @@ client_new(Window window, XWindowAttributes *window_attributes) {
         ulong bytes_after_return;
         Atom actual_type_return;
 
-        success = XGetWindowProperty(
-            display, client->window, net_atoms[NET_CLIENT_INFO], 0L, 2L, False,
-            XA_CARDINAL, &actual_type_return, &actual_format_return,
-            &nitems_return, &bytes_after_return, (uchar **)&prop_return);
+        success = XGetWindowProperty(display, client->window,
+                                     net_atoms[NET_CLIENT_INFO], 0L, 2L, False,
+                                     XA_CARDINAL, &actual_type_return,
+                                     &actual_format_return, &nitems_return,
+                                     &bytes_after_return,
+                                     (uchar **)&prop_return);
         if (success == Success && nitems_return == 2) {
             client->tags = (uint32)*prop_return;
             for (Monitor *mon = monitors; mon; mon = mon->next) {
@@ -977,10 +980,11 @@ client_update_icon(Client *client) {
     int32 success;
 
     client_free_icon(client);
-    success = XGetWindowProperty(
-        display, window, net_atoms[NET_WM_ICON], 0L, LONG_MAX, False,
-        AnyPropertyType, &actual_type_return, &actual_format_return,
-        &nitems_return, &bytes_after_return, (uchar **)&prop_return);
+    success = XGetWindowProperty(display, window, net_atoms[NET_WM_ICON],
+                                 0L, LONG_MAX, False, AnyPropertyType,
+                                 &actual_type_return, &actual_format_return,
+                                 &nitems_return, &bytes_after_return,
+                                 (uchar **)&prop_return);
     if (success != Success) {
         return;
     }

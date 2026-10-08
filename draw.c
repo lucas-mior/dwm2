@@ -259,6 +259,7 @@ draw_picture_create_resized(Draw *ctx,
         xrender_fixed_one = 1 << xrender_fixed_shift,
         xrender_scale_limit = 2,
     };
+    XRenderPictFormat *format;
     uint32 src_xw;
     uint32 src_xh;
     uint32 dst_xw;
@@ -303,13 +304,8 @@ draw_picture_create_resized(Draw *ctx,
         XPutImage(ctx->dpy, pm, gc, &img, 0, 0, 0, 0, src_xw, src_xh);
         XFreeGC(ctx->dpy, gc);
 
-        pic = XRenderCreatePicture(
-            ctx->dpy,
-            pm,
-            XRenderFindStandardFormat(ctx->dpy, PictStandardARGB32),
-            0,
-            NULL
-        );
+        format = XRenderFindStandardFormat(ctx->dpy, PictStandardARGB32);
+        pic = XRenderCreatePicture(ctx->dpy, pm, format, 0, NULL);
         XFreePixmap(ctx->dpy, pm);
 
         XRenderSetPictureFilter(ctx->dpy, pic, FilterBilinear, NULL, 0);
@@ -374,13 +370,8 @@ draw_picture_create_resized(Draw *ctx,
             imlib_free_image_and_decache();
             XFreeGC(ctx->dpy, gc);
 
-            pic = XRenderCreatePicture(
-                ctx->dpy,
-                pm,
-                XRenderFindStandardFormat(ctx->dpy, PictStandardARGB32),
-                0,
-                NULL
-            );
+            format = XRenderFindStandardFormat(ctx->dpy, PictStandardARGB32);
+            pic = XRenderCreatePicture(ctx->dpy, pm, format, 0, NULL);
             XFreePixmap(ctx->dpy, pm);
         }
 
