@@ -1,0 +1,8 @@
+
+Error: forbidden code patterns and formatting idioms:
+./client.c:313:XGetWindowProperty call breaks before the first argument
+./client.c:419:XGetWindowProperty call breaks before the first argument
+./client.c:980:XGetWindowProperty call breaks before the first argument
+./draw.c:306:XRenderCreatePicture call breaks before the first argument
+./draw.c:377:XRenderCreatePicture call breaks before the first argument
+In order to understand and learn how to fix the problems above, read cbase/c-guidelines.md and cbase/c-format.md
