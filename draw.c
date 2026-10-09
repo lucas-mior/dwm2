@@ -698,8 +698,7 @@ draw_text(Draw *ctx,
             int32 tmpw = 0;
             bool scaled = false;
 
-            XftGlyphExtents(ctx->dpy, usedfont->xfont, &glyph_index, 1,
-                            &ext);
+            XftGlyphExtents(ctx->dpy, usedfont->xfont, &glyph_index, 1, &ext);
             xft_adv = ext.xOff;
 
             if ((hb_adv > 0)
