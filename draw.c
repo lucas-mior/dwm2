@@ -479,7 +479,7 @@ draw_text(Draw *ctx,
         XFillRectangle(ctx->dpy, ctx->drawable, ctx->gc, x, y,
                        (uint32)w, (uint32)h);
         if ((d = XftDrawCreate(ctx->dpy, ctx->drawable, ctx->visual,
-                                ctx->cmap)) == NULL) {
+                               ctx->cmap)) == NULL) {
             return 0;
         }
 
