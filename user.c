@@ -243,8 +243,7 @@ user_more_masters(union Arg *arg) {
         number_slaves += 1;
     }
 
-    number_masters = MIN(monitor->number_masters + arg->i,
-                         number_slaves + 1);
+    number_masters = MIN(monitor->number_masters + arg->i, number_slaves + 1);
     number_masters = MAX(number_masters, 0);
 
     tag = monitor->pertag->tag;
