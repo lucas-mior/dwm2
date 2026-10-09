@@ -285,8 +285,7 @@ monitor_draw_bars(Monitor *monitor) {
                      client_tag_names[4], client_tag_names[5],
                      client->name);
 
-            draw_text(draw, draw_x, 0, w, bar_height, padding,
-                      buffer, 0);
+            draw_text(draw, draw_x, 0, w, bar_height, padding, buffer, 0);
             if (monitor->selected_client->is_floating) {
                 draw_rect(draw, draw_x + boxs, boxs, boxw, boxw,
                           monitor->selected_client->is_fixed, 0);
