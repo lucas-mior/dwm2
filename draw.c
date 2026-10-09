@@ -592,8 +592,7 @@ draw_text(Draw *ctx,
                     fatal(EXIT_FAILURE);
                 }
                 FcDefaultSubstitute(fcpattern);
-                match = XftFontMatch(ctx->dpy, ctx->screen, fcpattern,
-                                      &result);
+                match = XftFontMatch(ctx->dpy, ctx->screen, fcpattern, &result);
 
                 FcCharSetDestroy(fccharset);
                 FcPatternDestroy(fcpattern);
