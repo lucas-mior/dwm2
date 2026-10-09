@@ -244,8 +244,8 @@ monitor_draw_bars(Monitor *monitor) {
 
             draw_text(draw, draw_x, 0, icon_width + padding,
                       bar_height, 0, " ", urgent & 1 << i);
-            draw_pic(draw, draw_x, (bar_height - icon_height) / 2, icon_width,
-                     icon_height, icon);
+            draw_pic(draw, draw_x, (bar_height - icon_height) / 2,
+                     icon_width, icon_height, icon);
             draw_x += icon_width + padding;
             tags_widths[i] += icon_width + padding;
         }
@@ -278,10 +278,12 @@ monitor_draw_bars(Monitor *monitor) {
                 draw_setscheme(draw, scheme[SCHEME_NORMAL]);
             }
 
-            SNPRINTF(buffer, "{%s%s%s%s%s%s } %s", client_tag_names[0],
-                     client_tag_names[1], client_tag_names[2],
-                     client_tag_names[3], client_tag_names[4],
-                     client_tag_names[5], client->name);
+            SNPRINTF(buffer,
+                     "{%s%s%s%s%s%s } %s",
+                     client_tag_names[0], client_tag_names[1],
+                     client_tag_names[2], client_tag_names[3],
+                     client_tag_names[4], client_tag_names[5],
+                     client->name);
 
             draw_text(draw, draw_x, 0, w, bar_height, padding,
                       buffer, 0);

@@ -459,8 +459,8 @@ handler_xerror(Display *error_display, XErrorEvent *error_event) {
             goto default_handlers;
         }
     default:
-        error("Fatal error: request code=%d, error code=%d\n", request_code,
-              error_code);
+        error("Fatal error: request code=%d, error code=%d\n",
+              request_code, error_code);
         goto default_handlers;
     }
 

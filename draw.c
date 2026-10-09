@@ -860,8 +860,7 @@ draw_font_getexts(DwmFont *font,
         return;
     }
 
-    XftTextExtentsUtf8(font->dpy, font->xfont, (XftChar8 *)text,
-                       len, &ext);
+    XftTextExtentsUtf8(font->dpy, font->xfont, (XftChar8 *)text, len, &ext);
     if (w) {
         *w = ext.xOff;
     }
