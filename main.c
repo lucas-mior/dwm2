@@ -295,8 +295,7 @@ monitor_draw_bars(Monitor *monitor) {
             draw_rect(draw, draw_x, 0, w, bar_height, true, true);
         }
     }
-    draw_map(draw, monitor->top_bar_window, 0, 0, monitor->win_w,
-             bar_height);
+    draw_map(draw, monitor->top_bar_window, 0, 0, monitor->win_w, bar_height);
 
     return;
 }
