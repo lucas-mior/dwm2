@@ -1430,6 +1430,8 @@ setup_once(void) {
 
     /* init atoms */
     UTF8STRING = XInternAtom(display, "UTF8STRING", False);
+    status_pid_atom = XInternAtom(display, STATUS_PID_PROPERTY, False);
+    status_owner_atom = XInternAtom(display, STATUS_OWNER_SELECTION, False);
     WM_INTERN_ATOM(WM_PROTOCOLS);
     WM_INTERN_ATOM(WM_DELETE_WINDOW);
     WM_INTERN_ATOM(WM_STATE);

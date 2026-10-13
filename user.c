@@ -538,60 +538,63 @@ user_set_master_fact(union Arg *arg) {
 
 void
 user_signal_status_bar(union Arg *arg) {
-    pid_t status_program_pid;
+    Atom actual_type;
+    int32 actual_format;
+    ulong count;
+    ulong bytes_after;
+    ulong *identity = NULL;
+    Window owner;
+    pid_t pid;
     union sigval signal_value;
-    int32 pipefd[2];
-    char buffer[32] = {0};
-    int32 bytes_read;
+    int32 result;
 
     if (status_signal <= 0) {
         return;
     }
+
+    // Two CARDINALs: PID and the X11 selection owner's window ID.
+    // The property can survive a crash, but selection ownership cannot.
+    result = XGetWindowProperty(display, root, status_pid_atom, 0L, 2L,
+                                False, XA_CARDINAL, &actual_type,
+                                &actual_format, &count, &bytes_after,
+                                (uchar **)&identity);
+    if (result != Success || identity == NULL) {
+        if (identity != NULL) {
+            XFree(identity);
+        }
+        return;
+    }
+    if (actual_type != XA_CARDINAL || actual_format != 32 || count != 2
+        || bytes_after != 0 || identity[0] == 0
+        || identity[0] > INT32_MAX) {
+        XFree(identity);
+        return;
+    }
+
+    pid = (pid_t)identity[0];
+    owner = (Window)identity[1];
+    XFree(identity);
+
+    // Consult the server on every click: restarts need no cache invalidation.
+    // When dwmblocks2 dies, X11 removes ownership even after SIGKILL.
+    if (owner == None || XGetSelectionOwner(display, status_owner_atom)
+                             != owner) {
+        return;
+    }
+
 #if defined(SIGRTMIN)
     signal_value.sival_int = arg->i | ((SIGRTMIN + status_signal) << 3);
 #else
     signal_value.sival_int = arg->i | ((status_signal) << 3);
 #endif
-
-    if (pipe(pipefd) < 0) {
-        error("Error creating pipe: %s\n", strerror(errno));
-        return;
-    }
-
-    switch (fork()) {
-    case -1:
-        error("Error forking: %s\n", strerror(errno));
-        XCLOSE(&pipefd[0]);
-        XCLOSE(&pipefd[1]);
-        return;
-    case 0:
-        XCLOSE(&pipefd[0]);
-        xdup2(pipefd[1], STDOUT_FILENO);
-        XCLOSE(&pipefd[1]);
-        execlp("pidof", "pidof", "-s", STATUS_PROGRAM, NULL);
-        error("Error executing pidof.\n");
-        _exit(EXIT_FAILURE);
-    default:
-        XCLOSE(&pipefd[1]);
-        break;
-    }
-
-    if ((bytes_read
-            = (int32)read64(pipefd[0], buffer, SIZEOF(buffer) - 1)) <= 0) {
-        XCLOSE(&pipefd[0]);
-        return;
-    }
-    buffer[bytes_read] = '\0';
-    XCLOSE(&pipefd[0]);
-
-    status_program_pid = (pid_t)atoi2(buffer, bytes_read);
-    if (status_program_pid <= 0) {
-        return;
-    }
 #if OS_MAC || OS_OPENBSD
-    kill(status_program_pid, SIGUSR1);
+    if (kill(pid, SIGUSR1) < 0 && errno != ESRCH) {
+        error("Error signaling dwmblocks2: %s\n", strerror(errno));
+    }
 #else
-    sigqueue(status_program_pid, SIGUSR1, signal_value);
+    if (sigqueue(pid, SIGUSR1, signal_value) < 0 && errno != ESRCH) {
+        error("Error signaling dwmblocks2: %s\n", strerror(errno));
+    }
 #endif
     return;
 }

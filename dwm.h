@@ -179,8 +179,9 @@ static void draw_map(
 #define STATUS_BUFFER_SIZE 200
 #define STATUS_MAX_BLOCKS 40
 
-// Note: must be kept in sync with dwmblocks2
-#define STATUS_PROGRAM "dwmblocks2"
+// Note: must be kept in sync with dwmblocks2.
+#define STATUS_PID_PROPERTY "_DWMBLOCKS2_PID"
+#define STATUS_OWNER_SELECTION "_DWMBLOCKS2_OWNER"
 #define DWM_BAR_SEPARATOR ((char) 0x01)
 
 #define NET_INTERN_ATOM(X) do { \
@@ -533,6 +534,8 @@ static uint32 numlock_mask = 0;
 
 static Atom wm_atoms[WM_LAST];
 static Atom net_atoms[NET_LAST];
+static Atom status_pid_atom;
+static Atom status_owner_atom;
 static Display *display;
 static Visual *visual;
 static Colormap color_map;
