@@ -174,7 +174,7 @@ static void draw_map(
 #define TAGMASK   ((1u << (LENGTH(tags))) - 1u)
 #define PAUSE_MILIS_AS_NANOS(X) ((X)*1000*1000)
 
-#define TAG_DISPLAY_SIZE 32
+#define TAG_DISPLAY_SIZE 64
 #define ALT_TAB_GRAB_TRIES 10
 #define STATUS_BUFFER_SIZE 200
 #define STATUS_MAX_BLOCKS 40

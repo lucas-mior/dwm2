@@ -63,6 +63,7 @@ static char *tags_space[] = {
 static char tag_label_format[] = "%s: %s"; /* format of a tag label */
 static char tag_empty_format[] = "%s";     /* format of an empty tag */
 static char tag_label_delim[] = ":-_\n";   /* format of an empty tag */
+static int32 tag_terminal_title_characters = 10;
 
 static Rule rules[] = {
     /* xprop(1):

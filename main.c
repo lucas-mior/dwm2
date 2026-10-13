@@ -161,6 +161,7 @@ monitor_draw_bars(Monitor *monitor) {
     int32 padding = text_padding / 2;
     char tags_display[TAG_DISPLAY_SIZE] = {0};
     char *masters_names[LENGTH(tags)] = {0};
+    Client *master_clients[LENGTH(tags)] = {0};
     Client *clients_with_icon[LENGTH(tags)] = {0};
 
     if (monitor->show_bottom_bar) {
@@ -204,6 +205,7 @@ monitor_draw_bars(Monitor *monitor) {
 
                 XGetClassHint(display, client->window, &class_hint);
                 masters_names[i] = class_hint.res_class;
+                master_clients[i] = client;
                 XFree(class_hint.res_name);
             }
         }
@@ -212,22 +214,40 @@ monitor_draw_bars(Monitor *monitor) {
     draw_x = 0;
     for (int32 i = 0; i < LENGTH(tags); i += 1) {
         Client *client_with_icon = clients_with_icon[i];
+        Client *master_client = master_clients[i];
         char *master_name = masters_names[i];
+        bool tag_is_active = monitor->tagset[monitor->selected_tags] & (1 << i);
 
         if (master_name) {
             if (client_with_icon) {
                 SNPRINTF(tags_display, "%s", tags[i]);
             } else {
-                int32 n = tag_label_name_length(master_name);
-                master_name[n] = '\0';
-                SNPRINTF(tags_display, tag_label_format, tags[i], master_name);
+                char master_title[SIZEOF(master_client->name)];
+                char *label_name = master_name;
+
+                if (!tag_is_active
+                    && STREQUAL(master_name, strlen32(master_name), "st")) {
+                    int32 title_len = strlen32(master_client->name);
+                    int32 copy_len =
+                        utf8_byte_position(master_client->name, title_len,
+                                           tag_terminal_title_characters);
+
+                    memcpy64(master_title, master_client->name, copy_len);
+                    master_title[copy_len] = '\0';
+                    label_name = master_title;
+                } else {
+                    int32 n = tag_label_name_length(master_name);
+
+                    master_name[n] = '\0';
+                }
+                SNPRINTF(tags_display, tag_label_format, tags[i], label_name);
             }
         } else {
             SNPRINTF(tags_display, tag_empty_format, tags[i]);
         }
         tags_widths[i] = w = get_text_pixels(tags_display);
 
-        if (monitor->tagset[monitor->selected_tags] & 1 << i) {
+        if (tag_is_active) {
             draw_setscheme(draw, scheme[SCHEME_SELECTED]);
         } else {
             draw_setscheme(draw, scheme[SCHEME_NORMAL]);
