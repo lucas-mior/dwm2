@@ -58,7 +58,6 @@ handler_configure_request(XEvent *event) {
 
         if (conf_request_event->value_mask & CWBorderWidth) {
             client->border_pixels = conf_request_event->border_width;
-            XSync(display, False);
             return;
         }
 

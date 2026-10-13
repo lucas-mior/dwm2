@@ -822,7 +822,7 @@ draw_map(Draw *ctx, Window win, int32 x, int32 y, int32 w, int32 h) {
 
     XCopyArea(ctx->dpy, ctx->drawable, win, ctx->gc, x, y,
               (uint32)w, (uint32)h, x, y);
-    XSync(ctx->dpy, False);
+    XFlush(ctx->dpy);
     return;
 }
 
