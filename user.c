@@ -376,8 +376,8 @@ user_mouse_move(union Arg *arg) {
 
     XUngrabPointer(display, CurrentTime);
 
-    monitor_aux
-        = monitor_from_rectangle(client->x, client->y, client->w, client->h);
+    monitor_aux = monitor_from_rectangle(client->x, client->y,
+                                         client->w, client->h);
     if (monitor_aux != live_monitor) {
         client_send_monitor(client, monitor_aux);
         live_monitor = monitor_aux;
@@ -447,8 +447,8 @@ user_mouse_resize(union Arg *arg) {
             new_w = MAX(event.xmotion.x, 1);
             new_h = MAX(event.xmotion.y, 1);
 
-            monitor_floating
-                = !(live_monitor->layout[live_monitor->lay_i]->function);
+            monitor_floating =
+                !(live_monitor->layout[live_monitor->lay_i]->function);
             if (!client->is_floating && !monitor_floating) {
                 bool over_snap_x = abs(new_w - client->w) > snap_pixels;
                 bool over_snap_y = abs(new_h - client->h) > snap_pixels;
@@ -483,8 +483,8 @@ user_mouse_resize(union Arg *arg) {
         /* discard stale enter events */
     }
 
-    monitor
-        = monitor_from_rectangle(client->x, client->y, client->w, client->h);
+    monitor =
+        monitor_from_rectangle(client->x, client->y, client->w, client->h);
     if (monitor != live_monitor) {
         client_send_monitor(client, monitor);
         live_monitor = monitor;

@@ -1214,8 +1214,8 @@ monitor_restore_pertag(Monitor *monitor, Pertag *pertag) {
     monitor->master_fact = pertag->master_facts[tag];
     monitor->lay_i = pertag->selected_layouts[tag];
     monitor->layout[monitor->lay_i] = pertag->layouts[tag][monitor->lay_i];
-    monitor->layout[monitor->lay_i ^ 1]
-        = pertag->layouts[tag][monitor->lay_i ^ 1];
+    monitor->layout[monitor->lay_i ^ 1] =
+        pertag->layouts[tag][monitor->lay_i ^ 1];
 
     if (monitor->show_top_bar != pertag->top_bars[tag]) {
         toggle_bar(BAR_TOP);
@@ -1412,8 +1412,8 @@ setup_once(void) {
     vinfo_template.screen = screen;
     vinfo_template.depth = 32;
     vinfo_template.class = TrueColor;
-    visual_infos
-        = XGetVisualInfo(display, vinfo_mask, &vinfo_template, &nitems_return);
+    visual_infos = XGetVisualInfo(display,
+                                  vinfo_mask, &vinfo_template, &nitems_return);
 
     visual = NULL;
     for (int32 i = 0; i < nitems_return; i += 1) {
@@ -1503,10 +1503,14 @@ setup_once(void) {
 
     /* select events */
     window_attributes.cursor = cursor[CURSOR_NORMAL];
-    window_attributes.event_mask
-        = SubstructureRedirectMask | SubstructureNotifyMask | ButtonPressMask
-          | PointerMotionMask | EnterWindowMask | LeaveWindowMask
-          | StructureNotifyMask | PropertyChangeMask;
+    window_attributes.event_mask = SubstructureRedirectMask
+                                   | SubstructureNotifyMask
+                                   | ButtonPressMask
+                                   | PointerMotionMask
+                                   | EnterWindowMask
+                                   | LeaveWindowMask
+                                   | StructureNotifyMask
+                                   | PropertyChangeMask;
 
     XChangeWindowAttributes(display, root, CWEventMask | CWCursor,
                             &window_attributes);
@@ -1518,12 +1522,13 @@ setup_once(void) {
 
 void
 configure_bars_windows(void) {
-    XSetWindowAttributes window_attributes
-        = {.override_redirect = True,
-           .background_pixel = 0,
-           .border_pixel = 0,
-           .colormap = color_map,
-           .event_mask = ButtonPressMask | ExposureMask};
+    XSetWindowAttributes window_attributes = {
+        .override_redirect = True,
+        .background_pixel = 0,
+        .border_pixel = 0,
+        .colormap = color_map,
+        .event_mask = ButtonPressMask | ExposureMask
+    };
     XClassHint class_hint = {"dwm", "dwm"};
     ulong value_mask = CWOverrideRedirect | CWBackPixel | CWBorderPixel
                        | CWColormap | CWEventMask;
@@ -1683,8 +1688,7 @@ update_numlock_mask(void) {
     modmap = XGetModifierMapping(display);
     for (int32 i = 0; i < 8; i += 1) {
         for (int32 j = 0; j < modmap->max_keypermod; j += 1) {
-            KeyCode key_code
-                = modmap->modifiermap[i*modmap->max_keypermod + j];
+            KeyCode key_code = modmap->modifiermap[i*modmap->max_keypermod + j];
             if (key_code == XKeysymToKeycode(display, XK_Num_Lock)) {
                 numlock_mask = (1 << i);
             }

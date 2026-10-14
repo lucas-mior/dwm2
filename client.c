@@ -728,8 +728,8 @@ client_update_window_type(Client *client) {
     Atom window_type;
 
     state = client_get_atom_property(client, net_atoms[NET_WM_STATE]);
-    window_type
-        = client_get_atom_property(client, net_atoms[NET_WM_WINDOW_TYPE]);
+    window_type = client_get_atom_property(client,
+                                           net_atoms[NET_WM_WINDOW_TYPE]);
 
     if (state == net_atoms[NET_WM_STATE_FULLSCREEN]) {
         client_set_fullscreen(client, true);
@@ -940,8 +940,8 @@ client_update_size_hints(Client *client) {
     }
 
     has_maxes = client->max_w && client->max_h;
-    mins_match_maxes
-        = client->max_w == client->min_w && client->max_h == client->min_h;
+    mins_match_maxes =
+        client->max_w == client->min_w && client->max_h == client->min_h;
     client->is_fixed = has_maxes && mins_match_maxes;
 
     client->hintsvalid = true;
@@ -1094,11 +1094,11 @@ client_update_icon(Client *client) {
                           |((uint32)a << 24u);
     }
 
-    client->icon
-        = draw_picture_create_resized(draw, pixel_find32, (int32)width_find,
-                                      (int32)height_find,
-                                      client->icon_width,
-                                      client->icon_height);
+    client->icon = draw_picture_create_resized(draw,
+                                               pixel_find32, (int32)width_find,
+                                               (int32)height_find,
+                                               client->icon_width,
+                                               client->icon_height);
     XFree(prop_return);
     return;
 }

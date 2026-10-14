@@ -617,8 +617,8 @@ draw_text(Draw *ctx,
 
             if (usedfont == NULL) {
                 nomatches.idx += 1;
-                nomatches.codepoint[nomatches.idx % nomatches_len]
-                    = utf8codepoint;
+                nomatches.codepoint[nomatches.idx % nomatches_len] =
+                    utf8codepoint;
                 usedfont = ctx->fonts;
             }
         }
