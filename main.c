@@ -1309,9 +1309,9 @@ focus_next(bool direction) {
         if (last == all_clients) {
             last = NULL;
         }
-        for (client = all_clients; client->all_next != last;
-             client = client->all_next)
-            ;
+        for (client = all_clients;
+             client->all_next != last;
+             client = client->all_next);
     }
     client_focus(client);
     return;
