@@ -871,7 +871,7 @@ handler_button_press(XEvent *event) {
 
         do {
             x += tags_widths[i];
-        } while (button_x >= x && ++i < LENGTH(tags));
+        } while (button_x >= x && ((i += 1) < LENGTH(tags)));
 
         if (i < LENGTH(tags)) {
             click = CLICK_BAR_TAGS;
