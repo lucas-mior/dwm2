@@ -284,7 +284,7 @@ monitor_draw_bars(Monitor *monitor) {
             Client *client = monitor->selected_client;
             char buffer[SIZEOF(*(&client->name)) + 20];
 
-            char *client_tag_names[6] = {"", "", "", "", "", ""};
+            char *client_tag_names[6] = {0};
 
             for (uint32 i = 0; i < LENGTH(client_tag_names); i += 1) {
                 if (client->tags & (1 << i)) {
