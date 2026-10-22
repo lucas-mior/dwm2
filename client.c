@@ -324,7 +324,12 @@ client_get_atom_property(Client *client, Atom property) {
 
 void
 client_grab_buttons(Client *client, bool focused) {
-    uint32 modifiers[] = {0, LockMask, numlock_mask, numlock_mask | LockMask};
+    uint32 modifiers[] = {
+        0,
+        LockMask,
+        numlock_mask,
+        numlock_mask | LockMask,
+    };
 
     update_numlock_mask();
     XUngrabButton(display, AnyButton, AnyModifier, client->window);
