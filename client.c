@@ -1002,8 +1002,13 @@ client_update_icon(Client *client) {
 
         while (pointer < (end - 1)) {
             uint32 max_dim;
-            uint32 w = (uint32)*pointer++;
-            uint32 h = (uint32)*pointer++;
+            uint32 w;
+            uint32 h;
+
+            w = (uint32)*pointer;
+            pointer += 1;
+            h = (uint32)*pointer;
+            pointer += 1;
 
             if (w >= 16384 || h >= 16384) {
                 XFree(prop_return);
