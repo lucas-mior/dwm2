@@ -27,7 +27,7 @@ void
 client_apply_rules(Client *client) {
     char *class;
     char *instance;
-    XClassHint class_hint = {NULL, NULL};
+    XClassHint class_hint = {NULL, NULL,};
 
     client->is_floating = false;
     client->tags = 0;
