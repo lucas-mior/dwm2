@@ -745,7 +745,12 @@ window_text_property(Window window, Atom atom, char *text, int32 size) {
 
 void
 grab_keys(void) {
-    uint32 modifiers[] = {0, LockMask, numlock_mask, numlock_mask | LockMask};
+    uint32 modifiers[] = {
+        0,
+        LockMask,
+        numlock_mask,
+        numlock_mask | LockMask,
+    };
     int32 first_keycode;
     int32 end;
     int32 keysyms_per_keycode_return;
