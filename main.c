@@ -1532,7 +1532,7 @@ configure_bars_windows(void) {
         .background_pixel = 0,
         .border_pixel = 0,
         .colormap = color_map,
-        .event_mask = ButtonPressMask | ExposureMask
+        .event_mask = ButtonPressMask | ExposureMask,
     };
     XClassHint class_hint = {"dwm", "dwm"};
     ulong value_mask = CWOverrideRedirect | CWBackPixel | CWBorderPixel
