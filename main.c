@@ -1740,7 +1740,7 @@ status_update(void) {
 int32
 main(int32 argc, char *argv[]) {
     if ((argc == 2) && strequal("-v", argv[1])) {
-        printf("dwm-" QUOTE(VERSION) "\n");
+        fmt_printf("dwm-" QUOTE(VERSION) "\n");
         exit(EXIT_SUCCESS);
     } else if (argc != 1) {
         error("usage: dwm [-v]");
