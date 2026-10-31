@@ -794,11 +794,7 @@ draw_text(Draw *ctx,
 }
 
 static void
-draw_pic(Draw *ctx,
-         int32 x, int32 y,
-         int32 w, int32 h,
-         Picture pic
-) {
+draw_pic(Draw *ctx, int32 x, int32 y, int32 w, int32 h, Picture pic) {
     if (ctx == NULL) {
         return;
     }
