@@ -203,8 +203,7 @@ draw_clr_create(Draw *ctx, XftColor *dest, char *clrname, uint32 alpha) {
         return;
     }
 
-    if (!XftColorAllocName(ctx->dpy, ctx->visual, ctx->cmap,
-                           clrname, dest)) {
+    if (!XftColorAllocName(ctx->dpy, ctx->visual, ctx->cmap, clrname, dest)) {
         error("Error: cannot allocate color '%s'.\n", clrname);
         fatal(EXIT_FAILURE);
     }
