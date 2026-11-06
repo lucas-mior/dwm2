@@ -80,36 +80,18 @@ static void draw_resize(Draw *ctx, int32 w, int32 h);
 static void draw_free(Draw *ctx);
 
 /* DwmFont abstraction */
-static DwmFont *draw_fontset_create(Draw *ctx, char *fonts[],
-                                    int64 fontcount);
+static DwmFont *draw_fontset_create(Draw *ctx, char *fonts[], int64 fontcount);
 static void draw_fontset_free(DwmFont *font);
 static int32 draw_fontset_getwidth(Draw *ctx, char *text);
-static int32 draw_fontset_getwidth_clamp(
-    Draw *ctx,
-    char *text,
-    int32 n
-);
-static void draw_font_getexts(
-    DwmFont *font,
-    char *text,
-    int32 len,
-    int32 *w,
-    int32 *h
-);
+static int32 draw_fontset_getwidth_clamp(Draw *ctx, char *text, int32 n);
+static void draw_font_getexts(DwmFont *font, char *text, int32 len,
+                              int32 *w, int32 *h);
 
 /* Colorscheme abstraction */
-static void draw_clr_create(
-    Draw *ctx,
-    XftColor *dest,
-    char *clrname,
-    uint32 alpha
-);
-static XftColor *draw_scm_create(
-    Draw *ctx,
-    char *clrnames[],
-    uint32 alphas[],
-    int64 clrcount
-);
+static void draw_clr_create(Draw *ctx, XftColor *dest,
+                            char *clrname, uint32 alpha);
+static XftColor *draw_scm_create(Draw *ctx, char *clrnames[], uint32 alphas[],
+                                 int64 clrcount);
 
 /* Cursor abstraction */
 static Cursor draw_cur_create(Draw *ctx, int32 shape);
