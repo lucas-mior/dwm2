@@ -85,21 +85,22 @@ _Static_assert(LENGTH(tags) <= 31, "limit of 31 tags");
 #include "user.c"
 #include "client.c"
 
-static bool
-tag_label_is_delimiter(char character) {
-    for (int32 i = 0; tag_label_delim[i] != '\0'; i += 1) {
-        if (tag_label_delim[i] == character) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static int32
 tag_label_name_length(char *name) {
     int32 len = 0;
 
-    while ((name[len] != '\0') && !tag_label_is_delimiter(name[len])) {
+    while (name[len] != '\0') {
+        bool is_delimiter = false;
+
+        for (int32 i = 0; tag_label_delim[i] != '\0'; i += 1) {
+            if (tag_label_delim[i] == name[len]) {
+                is_delimiter = true;
+                break;
+            }
+        }
+        if (is_delimiter) {
+            break;
+        }
         len += 1;
     }
     return len;
