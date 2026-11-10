@@ -106,7 +106,6 @@ tag_label_name_length(char *name) {
     return len;
 }
 
-
 void
 monitor_arrange_monitor(Monitor *monitor) {
     SNPRINTF(monitor->layout_symbol,
