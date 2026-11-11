@@ -1755,17 +1755,16 @@ main(int32 argc, char *argv[]) {
         error("Error opening display.\n");
         exit(EXIT_FAILURE);
     }
-    {
-        xerrorxlib = XSetErrorHandler(handler_xerror_start);
 
-        /* this causes an error if some other window manager is running */
-        XSelectInput(display, DefaultRootWindow(display),
-                     SubstructureRedirectMask);
+    xerrorxlib = XSetErrorHandler(handler_xerror_start);
 
-        XSync(display, False);
-        XSetErrorHandler(handler_xerror);
-        XSync(display, False);
-    }
+    /* this causes an error if some other window manager is running */
+    XSelectInput(display, DefaultRootWindow(display),
+                 SubstructureRedirectMask);
+
+    XSync(display, False);
+    XSetErrorHandler(handler_xerror);
+    XSync(display, False);
 
     setup_once();
 

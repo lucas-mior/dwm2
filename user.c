@@ -559,7 +559,7 @@ user_signal_status_bar(union Arg *arg) {
                                 &actual_format, &count, &bytes_after,
                                 (uchar **)&identity);
     if (result != Success || identity == NULL) {
-        if (identity != NULL) {
+        if (identity) {
             XFree(identity);
         }
         return;
