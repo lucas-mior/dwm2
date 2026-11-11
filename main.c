@@ -1759,8 +1759,7 @@ main(int32 argc, char *argv[]) {
     xerrorxlib = XSetErrorHandler(handler_xerror_start);
 
     /* this causes an error if some other window manager is running */
-    XSelectInput(display, DefaultRootWindow(display),
-                 SubstructureRedirectMask);
+    XSelectInput(display, DefaultRootWindow(display), SubstructureRedirectMask);
 
     XSync(display, False);
     XSetErrorHandler(handler_xerror);
