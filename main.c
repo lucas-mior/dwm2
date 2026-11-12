@@ -342,7 +342,7 @@ monitor_layout_columns(Monitor *monitor) {
 
     number_masters = (int32)CLAMP(monitor->number_masters, 0, number_tiled);
     if (number_tiled > number_masters) {
-        if (number_masters != 0) {
+        if (number_masters > 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
         } else {
             mon_w = 0;
@@ -502,7 +502,7 @@ monitor_layout_tile(Monitor *monitor) {
 
     number_masters = (int32)CLAMP(monitor->number_masters, 0, number_tiled);
     if (number_tiled > number_masters) {
-        if (number_masters != 0) {
+        if (number_masters > 0) {
             mon_w = (int32)((float)monitor->win_w*monitor->master_fact);
         } else {
             mon_w = 0;

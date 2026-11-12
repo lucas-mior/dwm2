@@ -225,7 +225,7 @@ handler_expose(XEvent *event) {
     Monitor *monitor;
     XExposeEvent *expose_event = &event->xexpose;
 
-    if (expose_event->count != 0) {
+    if (expose_event->count > 0) {
         return;
     }
     if ((monitor = window_to_monitor(expose_event->window))) {
