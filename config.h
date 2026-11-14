@@ -232,10 +232,10 @@ static Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod4Mask
-#define TAGKEYS(KEY, TAG) \
-    { MODKEY, KEY, user_view_tag, {.ui = 1 << TAG} }, \
+#define TAGKEYS(KEY, TAG)                                            \
+    { MODKEY, KEY, user_view_tag, {.ui = 1 << TAG} },                \
     { MODKEY|ControlMask, KEY, user_toggle_view, {.ui = 1 << TAG} }, \
-    { MODKEY|ShiftMask, KEY, user_tag, {.ui = 1 << TAG} }, \
+    { MODKEY|ShiftMask, KEY, user_tag, {.ui = 1 << TAG} },           \
     { MODKEY|ControlMask|ShiftMask, KEY, user_toggle_tag, {.ui = 1 << TAG} },
 
 static Key keys[] = {

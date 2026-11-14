@@ -598,18 +598,18 @@ draw_text(Draw *ctx,
 
                 if (match) {
                     usedfont = xfont_create(ctx, NULL, match);
-                    if (usedfont) {
-                        if (XftCharExists(ctx->dpy, usedfont->xfont,
+                    if (usedfont
+                        && !XftCharExists(ctx->dpy, usedfont->xfont,
                                           utf8codepoint)) {
-                            for (curfont = ctx->fonts; curfont->next;
-                                 curfont = curfont->next) {
-                                /* NOP */
-                            }
-                            curfont->next = usedfont;
-                        } else {
-                            xfont_free(usedfont);
-                            usedfont = NULL;
+                        xfont_free(usedfont);
+                        usedfont = NULL;
+                    }
+                    if (usedfont) {
+                        for (curfont = ctx->fonts; curfont->next;
+                             curfont = curfont->next) {
+                            /* NOP */
                         }
+                        curfont->next = usedfont;
                     }
                 }
             }

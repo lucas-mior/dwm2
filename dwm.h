@@ -149,7 +149,7 @@ static void draw_map(
 );
 
 #define BUTTONMASK (ButtonPressMask|ButtonReleaseMask)
-#define CLEANMASK(mask)         \
+#define CLEANMASK(mask)              \
     (mask & ~(numlock_mask|LockMask) \
     & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define MOUSEMASK (BUTTONMASK|PointerMotionMask)
@@ -166,11 +166,11 @@ static void draw_map(
 #define STATUS_OWNER_SELECTION "_DWMBLOCKS2_OWNER"
 #define DWM_BAR_SEPARATOR ((char) 0x01)
 
-#define NET_INTERN_ATOM(X) do { \
+#define NET_INTERN_ATOM(X) do {                        \
     net_atoms[X] = XInternAtom(display, "_"#X, False); \
 } while (0)
 
-#define WM_INTERN_ATOM(X) do { \
+#define WM_INTERN_ATOM(X) do {                     \
     wm_atoms[X] = XInternAtom(display, #X, False); \
 } while (0)
 
