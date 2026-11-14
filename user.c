@@ -483,8 +483,8 @@ user_mouse_resize(union Arg *arg) {
         /* discard stale enter events */
     }
 
-    monitor =
-        monitor_from_rectangle(client->x, client->y, client->w, client->h);
+    monitor = monitor_from_rectangle(client->x, client->y,
+                                     client->w, client->h);
     if (monitor != live_monitor) {
         client_send_monitor(client, monitor);
         live_monitor = monitor;
